@@ -2,6 +2,7 @@
 
 [![license](https://img.shields.io/github/license/shimmeringbee/zstack.svg)](https://github.com/shimmeringbee/zstack/blob/master/LICENSE)
 [![standard-readme compliant](https://img.shields.io/badge/standard--readme-OK-green.svg)](https://github.com/RichardLitt/standard-readme)
+[![Actions Status](https://github.com/shimmeringbee/zstack/workflows/test/badge.svg)](https://github.com/shimmeringbee/zstack/actions)
 
 > Implementation of a ZNP and support code designed to interface with Texas Instruments Z-Stack, written in Go.
 
