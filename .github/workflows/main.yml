@@ -1,4 +1,5 @@
-name: "Shimmering Bee: Z-Stack ZNP"
+name: test
+
 on: [push]
 jobs:
 
