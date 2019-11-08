@@ -1,9 +1,9 @@
-# Shimmering Bee: Z-Stack ZNP
+# Shimmering Bee: Z-Stack
 
-[![license](https://img.shields.io/github/license/shimmeringbee/z-stack-znp.svg)](https://github.com/shimmeringbee/z-stack-znp/blob/master/LICENSE)
+[![license](https://img.shields.io/github/license/shimmeringbee/zstack.svg)](https://github.com/shimmeringbee/zstack/blob/master/LICENSE)
 [![standard-readme compliant](https://img.shields.io/badge/standard--readme-OK-green.svg)](https://github.com/RichardLitt/standard-readme)
 
-> Implementation of a Zigbee Network Processor designed to interface with Texas Instruments Z-Stack, written in Go.
+> Implementation of a ZNP and support code designed to interface with Texas Instruments Z-Stack, written in Go.
 
 ## Table of Contents
 
@@ -33,7 +33,7 @@ failed. This is a complete reimplementation of the library.
 Add an import and most IDEs will `go get` automatically, if it doesn't `go build` will fetch.
 
 ```go
-import "github.com/shimmeringbee/z-stack-znp"
+import "github.com/shimmeringbee/zstack"
 ```
 
 ## Usage
@@ -44,7 +44,7 @@ import "github.com/shimmeringbee/z-stack-znp"
 
 ## Contributing
 
-Feel free to dive in! [Open an issue](https://github.com/shimmeringbee/z-stack-znp/issues/new) or submit PRs.
+Feel free to dive in! [Open an issue](https://github.com/shimmeringbee/zstack/issues/new) or submit PRs.
 
 All Shimmering Bee projects follow the [Contributor Covenant](http://contributor-covenant.org/version/1/3/0/) Code of Conduct.
 
