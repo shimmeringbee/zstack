@@ -42,7 +42,15 @@ func (z *ZNP) AsyncRequest(frame unpi.Frame) error {
 }
 
 func (z *ZNP) SyncRequest(frame unpi.Frame) (unpi.Frame, error) {
-	return unpi.Frame{}, nil
+	if frame.MessageType != unpi.SREQ {
+		return unpi.Frame{}, FrameNotSynchronous
+	}
+
+	if err := unpi.Write(z.writer, frame); err != nil {
+		return unpi.Frame{}, err
+	}
+
+	return unpi.Read(z.reader)
 }
 
 func (z *ZNP) Receive() (unpi.Frame, error) {

@@ -70,7 +70,7 @@ func TestZnp(t *testing.T) {
 		defer z.Stop()
 
 		f := unpi.Frame{
-			MessageType: 0,
+			MessageType: unpi.AREQ,
 			Subsystem:   unpi.ZDO,
 			CommandID:   1,
 			Payload:     []byte{0x78},
@@ -134,6 +134,100 @@ func TestZnp(t *testing.T) {
 		defer z.Stop()
 
 		_, actualError := z.Receive()
+		assert.Error(t, actualError)
+		assert.Equal(t, expectedError, actualError)
+	})
+
+	t.Run("requesting a sync send with a non sync frame errors", func(t *testing.T) {
+		z := ZNP{}
+
+		z.start()
+		defer z.Stop()
+
+		f := unpi.Frame{
+			MessageType: unpi.AREQ,
+			Subsystem:   unpi.ZDO,
+			CommandID:   1,
+			Payload:     []byte{0x78},
+		}
+
+		_, err := z.SyncRequest(f)
+		assert.Error(t, err)
+		assert.True(t, errors.Is(err, FrameNotSynchronous))
+	})
+
+	t.Run("sync requests are sent to unpi and reply is read", func(t *testing.T) {
+		responseFrame := unpi.Frame{
+			MessageType: unpi.SRSP,
+			Subsystem:   unpi.ZDO,
+			CommandID:   1,
+			Payload:     []byte{},
+		}
+		responseBytes := responseFrame.Marshall()
+
+		beenWrittenBuffer := bytes.Buffer{}
+		toBeReadBuffer := bytes.Buffer{}
+
+		device := ControllableReaderWriter{
+			Writer: func(p []byte) (n int, err error) {
+				beenWrittenBuffer.Write(p)
+				toBeReadBuffer.Write(responseBytes)
+				return len(p), nil
+			},
+			Reader: func(p []byte) (n int, err error) {
+				return toBeReadBuffer.Read(p)
+			},
+		}
+
+		z := ZNP{
+			writer: &device,
+			reader: &device,
+		}
+
+		z.start()
+		defer z.Stop()
+
+		f := unpi.Frame{
+			MessageType: unpi.SREQ,
+			Subsystem:   unpi.ZDO,
+			CommandID:   1,
+			Payload:     []byte{0x78},
+		}
+
+		actualResponseFrame, err := z.SyncRequest(f)
+		assert.NoError(t, err)
+
+		expectedFrame := f.Marshall()
+		actualFrame := beenWrittenBuffer.Bytes()
+
+		assert.Equal(t, expectedFrame, actualFrame)
+		assert.Equal(t, responseFrame, actualResponseFrame)
+	})
+
+	t.Run("sync outgoing request passes error during write back to caller", func(t *testing.T) {
+		expectedError := errors.New("error")
+
+		device := ControllableReaderWriter{
+			Writer: func(p []byte) (n int, err error) {
+				return 0, expectedError
+			},
+		}
+
+		z := ZNP{
+			writer: &device,
+		}
+
+		z.start()
+		defer z.Stop()
+
+		f := unpi.Frame{
+			MessageType: unpi.SREQ,
+			Subsystem:   unpi.ZDO,
+			CommandID:   1,
+			Payload:     []byte{0x78},
+		}
+
+		_, actualError := z.SyncRequest(f)
 		assert.Error(t, actualError)
 		assert.Equal(t, expectedError, actualError)
 	})
