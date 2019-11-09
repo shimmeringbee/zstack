@@ -20,7 +20,7 @@ func TestZnp(t *testing.T) {
 		defer z.Stop()
 
 		f := unpi.Frame{
-			MessageType: 0,
+			MessageType: unpi.AREQ,
 			Subsystem:   unpi.ZDO,
 			CommandID:   1,
 			Payload:     []byte{0x78},
@@ -29,11 +29,28 @@ func TestZnp(t *testing.T) {
 		err := z.AsyncRequest(f)
 		assert.NoError(t, err)
 
-		f.MessageType = unpi.AREQ
 		expectedFrame := f.Marshall()
 		actualFrame := device.Bytes()
 
 		assert.Equal(t, expectedFrame, actualFrame)
+	})
+
+	t.Run("async outgoing request with non async request errors", func(t *testing.T) {
+		z := ZNP{}
+
+		z.start()
+		defer z.Stop()
+
+		f := unpi.Frame{
+			MessageType: unpi.SREQ,
+			Subsystem:   unpi.ZDO,
+			CommandID:   1,
+			Payload:     []byte{0x78},
+		}
+
+		err := z.AsyncRequest(f)
+		assert.Error(t, err)
+		assert.True(t, errors.Is(err, FrameNotAsynchronous))
 	})
 
 	t.Run("async outgoing request passes error back to caller", func(t *testing.T) {

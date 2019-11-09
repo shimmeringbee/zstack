@@ -1,6 +1,7 @@
 package zstack // import "github.com/shimmeringbee/zstack"
 
 import (
+	"errors"
 	"github.com/shimmeringbee/unpi"
 	"io"
 )
@@ -29,8 +30,14 @@ func (z *ZNP) Stop() {
 
 }
 
+var FrameNotAsynchronous = errors.New("frame not asynchronous")
+var FrameNotSynchronous = errors.New("frame not synchronous")
+
 func (z *ZNP) AsyncRequest(frame unpi.Frame) error {
-	frame.MessageType = unpi.AREQ
+	if frame.MessageType != unpi.AREQ {
+		return FrameNotAsynchronous
+	}
+
 	return unpi.Write(z.writer, frame)
 }
 
