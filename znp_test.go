@@ -98,6 +98,27 @@ func TestZnp(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, expectedFrameTwo, frame)
 	})
+
+	t.Run("receive passes error back to caller", func(t *testing.T) {
+		expectedError := errors.New("error")
+
+		device := ControllableReaderWriter{
+			Reader: func(p []byte) (n int, err error) {
+				return 0, expectedError
+			},
+		}
+
+		z := ZNP{
+			reader: &device,
+		}
+
+		z.start()
+		defer z.Stop()
+
+		_, actualError := z.Receive()
+		assert.Error(t, actualError)
+		assert.Equal(t, expectedError, actualError)
+	})
 }
 
 type ControllableReaderWriter struct {
