@@ -13,7 +13,6 @@ func TestZnp(t *testing.T) {
 		device := bytes.Buffer{}
 
 		z := ZNP{
-			reader: nil,
 			writer: &device,
 		}
 
@@ -46,7 +45,6 @@ func TestZnp(t *testing.T) {
 		}
 
 		z := ZNP{
-			reader: nil,
 			writer: &device,
 		}
 
@@ -63,6 +61,42 @@ func TestZnp(t *testing.T) {
 		actualError := z.AsyncRequest(f)
 		assert.Error(t, actualError)
 		assert.Equal(t, expectedError, actualError)
+	})
+
+	t.Run("receive frames from unpi", func(t *testing.T) {
+		device := bytes.Buffer{}
+
+		expectedFrameOne := unpi.Frame{
+			MessageType: 0,
+			Subsystem:   unpi.ZDO,
+			CommandID:   1,
+			Payload:     []byte{0x78},
+		}
+
+		expectedFrameTwo := unpi.Frame{
+			MessageType: 0,
+			Subsystem:   unpi.SYS,
+			CommandID:   2,
+			Payload:     []byte{},
+		}
+
+		device.Write(expectedFrameOne.Marshall())
+		device.Write(expectedFrameTwo.Marshall())
+
+		z := ZNP{
+			reader: &device,
+		}
+
+		z.start()
+		defer z.Stop()
+
+		frame, err := z.Receive()
+		assert.NoError(t, err)
+		assert.Equal(t, expectedFrameOne, frame)
+
+		frame, err = z.Receive()
+		assert.NoError(t, err)
+		assert.Equal(t, expectedFrameTwo, frame)
 	})
 }
 

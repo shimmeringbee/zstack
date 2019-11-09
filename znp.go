@@ -30,7 +30,7 @@ func (z *ZNP) Stop() {
 }
 
 func (z *ZNP) AsyncRequest(frame unpi.Frame) error {
-	return unpi.Write(z.writer, &frame)
+	return unpi.Write(z.writer, frame)
 }
 
 func (z *ZNP) SyncRequest(frame unpi.Frame) (unpi.Frame, error) {
@@ -38,5 +38,5 @@ func (z *ZNP) SyncRequest(frame unpi.Frame) (unpi.Frame, error) {
 }
 
 func (z *ZNP) Receive() (unpi.Frame, error) {
-	return unpi.Frame{}, nil
+	return unpi.Read(z.reader)
 }
