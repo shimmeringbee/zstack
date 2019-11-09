@@ -13,7 +13,9 @@ func TestZnp(t *testing.T) {
 		device := bytes.Buffer{}
 
 		z := ZNP{
-			writer: &device,
+			writer:          &device,
+			requestsChannel: make(chan OutgoingFrame, PermittedQueuedRequests),
+			requestsEnd:     make(chan bool),
 		}
 
 		z.start()
@@ -36,7 +38,10 @@ func TestZnp(t *testing.T) {
 	})
 
 	t.Run("async outgoing request with non async request errors", func(t *testing.T) {
-		z := ZNP{}
+		z := ZNP{
+			requestsChannel: make(chan OutgoingFrame, PermittedQueuedRequests),
+			requestsEnd:     make(chan bool),
+		}
 
 		z.start()
 		defer z.Stop()
@@ -63,7 +68,9 @@ func TestZnp(t *testing.T) {
 		}
 
 		z := ZNP{
-			writer: &device,
+			writer:          &device,
+			requestsChannel: make(chan OutgoingFrame, PermittedQueuedRequests),
+			requestsEnd:     make(chan bool),
 		}
 
 		z.start()
@@ -102,7 +109,9 @@ func TestZnp(t *testing.T) {
 		device.Write(expectedFrameTwo.Marshall())
 
 		z := ZNP{
-			reader: &device,
+			reader:          &device,
+			requestsChannel: make(chan OutgoingFrame, PermittedQueuedRequests),
+			requestsEnd:     make(chan bool),
 		}
 
 		z.start()
@@ -127,7 +136,9 @@ func TestZnp(t *testing.T) {
 		}
 
 		z := ZNP{
-			reader: &device,
+			reader:          &device,
+			requestsChannel: make(chan OutgoingFrame, PermittedQueuedRequests),
+			requestsEnd:     make(chan bool),
 		}
 
 		z.start()
@@ -139,7 +150,10 @@ func TestZnp(t *testing.T) {
 	})
 
 	t.Run("requesting a sync send with a non sync frame errors", func(t *testing.T) {
-		z := ZNP{}
+		z := ZNP{
+			requestsChannel: make(chan OutgoingFrame, PermittedQueuedRequests),
+			requestsEnd:     make(chan bool),
+		}
 
 		z.start()
 		defer z.Stop()
@@ -180,8 +194,10 @@ func TestZnp(t *testing.T) {
 		}
 
 		z := ZNP{
-			writer: &device,
-			reader: &device,
+			writer:          &device,
+			reader:          &device,
+			requestsChannel: make(chan OutgoingFrame, PermittedQueuedRequests),
+			requestsEnd:     make(chan bool),
 		}
 
 		z.start()
@@ -204,6 +220,40 @@ func TestZnp(t *testing.T) {
 		assert.Equal(t, responseFrame, actualResponseFrame)
 	})
 
+	t.Run("sync requests are sent to unpi and reply errors are handled", func(t *testing.T) {
+		expectedError := errors.New("error")
+
+		device := ControllableReaderWriter{
+			Writer: func(p []byte) (n int, err error) {
+				return len(p), nil
+			},
+			Reader: func(p []byte) (n int, err error) {
+				return 0, expectedError
+			},
+		}
+
+		z := ZNP{
+			writer:          &device,
+			reader:          &device,
+			requestsChannel: make(chan OutgoingFrame, PermittedQueuedRequests),
+			requestsEnd:     make(chan bool),
+		}
+
+		z.start()
+		defer z.Stop()
+
+		f := unpi.Frame{
+			MessageType: unpi.SREQ,
+			Subsystem:   unpi.ZDO,
+			CommandID:   1,
+			Payload:     []byte{0x78},
+		}
+
+		_, err := z.SyncRequest(f)
+		assert.Error(t, err)
+		assert.Equal(t, expectedError, err)
+	})
+
 	t.Run("sync outgoing request passes error during write back to caller", func(t *testing.T) {
 		expectedError := errors.New("error")
 
@@ -214,7 +264,9 @@ func TestZnp(t *testing.T) {
 		}
 
 		z := ZNP{
-			writer: &device,
+			writer:          &device,
+			requestsChannel: make(chan OutgoingFrame, PermittedQueuedRequests),
+			requestsEnd:     make(chan bool),
 		}
 
 		z.start()
