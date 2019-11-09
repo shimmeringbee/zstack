@@ -30,6 +30,7 @@ func (z *ZNP) Stop() {
 }
 
 func (z *ZNP) AsyncRequest(frame unpi.Frame) error {
+	frame.MessageType = unpi.AREQ
 	return unpi.Write(z.writer, frame)
 }
 

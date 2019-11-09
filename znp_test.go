@@ -29,6 +29,7 @@ func TestZnp(t *testing.T) {
 		err := z.AsyncRequest(f)
 		assert.NoError(t, err)
 
+		f.MessageType = unpi.AREQ
 		expectedFrame := f.Marshall()
 		actualFrame := device.Bytes()
 
