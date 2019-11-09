@@ -5,20 +5,19 @@ import (
 	"errors"
 	"github.com/shimmeringbee/unpi"
 	"github.com/stretchr/testify/assert"
+	"io"
 	"testing"
 )
 
 func TestZnp(t *testing.T) {
 	t.Run("async outgoing request writes bytes", func(t *testing.T) {
-		device := bytes.Buffer{}
-
-		z := ZNP{
-			writer:          &device,
-			requestsChannel: make(chan OutgoingFrame, PermittedQueuedRequests),
-			requestsEnd:     make(chan bool),
+		writer := bytes.Buffer{}
+		reader := EmptyReader{
+			End: make(chan bool),
 		}
+		defer reader.Done()
 
-		z.start()
+		z := New(&reader, &writer)
 		defer z.Stop()
 
 		f := unpi.Frame{
@@ -32,18 +31,19 @@ func TestZnp(t *testing.T) {
 		assert.NoError(t, err)
 
 		expectedFrame := f.Marshall()
-		actualFrame := device.Bytes()
+		actualFrame := writer.Bytes()
 
 		assert.Equal(t, expectedFrame, actualFrame)
 	})
 
 	t.Run("async outgoing request with non async request errors", func(t *testing.T) {
-		z := ZNP{
-			requestsChannel: make(chan OutgoingFrame, PermittedQueuedRequests),
-			requestsEnd:     make(chan bool),
+		writer := bytes.Buffer{}
+		reader := EmptyReader{
+			End: make(chan bool),
 		}
+		defer reader.Done()
 
-		z.start()
+		z := New(&reader, &writer)
 		defer z.Stop()
 
 		f := unpi.Frame{
@@ -61,19 +61,17 @@ func TestZnp(t *testing.T) {
 	t.Run("async outgoing request passes error back to caller", func(t *testing.T) {
 		expectedError := errors.New("error")
 
-		device := ControllableReaderWriter{
+		writer := ControllableReaderWriter{
 			Writer: func(p []byte) (n int, err error) {
 				return 0, expectedError
 			},
 		}
-
-		z := ZNP{
-			writer:          &device,
-			requestsChannel: make(chan OutgoingFrame, PermittedQueuedRequests),
-			requestsEnd:     make(chan bool),
+		reader := EmptyReader{
+			End: make(chan bool),
 		}
+		defer reader.Done()
 
-		z.start()
+		z := New(&reader, &writer)
 		defer z.Stop()
 
 		f := unpi.Frame{
@@ -89,7 +87,8 @@ func TestZnp(t *testing.T) {
 	})
 
 	t.Run("receive frames from unpi", func(t *testing.T) {
-		device := bytes.Buffer{}
+		reader := bytes.Buffer{}
+		writer := bytes.Buffer{}
 
 		expectedFrameOne := unpi.Frame{
 			MessageType: 0,
@@ -105,16 +104,10 @@ func TestZnp(t *testing.T) {
 			Payload:     []byte{},
 		}
 
-		device.Write(expectedFrameOne.Marshall())
-		device.Write(expectedFrameTwo.Marshall())
+		reader.Write(expectedFrameOne.Marshall())
+		reader.Write(expectedFrameTwo.Marshall())
 
-		z := ZNP{
-			reader:          &device,
-			requestsChannel: make(chan OutgoingFrame, PermittedQueuedRequests),
-			requestsEnd:     make(chan bool),
-		}
-
-		z.start()
+		z := New(&reader, &writer)
 		defer z.Stop()
 
 		frame, err := z.Receive()
@@ -126,36 +119,11 @@ func TestZnp(t *testing.T) {
 		assert.Equal(t, expectedFrameTwo, frame)
 	})
 
-	t.Run("receive passes error back to caller", func(t *testing.T) {
-		expectedError := errors.New("error")
-
-		device := ControllableReaderWriter{
-			Reader: func(p []byte) (n int, err error) {
-				return 0, expectedError
-			},
-		}
-
-		z := ZNP{
-			reader:          &device,
-			requestsChannel: make(chan OutgoingFrame, PermittedQueuedRequests),
-			requestsEnd:     make(chan bool),
-		}
-
-		z.start()
-		defer z.Stop()
-
-		_, actualError := z.Receive()
-		assert.Error(t, actualError)
-		assert.Equal(t, expectedError, actualError)
-	})
-
 	t.Run("requesting a sync send with a non sync frame errors", func(t *testing.T) {
-		z := ZNP{
-			requestsChannel: make(chan OutgoingFrame, PermittedQueuedRequests),
-			requestsEnd:     make(chan bool),
-		}
+		reader := bytes.Buffer{}
+		writer := bytes.Buffer{}
 
-		z.start()
+		z := New(&reader, &writer)
 		defer z.Stop()
 
 		f := unpi.Frame{
@@ -180,27 +148,20 @@ func TestZnp(t *testing.T) {
 		responseBytes := responseFrame.Marshall()
 
 		beenWrittenBuffer := bytes.Buffer{}
-		toBeReadBuffer := bytes.Buffer{}
+		r, w := io.Pipe()
 
 		device := ControllableReaderWriter{
 			Writer: func(p []byte) (n int, err error) {
 				beenWrittenBuffer.Write(p)
-				toBeReadBuffer.Write(responseBytes)
+				go func() { w.Write(responseBytes) }()
 				return len(p), nil
 			},
 			Reader: func(p []byte) (n int, err error) {
-				return toBeReadBuffer.Read(p)
+				return r.Read(p)
 			},
 		}
 
-		z := ZNP{
-			writer:          &device,
-			reader:          &device,
-			requestsChannel: make(chan OutgoingFrame, PermittedQueuedRequests),
-			requestsEnd:     make(chan bool),
-		}
-
-		z.start()
+		z := New(&device, &device)
 		defer z.Stop()
 
 		f := unpi.Frame{
@@ -220,56 +181,17 @@ func TestZnp(t *testing.T) {
 		assert.Equal(t, responseFrame, actualResponseFrame)
 	})
 
-	t.Run("sync requests are sent to unpi and reply errors are handled", func(t *testing.T) {
-		expectedError := errors.New("error")
-
-		device := ControllableReaderWriter{
-			Writer: func(p []byte) (n int, err error) {
-				return len(p), nil
-			},
-			Reader: func(p []byte) (n int, err error) {
-				return 0, expectedError
-			},
-		}
-
-		z := ZNP{
-			writer:          &device,
-			reader:          &device,
-			requestsChannel: make(chan OutgoingFrame, PermittedQueuedRequests),
-			requestsEnd:     make(chan bool),
-		}
-
-		z.start()
-		defer z.Stop()
-
-		f := unpi.Frame{
-			MessageType: unpi.SREQ,
-			Subsystem:   unpi.ZDO,
-			CommandID:   1,
-			Payload:     []byte{0x78},
-		}
-
-		_, err := z.SyncRequest(f)
-		assert.Error(t, err)
-		assert.Equal(t, expectedError, err)
-	})
-
 	t.Run("sync outgoing request passes error during write back to caller", func(t *testing.T) {
 		expectedError := errors.New("error")
 
-		device := ControllableReaderWriter{
+		reader := bytes.Buffer{}
+		writer := ControllableReaderWriter{
 			Writer: func(p []byte) (n int, err error) {
 				return 0, expectedError
 			},
 		}
 
-		z := ZNP{
-			writer:          &device,
-			requestsChannel: make(chan OutgoingFrame, PermittedQueuedRequests),
-			requestsEnd:     make(chan bool),
-		}
-
-		z.start()
+		z := New(&reader, &writer)
 		defer z.Stop()
 
 		f := unpi.Frame{
@@ -283,6 +205,20 @@ func TestZnp(t *testing.T) {
 		assert.Error(t, actualError)
 		assert.Equal(t, expectedError, actualError)
 	})
+}
+
+type EmptyReader struct {
+	End chan bool
+}
+
+func (e *EmptyReader) Done() {
+	e.End <- true
+}
+
+func (e *EmptyReader) Read(p []byte) (n int, err error) {
+	<-e.End
+
+	return 0, io.EOF
 }
 
 type ControllableReaderWriter struct {
