@@ -1,6 +1,7 @@
 package zstack // import "github.com/shimmeringbee/zstack"
 
 import (
+	"context"
 	"errors"
 	"github.com/shimmeringbee/unpi"
 	"io"
@@ -120,7 +121,9 @@ func (z *ZNP) AsyncRequest(frame unpi.Frame) error {
 	return z.writeFrame(frame)
 }
 
-func (z *ZNP) SyncRequest(frame unpi.Frame) (unpi.Frame, error) {
+var SyncRequestContextCancelled = errors.New("synchronous request context cancelled")
+
+func (z *ZNP) SyncRequest(ctx context.Context, frame unpi.Frame) (unpi.Frame, error) {
 	if frame.MessageType != unpi.SREQ {
 		return unpi.Frame{}, FrameNotSynchronous
 	}
@@ -132,7 +135,12 @@ func (z *ZNP) SyncRequest(frame unpi.Frame) (unpi.Frame, error) {
 		return unpi.Frame{}, err
 	}
 
-	return <-z.syncReceivingChannel, nil
+	select {
+	case frame := <-z.syncReceivingChannel:
+		return frame, nil
+	case <-ctx.Done():
+		return unpi.Frame{}, SyncRequestContextCancelled
+	}
 }
 
 func (z *ZNP) Receive() (unpi.Frame, error) {

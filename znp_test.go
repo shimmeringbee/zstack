@@ -2,11 +2,13 @@ package zstack
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"github.com/shimmeringbee/unpi"
 	"github.com/stretchr/testify/assert"
 	"io"
 	"testing"
+	"time"
 )
 
 func TestZnp(t *testing.T) {
@@ -133,7 +135,7 @@ func TestZnp(t *testing.T) {
 			Payload:     []byte{0x78},
 		}
 
-		_, err := z.SyncRequest(f)
+		_, err := z.SyncRequest(context.Background(), f)
 		assert.Error(t, err)
 		assert.True(t, errors.Is(err, FrameNotSynchronous))
 	})
@@ -171,7 +173,7 @@ func TestZnp(t *testing.T) {
 			Payload:     []byte{0x78},
 		}
 
-		actualResponseFrame, err := z.SyncRequest(f)
+		actualResponseFrame, err := z.SyncRequest(context.Background(), f)
 		assert.NoError(t, err)
 
 		expectedFrame := f.Marshall()
@@ -201,9 +203,30 @@ func TestZnp(t *testing.T) {
 			Payload:     []byte{0x78},
 		}
 
-		_, actualError := z.SyncRequest(f)
+		_, actualError := z.SyncRequest(context.Background(), f)
 		assert.Error(t, actualError)
 		assert.Equal(t, expectedError, actualError)
+	})
+
+	t.Run("sync outgoing context cancellation causes function to error", func(t *testing.T) {
+		reader := EmptyReader{End: make(chan bool)}
+		writer := bytes.Buffer{}
+
+		z := New(&reader, &writer)
+		defer z.Stop()
+
+		f := unpi.Frame{
+			MessageType: unpi.SREQ,
+			Subsystem:   unpi.ZDO,
+			CommandID:   1,
+			Payload:     []byte{0x78},
+		}
+
+		ctx, _ := context.WithTimeout(context.Background(), 1*time.Microsecond)
+
+		_, actualError := z.SyncRequest(ctx, f)
+		assert.Error(t, actualError)
+		assert.Equal(t, SyncRequestContextCancelled, actualError)
 	})
 }
 
