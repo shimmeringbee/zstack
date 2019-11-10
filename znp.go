@@ -5,16 +5,20 @@ import (
 	"github.com/shimmeringbee/unpi"
 	"io"
 	"log"
+	"sync"
 )
 
 type ZNP struct {
-	reader               io.Reader
-	writer               io.Writer
-	requestsChannel      chan OutgoingFrame
-	requestsEnd          chan bool
-	syncReceivingChannel chan chan unpi.Frame
-	receivingChannel     chan unpi.Frame
-	receivingEnd         chan bool
+	reader io.Reader
+	writer io.Writer
+
+	requestsChannel chan OutgoingFrame
+	requestsEnd     chan bool
+
+	syncReceivingMutex    *sync.Mutex
+	syncReceivingChannel  chan unpi.Frame
+	asyncReceivingChannel chan unpi.Frame
+	receivingEnd          chan bool
 }
 
 const PermittedQueuedRequests int = 50
@@ -26,13 +30,16 @@ type OutgoingFrame struct {
 
 func New(reader io.Reader, writer io.Writer) *ZNP {
 	z := &ZNP{
-		reader:               reader,
-		writer:               writer,
-		requestsChannel:      make(chan OutgoingFrame, PermittedQueuedRequests),
-		requestsEnd:          make(chan bool),
-		syncReceivingChannel: make(chan chan unpi.Frame, PermittedQueuedRequests),
-		receivingChannel:     make(chan unpi.Frame, PermittedQueuedRequests),
-		receivingEnd:         make(chan bool, 1),
+		reader: reader,
+		writer: writer,
+
+		requestsChannel: make(chan OutgoingFrame, PermittedQueuedRequests),
+		requestsEnd:     make(chan bool),
+
+		syncReceivingMutex:    &sync.Mutex{},
+		syncReceivingChannel:  make(chan unpi.Frame),
+		asyncReceivingChannel: make(chan unpi.Frame, PermittedQueuedRequests),
+		receivingEnd:          make(chan bool, 1),
 	}
 
 	z.start()
@@ -68,11 +75,10 @@ func (z *ZNP) handleReceiving() {
 			}
 		} else {
 			if frame.MessageType != unpi.SRSP {
-				z.receivingChannel <- frame
+				z.asyncReceivingChannel <- frame
 			} else {
 				select {
-				case syncChannel := <-z.syncReceivingChannel:
-					syncChannel <- frame
+				case z.syncReceivingChannel <- frame:
 				default:
 					log.Println("received synchronous response, but no receivers in channel")
 				}
@@ -119,17 +125,16 @@ func (z *ZNP) SyncRequest(frame unpi.Frame) (unpi.Frame, error) {
 		return unpi.Frame{}, FrameNotSynchronous
 	}
 
-	syncResponse := make(chan unpi.Frame)
+	z.syncReceivingMutex.Lock()
+	defer z.syncReceivingMutex.Unlock()
 
 	if err := z.writeFrame(frame); err != nil {
 		return unpi.Frame{}, err
 	}
 
-	z.syncReceivingChannel <- syncResponse
-
-	return <-syncResponse, nil
+	return <-z.syncReceivingChannel, nil
 }
 
 func (z *ZNP) Receive() (unpi.Frame, error) {
-	return <-z.receivingChannel, nil
+	return <-z.asyncReceivingChannel, nil
 }
