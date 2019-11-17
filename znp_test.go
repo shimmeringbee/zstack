@@ -7,6 +7,7 @@ import (
 	"github.com/shimmeringbee/unpi"
 	"github.com/stretchr/testify/assert"
 	"io"
+	"sync"
 	"testing"
 	"time"
 )
@@ -227,6 +228,103 @@ func TestZnp(t *testing.T) {
 		_, actualError := z.SyncRequest(ctx, f)
 		assert.Error(t, actualError)
 		assert.Equal(t, SyncRequestContextCancelled, actualError)
+	})
+
+	t.Run("wait for frame responds to multiple listeners when frame matches", func(t *testing.T) {
+		r, w := io.Pipe()
+		defer w.Close()
+
+		device := ControllableReaderWriter{
+			Writer: func(p []byte) (n int, err error) {
+				return len(p), nil
+			},
+			Reader: func(p []byte) (n int, err error) {
+				return r.Read(p)
+			},
+		}
+
+		z := New(&device, &device)
+		defer z.Stop()
+
+		expectedFrame := unpi.Frame{
+			MessageType: unpi.AREQ,
+			Subsystem:   unpi.SYS,
+			CommandID:   0x20,
+			Payload:     []byte{},
+		}
+
+		wg := &sync.WaitGroup{}
+
+		for i := 0; i < 2; i++ {
+			wg.Add(1)
+
+			go func() {
+				ctxWithTimeout, _ := context.WithTimeout(context.Background(), 20*time.Millisecond)
+				actualFrame, err := z.WaitForFrame(ctxWithTimeout, unpi.AREQ, unpi.SYS, 0x20)
+
+				assert.NoError(t, err)
+				assert.Equal(t, expectedFrame, actualFrame)
+
+				wg.Done()
+			}()
+		}
+
+		time.Sleep(10 * time.Millisecond)
+		data := expectedFrame.Marshall()
+		w.Write(data)
+
+		wg.Wait()
+	})
+
+	t.Run("wait for frame respects context timeout", func(t *testing.T) {
+		reader := EmptyReader{End: make(chan bool)}
+		defer reader.Done()
+
+		writer := bytes.Buffer{}
+
+		z := New(&reader, &writer)
+		defer z.Stop()
+
+		ctxWithTimeout, _ := context.WithTimeout(context.Background(), 25*time.Millisecond)
+		_, err := z.WaitForFrame(ctxWithTimeout, unpi.AREQ, unpi.SYS, 0x20)
+
+		assert.Error(t, err)
+		assert.True(t, errors.Is(err, WaitForFrameContextCancelled))
+	})
+
+	t.Run("wait for frame ignores unrelated frames", func(t *testing.T) {
+		r, w := io.Pipe()
+
+		device := ControllableReaderWriter{
+			Writer: func(p []byte) (n int, err error) {
+				return len(p), nil
+			},
+			Reader: func(p []byte) (n int, err error) {
+				return r.Read(p)
+			},
+		}
+
+		z := New(&device, &device)
+		defer z.Stop()
+
+		expectedFrame := unpi.Frame{
+			MessageType: unpi.AREQ,
+			Subsystem:   unpi.SYS,
+			CommandID:   0x21,
+			Payload:     nil,
+		}
+
+		go func() {
+			time.Sleep(10 * time.Millisecond)
+			data := expectedFrame.Marshall()
+			w.Write(data)
+		}()
+
+		ctxWithTimeout, _ := context.WithTimeout(context.Background(), 20*time.Millisecond)
+		_, err := z.WaitForFrame(ctxWithTimeout, unpi.AREQ, unpi.SYS, 0x20)
+
+		assert.Error(t, err)
+		assert.True(t, errors.Is(err, WaitForFrameContextCancelled))
 	})
 }
 

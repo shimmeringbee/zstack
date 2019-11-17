@@ -20,6 +20,9 @@ type ZNP struct {
 	syncReceivingChannel  chan unpi.Frame
 	asyncReceivingChannel chan unpi.Frame
 	receivingEnd          chan bool
+
+	waitForRequestsMutex *sync.Mutex
+	waitForRequests      map[WaitFrameRequest]bool
 }
 
 const PermittedQueuedRequests int = 50
@@ -27,6 +30,13 @@ const PermittedQueuedRequests int = 50
 type OutgoingFrame struct {
 	Frame        unpi.Frame
 	ErrorChannel chan error
+}
+
+type WaitFrameRequest struct {
+	MessageType unpi.MessageType
+	SubSystem   unpi.Subsystem
+	CommandID   byte
+	Response    chan unpi.Frame
 }
 
 func New(reader io.Reader, writer io.Writer) *ZNP {
@@ -41,6 +51,9 @@ func New(reader io.Reader, writer io.Writer) *ZNP {
 		syncReceivingChannel:  make(chan unpi.Frame),
 		asyncReceivingChannel: make(chan unpi.Frame, PermittedQueuedRequests),
 		receivingEnd:          make(chan bool, 1),
+
+		waitForRequestsMutex: &sync.Mutex{},
+		waitForRequests:      map[WaitFrameRequest]bool{},
 	}
 
 	z.start()
@@ -76,6 +89,7 @@ func (z *ZNP) handleReceiving() {
 			}
 		} else {
 			if frame.MessageType != unpi.SRSP {
+				z.serviceWaitForRequests(frame)
 				z.asyncReceivingChannel <- frame
 			} else {
 				select {
@@ -92,6 +106,34 @@ func (z *ZNP) handleReceiving() {
 		default:
 		}
 	}
+}
+
+func (z *ZNP) serviceWaitForRequests(frame unpi.Frame) {
+	z.waitForRequestsMutex.Lock()
+	defer z.waitForRequestsMutex.Unlock()
+
+	for req, _ := range z.waitForRequests {
+		if req.MessageType == frame.MessageType &&
+			req.SubSystem == frame.Subsystem &&
+			req.CommandID == frame.CommandID {
+
+			select {
+			case req.Response <- frame:
+			default:
+				log.Println("wait for matched, but no receivers in channel, probably timed out")
+			}
+
+			delete(z.waitForRequests, req)
+			close(req.Response)
+		}
+	}
+}
+
+func (z *ZNP) addWaitForRequest(request WaitFrameRequest) {
+	z.waitForRequestsMutex.Lock()
+	defer z.waitForRequestsMutex.Unlock()
+
+	z.waitForRequests[request] = true
 }
 
 func (z *ZNP) Stop() {
@@ -119,6 +161,26 @@ func (z *ZNP) AsyncRequest(frame unpi.Frame) error {
 	}
 
 	return z.writeFrame(frame)
+}
+
+var WaitForFrameContextCancelled = errors.New("wait for frame context cancelled")
+
+func (z *ZNP) WaitForFrame(ctx context.Context, messageType unpi.MessageType, subsystem unpi.Subsystem, commandID byte) (unpi.Frame, error) {
+	wfr := WaitFrameRequest{
+		MessageType: messageType,
+		SubSystem:   subsystem,
+		CommandID:   commandID,
+		Response:    make(chan unpi.Frame),
+	}
+
+	z.addWaitForRequest(wfr)
+
+	select {
+	case frame := <-wfr.Response:
+		return frame, nil
+	case <-ctx.Done():
+		return unpi.Frame{}, WaitForFrameContextCancelled
+	}
 }
 
 var SyncRequestContextCancelled = errors.New("synchronous request context cancelled")
