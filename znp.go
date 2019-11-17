@@ -23,6 +23,8 @@ type ZNP struct {
 
 	waitForRequestsMutex *sync.Mutex
 	waitForRequests      map[WaitFrameRequest]bool
+
+	messageLibrary MessageLibrary
 }
 
 const PermittedQueuedRequests int = 50
@@ -54,6 +56,8 @@ func New(reader io.Reader, writer io.Writer) *ZNP {
 
 		waitForRequestsMutex: &sync.Mutex{},
 		waitForRequests:      map[WaitFrameRequest]bool{},
+
+		messageLibrary: PopulateMessageLibrary(),
 	}
 
 	z.start()
