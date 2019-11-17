@@ -23,7 +23,7 @@ func PopulateMessageLibrary() MessageLibrary {
 	}
 
 	cl.Add(unpi.AREQ, unpi.SYS, SysResetRequestID, reflect.TypeOf(SysResetReq{}))
-	cl.Add(unpi.AREQ, unpi.SYS, SysResetIndidcationCommandID, reflect.TypeOf(SysResetInd{}))
+	cl.Add(unpi.AREQ, unpi.SYS, SysResetIndicationCommandID, reflect.TypeOf(SysResetInd{}))
 
 	cl.Add(unpi.SREQ, unpi.SYS, SysOSALNVWriteRequestID, reflect.TypeOf(SysOSALNVWrite{}))
 	cl.Add(unpi.SRSP, unpi.SYS, SysOSALNVWriteResponseID, reflect.TypeOf(SysOSALNVWriteResponse{}))
@@ -90,7 +90,7 @@ type SysResetInd struct {
 	HardwareRevision  uint8
 }
 
-const SysResetIndidcationCommandID uint8 = 0x80
+const SysResetIndicationCommandID uint8 = 0x80
 
 type SysOSALNVWrite struct {
 	NVItemID uint16

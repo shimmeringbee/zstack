@@ -40,12 +40,12 @@ func TestMessageLibrary(t *testing.T) {
 		ml := PopulateMessageLibrary()
 
 		expectedType := reflect.TypeOf(SysResetInd{})
-		actualType, found := ml.GetByIdentifier(unpi.AREQ, unpi.SYS, SysResetIndidcationCommandID)
+		actualType, found := ml.GetByIdentifier(unpi.AREQ, unpi.SYS, SysResetIndicationCommandID)
 
 		assert.True(t, found)
 		assert.Equal(t, expectedType, actualType)
 
-		expectedIdentity := MessageIdentity{MessageType: unpi.AREQ, Subsystem: unpi.SYS, CommandID: SysResetIndidcationCommandID}
+		expectedIdentity := MessageIdentity{MessageType: unpi.AREQ, Subsystem: unpi.SYS, CommandID: SysResetIndicationCommandID}
 		actualIdentity, found := ml.GetByObject(SysResetInd{})
 
 		assert.True(t, found)
