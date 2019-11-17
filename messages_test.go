@@ -24,12 +24,12 @@ func TestMessageLibrary(t *testing.T) {
 		ml := PopulateMessageLibrary()
 
 		expectedType := reflect.TypeOf(SysResetReq{})
-		actualType, found := ml.GetByIdentifier(unpi.AREQ, unpi.SYS, SysResetReqCommand)
+		actualType, found := ml.GetByIdentifier(unpi.AREQ, unpi.SYS, SysResetRequestID)
 
 		assert.True(t, found)
 		assert.Equal(t, expectedType, actualType)
 
-		expectedIdentity := MessageIdentity{MessageType: unpi.AREQ, Subsystem: unpi.SYS, CommandID: SysResetReqCommand}
+		expectedIdentity := MessageIdentity{MessageType: unpi.AREQ, Subsystem: unpi.SYS, CommandID: SysResetRequestID}
 		actualIdentity, found := ml.GetByObject(SysResetReq{})
 
 		assert.True(t, found)
@@ -40,13 +40,45 @@ func TestMessageLibrary(t *testing.T) {
 		ml := PopulateMessageLibrary()
 
 		expectedType := reflect.TypeOf(SysResetInd{})
-		actualType, found := ml.GetByIdentifier(unpi.AREQ, unpi.SYS, SysResetIndCommand)
+		actualType, found := ml.GetByIdentifier(unpi.AREQ, unpi.SYS, SysResetIndidcationCommandID)
 
 		assert.True(t, found)
 		assert.Equal(t, expectedType, actualType)
 
-		expectedIdentity := MessageIdentity{MessageType: unpi.AREQ, Subsystem: unpi.SYS, CommandID: SysResetIndCommand}
+		expectedIdentity := MessageIdentity{MessageType: unpi.AREQ, Subsystem: unpi.SYS, CommandID: SysResetIndidcationCommandID}
 		actualIdentity, found := ml.GetByObject(SysResetInd{})
+
+		assert.True(t, found)
+		assert.Equal(t, expectedIdentity, actualIdentity)
+	})
+
+	t.Run("verifies that SYS_OSAL_NV_WRITE is present", func(t *testing.T) {
+		ml := PopulateMessageLibrary()
+
+		expectedType := reflect.TypeOf(SysOSALNVWrite{})
+		actualType, found := ml.GetByIdentifier(unpi.SREQ, unpi.SYS, SysOSALNVWriteRequestID)
+
+		assert.True(t, found)
+		assert.Equal(t, expectedType, actualType)
+
+		expectedIdentity := MessageIdentity{MessageType: unpi.SREQ, Subsystem: unpi.SYS, CommandID: SysOSALNVWriteRequestID}
+		actualIdentity, found := ml.GetByObject(SysOSALNVWrite{})
+
+		assert.True(t, found)
+		assert.Equal(t, expectedIdentity, actualIdentity)
+	})
+
+	t.Run("verifies that SYS_OSAL_NV_WRITE response is present", func(t *testing.T) {
+		ml := PopulateMessageLibrary()
+
+		expectedType := reflect.TypeOf(SysOSALNVWriteResponse{})
+		actualType, found := ml.GetByIdentifier(unpi.SRSP, unpi.SYS, SysOSALNVWriteResponseID)
+
+		assert.True(t, found)
+		assert.Equal(t, expectedType, actualType)
+
+		expectedIdentity := MessageIdentity{MessageType: unpi.SRSP, Subsystem: unpi.SYS, CommandID: SysOSALNVWriteResponseID}
+		actualIdentity, found := ml.GetByObject(SysOSALNVWriteResponse{})
 
 		assert.True(t, found)
 		assert.Equal(t, expectedIdentity, actualIdentity)

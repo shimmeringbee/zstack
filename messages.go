@@ -22,8 +22,11 @@ func PopulateMessageLibrary() MessageLibrary {
 		typeToIdentity: make(map[reflect.Type]MessageIdentity),
 	}
 
-	cl.Add(unpi.AREQ, unpi.SYS, SysResetReqCommand, reflect.TypeOf(SysResetReq{}))
-	cl.Add(unpi.AREQ, unpi.SYS, SysResetIndCommand, reflect.TypeOf(SysResetInd{}))
+	cl.Add(unpi.AREQ, unpi.SYS, SysResetRequestID, reflect.TypeOf(SysResetReq{}))
+	cl.Add(unpi.AREQ, unpi.SYS, SysResetIndidcationCommandID, reflect.TypeOf(SysResetInd{}))
+
+	cl.Add(unpi.SREQ, unpi.SYS, SysOSALNVWriteRequestID, reflect.TypeOf(SysOSALNVWrite{}))
+	cl.Add(unpi.SRSP, unpi.SYS, SysOSALNVWriteResponseID, reflect.TypeOf(SysOSALNVWriteResponse{}))
 
 	return cl
 }
@@ -68,7 +71,7 @@ type SysResetReq struct {
 	ResetType ResetType
 }
 
-const SysResetReqCommand uint8 = 0x00
+const SysResetRequestID uint8 = 0x00
 
 type ResetReason uint8
 
@@ -87,4 +90,18 @@ type SysResetInd struct {
 	HardwareRevision  uint8
 }
 
-const SysResetIndCommand uint8 = 0x80
+const SysResetIndidcationCommandID uint8 = 0x80
+
+type SysOSALNVWrite struct {
+	NVItemID uint16
+	Offset   uint8
+	Value    []byte `bclength:"uint8"`
+}
+
+const SysOSALNVWriteRequestID uint8 = 0x09
+
+type SysOSALNVWriteResponse struct {
+	Status uint8
+}
+
+const SysOSALNVWriteResponseID uint8 = 0x09
