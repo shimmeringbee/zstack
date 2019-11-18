@@ -1,9 +1,59 @@
 package zstack
 
 import (
+	"context"
+	"errors"
+	"fmt"
+	"github.com/shimmeringbee/bytecodec"
 	"github.com/shimmeringbee/unpi"
 	"reflect"
 )
+
+func (z *ZNP) MessageRequestResponse(ctx context.Context, req interface{}, resp interface{}) error {
+	reqIdentity, reqFound := z.messageLibrary.GetByObject(req)
+	respIdentity, respFound := z.messageLibrary.GetByObject(resp)
+
+	if !reqFound || !respFound {
+		return errors.New("message has not been recognised")
+	}
+
+	requestPayload, err := bytecodec.Marshall(req)
+
+	if err != nil {
+		return err
+	}
+
+	requestFrame := unpi.Frame{
+		MessageType: reqIdentity.MessageType,
+		Subsystem:   reqIdentity.Subsystem,
+		CommandID:   reqIdentity.CommandID,
+		Payload:     requestPayload,
+	}
+
+	responseFrame := unpi.Frame{}
+
+	if reqIdentity.MessageType == unpi.SREQ {
+		responseFrame, err = z.SyncRequest(ctx, requestFrame)
+	} else {
+		if err := z.AsyncRequest(requestFrame); err != nil {
+			return err
+		}
+
+		responseFrame, err = z.WaitForFrame(ctx, respIdentity.MessageType, respIdentity.Subsystem, respIdentity.CommandID)
+	}
+
+	if err != nil {
+		return fmt.Errorf("bad sync request: %+v", err)
+	}
+
+	err = bytecodec.Unmarshall(responseFrame.Payload, resp)
+
+	if err != nil {
+		return nil
+	}
+
+	return nil
+}
 
 type MessageLibrary struct {
 	identityToType map[MessageIdentity]reflect.Type
@@ -56,6 +106,10 @@ func (cl *MessageLibrary) GetByIdentifier(messageType unpi.MessageType, subsyste
 func (cl *MessageLibrary) GetByObject(v interface{}) (MessageIdentity, bool) {
 	t := reflect.TypeOf(v)
 
+	if t.Kind() == reflect.Ptr {
+		t = t.Elem()
+	}
+
 	identity, found := cl.typeToIdentity[t]
 	return identity, found
 }
@@ -95,7 +149,7 @@ const SysResetIndicationCommandID uint8 = 0x80
 type SysOSALNVWrite struct {
 	NVItemID uint16
 	Offset   uint8
-	Value    []byte `bclength:"uint8"`
+	Value    []byte `bclength:"8"`
 }
 
 const SysOSALNVWriteRequestID uint8 = 0x09
