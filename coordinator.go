@@ -7,7 +7,7 @@ import (
 // Documentation about the CC2350 can be found at:
 // https://e2e.ti.com/cfs-file/__key/communityserver-discussions-components-files/158/3286.CC2530ZNP-Interface-Specification.pdf
 
-func (z *ZNP) Initialise(nc zigbee.NetworkConfiguration) (err error) {
+func Initialise(nc zigbee.NetworkConfiguration) (err error) {
 	// Perform Configuration and State Reset - NVRAM - ZCD_NV_STARTUP_OPTION (0x0003) 0x03 (Clear State, Clear Config)
 
 	// Reset (SOFT)
