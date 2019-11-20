@@ -20,6 +20,8 @@ func (z *ZStack) Initialise(ctx context.Context) error {
 
 	// Set Logical Type as COORDINATOR - NVRAM - ZCD_NV_LOGICAL_TYPE (0x0087) 0x00 (Coordinator) (01 = Router, 02 = End Device)
 
+	// Reset (SOFT)
+
 	// Enable Network Security - NVRAM - ZCD_NV_SECURITY_MODE (0x0064) 0x01 (Enable Security)
 
 	// Enable distribution of network keys - NVRAM - ZCD_NV_PRECFGKEYS_ENABLE (0x0063) 0x01 (Use precfg keys)
