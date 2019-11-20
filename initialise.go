@@ -1,8 +1,17 @@
 package zstack
 
-import "context"
+import (
+	"context"
+	"time"
+)
 
 func (z *ZStack) Initialise(ctx context.Context) error {
+	if err := Retry(ctx, 5*time.Second, 3, func(ctx context.Context) error {
+		return z.resetAdapter(ctx, Soft)
+	}); err != nil {
+		return err
+	}
+
 	// Reset (SOFT)
 
 	// Perform Configuration and State Reset - NVRAM - ZCD_NV_STARTUP_OPTION (0x0003) 0x03 (Clear State, Clear Config)
