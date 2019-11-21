@@ -54,7 +54,7 @@ func TestZStack_resetAdapter(t *testing.T) {
 
 		z := ZStack{RequestResponder: mrr}
 
-		ctx, cancel := context.WithTimeout(context.Background(), 50 * time.Millisecond)
+		ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
 		defer cancel()
 
 		err := z.resetAdapter(ctx, Soft)
@@ -70,7 +70,7 @@ func TestZStack_resetAdapter(t *testing.T) {
 
 		z := ZStack{RequestResponder: mrr}
 
-		ctx, cancel := context.WithTimeout(context.Background(), 50 * time.Millisecond)
+		ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
 		defer cancel()
 
 		err := z.resetAdapter(ctx, Soft)

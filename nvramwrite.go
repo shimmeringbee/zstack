@@ -116,7 +116,7 @@ type ZCDNVZDODirectCB struct {
 const ZCDNVChanListID uint16 = 0x0084
 
 type ZCDNVChanList struct {
-	Channels uint32
+	Channels [4]byte
 }
 
 const ZCDNVPANIDID uint16 = 0x0083
