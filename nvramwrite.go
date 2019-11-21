@@ -2,10 +2,44 @@ package zstack
 
 import (
 	"context"
+	"errors"
+	"fmt"
+	"github.com/shimmeringbee/bytecodec"
 	"github.com/shimmeringbee/zigbee"
+	"reflect"
 )
 
+var NVRAMWriteUnsuccessful = errors.New("nvram write unsuccessful")
+var NVRAMUnrecognised = errors.New("nvram write structure unrecognised")
+
 func (z *ZStack) writeNVRAM(ctx context.Context, v interface{}) error {
+	configId, found := nvMapping[reflect.TypeOf(v)]
+
+	if !found {
+		return NVRAMUnrecognised
+	}
+
+	configValue, err := bytecodec.Marshall(v)
+	if err != nil {
+		return err
+	}
+
+	writeRequest := SysOSALNVWriteReq{
+		NVItemID: configId,
+		Offset:   0,
+		Value:    configValue,
+	}
+
+	writeResponse := SysOSALNVWriteResp{}
+
+	if err := z.RequestResponder.MessageRequestResponse(ctx, writeRequest, &writeResponse); err != nil {
+		return err
+	}
+
+	if writeResponse.Status != ZSuccess {
+		return fmt.Errorf("%w: status = %v", NVRAMWriteUnsuccessful, writeResponse.Status)
+	}
+
 	return nil
 }
 
@@ -20,6 +54,20 @@ const SysOSALNVWriteReqID uint8 = 0x09
 type SysOSALNVWriteResp GenericZStackStatus
 
 const SysOSALNVWriteRespID uint8 = 0x09
+
+var nvMapping = map[reflect.Type]uint16{
+	reflect.TypeOf(NCDNVStartUpOption{}):    NCDNVStartUpOptionID,
+	reflect.TypeOf(ZCDNVLogicalType{}):      ZCDNVLogicalTypeID,
+	reflect.TypeOf(ZCDNVSecurityMode{}):     ZCDNVSecurityModeID,
+	reflect.TypeOf(ZCDNVPreCfgKeysEnable{}): ZCDNVPreCfgKeysEnableID,
+	reflect.TypeOf(ZCDNVPreCfgKey{}):        ZCDNVPreCfgKeyID,
+	reflect.TypeOf(ZCDNVZDODirectCB{}):      ZCDNVZDODirectCBID,
+	reflect.TypeOf(ZCDNVChanList{}):         ZCDNVChanListID,
+	reflect.TypeOf(ZCDNVPANID{}):            ZCDNVPANIDID,
+	reflect.TypeOf(ZCDNVExtPANID{}):         ZCDNVExtPANIDID,
+	reflect.TypeOf(ZCDNVUseDefaultTCLK{}):   ZCDNVUseDefaultTCLKID,
+	reflect.TypeOf(ZCDNVTCLKTableStart{}):   ZCDNVTCLKTableStartID,
+}
 
 const NCDNVStartUpOptionID uint16 = 0x0003
 

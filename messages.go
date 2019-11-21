@@ -13,6 +13,12 @@ func registerMessages(library *Library) {
 	library.Add(SRSP, SYS, SysOSALNVWriteRespID, SysOSALNVWriteResp{})
 }
 
+type ZStackStatus uint8
+
 type GenericZStackStatus struct {
-	Status uint8
+	Status ZStackStatus
 }
+
+const (
+	ZSuccess ZStackStatus = 0x00
+)

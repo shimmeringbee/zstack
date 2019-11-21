@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func Test_ResetMessages(t *testing.T) {
+func Test_resetMessages(t *testing.T) {
 	t.Run("verify SysResetReq marshals", func(t *testing.T) {
 		req := SysResetReq{ResetType: Soft}
 
@@ -46,7 +46,7 @@ func (m *MockRequestResponder) MessageRequestResponse(ctx context.Context, req i
 	return args.Error(0)
 }
 
-func TestZStack_ResetAdapter(t *testing.T) {
+func TestZStack_resetAdapter(t *testing.T) {
 	t.Run("verifies that a request response is made to unpi", func(t *testing.T) {
 		mrr := new(MockRequestResponder)
 
