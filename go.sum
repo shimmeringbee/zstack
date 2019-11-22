@@ -4,8 +4,6 @@ github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZb
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/shimmeringbee/bytecodec v0.0.0-20191116111328-f873abddc0ca h1:YVp0qaNSt+J34gXJ4C0nRr6xuRcKF+B+GlCMjsDOQwg=
 github.com/shimmeringbee/bytecodec v0.0.0-20191116111328-f873abddc0ca/go.mod h1:J/gvzi9IgGBHP1cBn++bqJ4tchSbgS10N2lmGMlqD3M=
-github.com/shimmeringbee/unpi v0.0.0-20191109184113-9b519c362ab2 h1:QwsCIIXBWrQEI+zk0/T2xlRkxZ3oLneZ/tgV4eMEigE=
-github.com/shimmeringbee/unpi v0.0.0-20191109184113-9b519c362ab2/go.mod h1:Pyfw4RHDBZeInZez1mL+LhokVvKCwgkCfV6hBL6nVIU=
 github.com/shimmeringbee/unpi v0.0.0-20191118200736-658498c3bd2b h1:kAWps0v8Jpjrn4HHDAz5cs68oBYI+aYo8CEj77rv8PY=
 github.com/shimmeringbee/unpi v0.0.0-20191118200736-658498c3bd2b/go.mod h1:Pyfw4RHDBZeInZez1mL+LhokVvKCwgkCfV6hBL6nVIU=
 github.com/shimmeringbee/unpi v0.0.0-20191119214321-2a3ee5a5c187 h1:2keeKLjacZ9dXJrTtYAOYGFkJO7wPZhDDES6McbkfoI=

@@ -2,11 +2,10 @@ package zstack
 
 import (
 	"context"
-	"time"
 )
 
 func (z *ZStack) Initialise(ctx context.Context) error {
-	if err := Retry(ctx, 5*time.Second, 3, func(ctx context.Context) error {
+	if err := Retry(ctx, DefaultZStackTimeout, DefaultZStackRetries, func(ctx context.Context) error {
 		return z.resetAdapter(ctx, Soft)
 	}); err != nil {
 		return err

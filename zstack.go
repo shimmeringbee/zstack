@@ -5,6 +5,7 @@ import (
 	"github.com/shimmeringbee/unpi/broker"
 	"github.com/shimmeringbee/unpi/library"
 	"io"
+	"time"
 )
 
 type RequestResponder interface {
@@ -14,6 +15,9 @@ type RequestResponder interface {
 type ZStack struct {
 	RequestResponder RequestResponder
 }
+
+const DefaultZStackTimeout = 5 * time.Second
+const DefaultZStackRetries = 3
 
 func New(uart io.ReadWriter) *ZStack {
 	ml := library.NewLibrary()
