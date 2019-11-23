@@ -14,7 +14,7 @@ func TestZStack_writeNVRAM(t *testing.T) {
 	t.Run("verifies that a request response is made to unpi", func(t *testing.T) {
 		mrr := new(MockRequestResponder)
 
-		mrr.On("MessageRequestResponse", mock.Anything, SysOSALNVWriteReq{
+		mrr.On("RequestResponse", mock.Anything, SysOSALNVWriteReq{
 			NVItemID: ZCDNVLogicalTypeID,
 			Offset:   0,
 			Value:    []byte{0x02},
@@ -47,7 +47,7 @@ func TestZStack_writeNVRAM(t *testing.T) {
 	t.Run("verifies that a request response with errors is raised", func(t *testing.T) {
 		mrr := new(MockRequestResponder)
 
-		mrr.On("MessageRequestResponse", mock.Anything, SysOSALNVWriteReq{
+		mrr.On("RequestResponse", mock.Anything, SysOSALNVWriteReq{
 			NVItemID: ZCDNVLogicalTypeID,
 			Offset:   0,
 			Value:    []byte{0x02},
@@ -81,7 +81,7 @@ func TestZStack_writeNVRAM(t *testing.T) {
 
 type FailingMockRequestResponse struct{}
 
-func (m *FailingMockRequestResponse) MessageRequestResponse(ctx context.Context, req interface{}, resp interface{}) error {
+func (m *FailingMockRequestResponse) RequestResponse(ctx context.Context, req interface{}, resp interface{}) error {
 	response, ok := resp.(*SysOSALNVWriteResp)
 
 	if !ok {
@@ -94,8 +94,8 @@ func (m *FailingMockRequestResponse) MessageRequestResponse(ctx context.Context,
 }
 
 func TestZStack_NVRAMStructs(t *testing.T) {
-	t.Run("NCDNVStartUpOption", func(t *testing.T) {
-		s := NCDNVStartUpOption{
+	t.Run("ZCDNVStartUpOption", func(t *testing.T) {
+		s := ZCDNVStartUpOption{
 			StartOption: 3,
 		}
 

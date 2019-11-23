@@ -8,6 +8,12 @@ github.com/shimmeringbee/unpi v0.0.0-20191118200736-658498c3bd2b h1:kAWps0v8Jpjr
 github.com/shimmeringbee/unpi v0.0.0-20191118200736-658498c3bd2b/go.mod h1:Pyfw4RHDBZeInZez1mL+LhokVvKCwgkCfV6hBL6nVIU=
 github.com/shimmeringbee/unpi v0.0.0-20191119214321-2a3ee5a5c187 h1:2keeKLjacZ9dXJrTtYAOYGFkJO7wPZhDDES6McbkfoI=
 github.com/shimmeringbee/unpi v0.0.0-20191119214321-2a3ee5a5c187/go.mod h1:MYXlvqOqrIksiJBc209E8DvznRbaDQqGknnC6/ldlv4=
+github.com/shimmeringbee/unpi v0.0.0-20191123164635-704cf6d17b3a h1:k5zf85VYdxfF5CrbVpqXexvT2O/vXZk0t40mmirEsxU=
+github.com/shimmeringbee/unpi v0.0.0-20191123164635-704cf6d17b3a/go.mod h1:MYXlvqOqrIksiJBc209E8DvznRbaDQqGknnC6/ldlv4=
+github.com/shimmeringbee/unpi v0.0.0-20191123174727-2712a4816b67 h1:+Bi0SKSBAYz5LQQ6b9flIW5+v3iBbmimrkvOc5j3Uzk=
+github.com/shimmeringbee/unpi v0.0.0-20191123174727-2712a4816b67/go.mod h1:MYXlvqOqrIksiJBc209E8DvznRbaDQqGknnC6/ldlv4=
+github.com/shimmeringbee/unpi v0.0.0-20191123175027-5ce2b99108cc h1:0QVFH2DekXHKXT4Nt26fXDJEQn/UlXh5LVyXxjfVv5o=
+github.com/shimmeringbee/unpi v0.0.0-20191123175027-5ce2b99108cc/go.mod h1:MYXlvqOqrIksiJBc209E8DvznRbaDQqGknnC6/ldlv4=
 github.com/shimmeringbee/zigbee v0.0.0-20191117130828-cab4fe16ac87 h1:Yi9tjP5tI85XvDdo9HLLAjMklomwmWGLe+DVxQCIjnE=
 github.com/shimmeringbee/zigbee v0.0.0-20191117130828-cab4fe16ac87/go.mod h1:WVZ5totAgMhUc1ubHym27LsKRnXv1MAiGyaDEs4dzak=
 github.com/shimmeringbee/zstack v0.0.0-20191118220231-acddb74ca28e/go.mod h1:U7Upz3GOefZyV1IA28N3v/iY4MLBqkujTspCZr5mv6k=

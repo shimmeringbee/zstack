@@ -32,7 +32,7 @@ func (z *ZStack) writeNVRAM(ctx context.Context, v interface{}) error {
 
 	writeResponse := SysOSALNVWriteResp{}
 
-	if err := z.RequestResponder.MessageRequestResponse(ctx, writeRequest, &writeResponse); err != nil {
+	if err := z.RequestResponder.RequestResponse(ctx, writeRequest, &writeResponse); err != nil {
 		return err
 	}
 
@@ -56,7 +56,7 @@ type SysOSALNVWriteResp GenericZStackStatus
 const SysOSALNVWriteRespID uint8 = 0x09
 
 var nvMapping = map[reflect.Type]uint16{
-	reflect.TypeOf(NCDNVStartUpOption{}):    NCDNVStartUpOptionID,
+	reflect.TypeOf(ZCDNVStartUpOption{}):    ZCDNVStartUpOptionID,
 	reflect.TypeOf(ZCDNVLogicalType{}):      ZCDNVLogicalTypeID,
 	reflect.TypeOf(ZCDNVSecurityMode{}):     ZCDNVSecurityModeID,
 	reflect.TypeOf(ZCDNVPreCfgKeysEnable{}): ZCDNVPreCfgKeysEnableID,
@@ -69,9 +69,9 @@ var nvMapping = map[reflect.Type]uint16{
 	reflect.TypeOf(ZCDNVTCLKTableStart{}):   ZCDNVTCLKTableStartID,
 }
 
-const NCDNVStartUpOptionID uint16 = 0x0003
+const ZCDNVStartUpOptionID uint16 = 0x0003
 
-type NCDNVStartUpOption struct {
+type ZCDNVStartUpOption struct {
 	StartOption uint8
 }
 

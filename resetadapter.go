@@ -3,7 +3,7 @@ package zstack
 import "context"
 
 func (z *ZStack) resetAdapter(ctx context.Context, resetType ResetType) error {
-	return z.RequestResponder.MessageRequestResponse(ctx, SysResetReq{ResetType: resetType}, SysResetInd{})
+	return z.RequestResponder.RequestResponse(ctx, SysResetReq{ResetType: resetType}, SysResetInd{})
 }
 
 type ResetType uint8

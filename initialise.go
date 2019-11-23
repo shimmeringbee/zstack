@@ -9,6 +9,9 @@ func (z *ZStack) Initialise(ctx context.Context) error {
 		func(invokeCtx context.Context) error {
 			return z.resetAdapter(invokeCtx, Soft)
 		},
+		func(invokeCtx context.Context) error {
+			return z.writeNVRAM(invokeCtx, ZCDNVStartUpOption{StartOption: 0x03})
+		},
 	}
 
 	for _, f := range initFunctions {

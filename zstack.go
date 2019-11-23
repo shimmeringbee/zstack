@@ -9,7 +9,7 @@ import (
 )
 
 type RequestResponder interface {
-	MessageRequestResponse(ctx context.Context, req interface{}, resp interface{}) error
+	RequestResponse(ctx context.Context, req interface{}, resp interface{}) error
 }
 
 type ZStack struct {
