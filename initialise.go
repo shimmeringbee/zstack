@@ -2,15 +2,65 @@ package zstack
 
 import (
 	"context"
+	"github.com/shimmeringbee/zigbee"
 )
 
-func (z *ZStack) Initialise(ctx context.Context) error {
+func (z *ZStack) Initialise(ctx context.Context, nc zigbee.NetworkConfiguration) error {
 	initFunctions := []func(context.Context) error{
 		func(invokeCtx context.Context) error {
 			return z.resetAdapter(invokeCtx, Soft)
 		},
 		func(invokeCtx context.Context) error {
 			return z.writeNVRAM(invokeCtx, ZCDNVStartUpOption{StartOption: 0x03})
+		},
+		func(invokeCtx context.Context) error {
+			return z.resetAdapter(invokeCtx, Soft)
+		},
+		func(invokeCtx context.Context) error {
+			return z.writeNVRAM(invokeCtx, ZCDNVLogicalType{LogicalType: Coordinator})
+		},
+		func(invokeCtx context.Context) error {
+			return z.resetAdapter(invokeCtx, Soft)
+		},
+		func(invokeCtx context.Context) error {
+			return z.writeNVRAM(invokeCtx, ZCDNVSecurityMode{Enabled: 1})
+		},
+		func(invokeCtx context.Context) error {
+			return z.writeNVRAM(invokeCtx, ZCDNVPreCfgKeysEnable{Enabled: 1})
+		},
+		func(invokeCtx context.Context) error {
+			return z.writeNVRAM(invokeCtx, ZCDNVPreCfgKey{NetworkKey: nc.NetworkKey})
+		},
+		func(invokeCtx context.Context) error {
+			return z.writeNVRAM(invokeCtx, ZCDNVZDODirectCB{Enabled: 1})
+		},
+		func(invokeCtx context.Context) error {
+			channelBits := 1 << nc.Channel
+
+			channelBytes := [4]byte{}
+			channelBytes[0] = byte((channelBits >> 24) & 0xff)
+			channelBytes[1] = byte((channelBits >> 16) & 0xff)
+			channelBytes[2] = byte((channelBits >> 8) & 0xff)
+			channelBytes[3] = byte((channelBits >> 0) & 0xff)
+
+			return z.writeNVRAM(invokeCtx, ZCDNVChanList{Channels: channelBytes})
+		},
+		func(invokeCtx context.Context) error {
+			return z.writeNVRAM(invokeCtx, ZCDNVPANID{PANID: nc.PANID})
+		},
+		func(invokeCtx context.Context) error {
+			return z.writeNVRAM(invokeCtx, ZCDNVExtPANID{ExtendedPANID: nc.ExtendedPANID})
+		},
+		func(invokeCtx context.Context) error {
+			return z.writeNVRAM(invokeCtx, ZCDNVUseDefaultTCLK{Enabled: 1})
+		},
+		func(invokeCtx context.Context) error {
+			return z.writeNVRAM(invokeCtx, ZCDNVTCLKTableStart{
+				Address:        zigbee.IEEEAddress{0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff},
+				NetworkKey:     zigbee.NetworkKey{0x5a, 0x69, 0x67, 0x42, 0x65, 0x65, 0x41, 0x6c, 0x6c, 0x69, 0x61, 0x6e, 0x63, 0x65, 0x30, 0x39},
+				TXFrameCounter: 0,
+				RXFrameCounter: 0,
+			})
 		},
 	}
 
@@ -19,36 +69,6 @@ func (z *ZStack) Initialise(ctx context.Context) error {
 			return err
 		}
 	}
-
-	return nil
-
-	// Reset (SOFT)
-
-	// Perform Configuration and State Reset - NVRAM - ZCD_NV_STARTUP_OPTION (0x0003) 0x03 (Clear State, Clear Config)
-
-	// Reset (SOFT)
-
-	// Set Logical Type as COORDINATOR - NVRAM - ZCD_NV_LOGICAL_TYPE (0x0087) 0x00 (Coordinator) (01 = Router, 02 = End Device)
-
-	// Reset (SOFT)
-
-	// Enable Network Security - NVRAM - ZCD_NV_SECURITY_MODE (0x0064) 0x01 (Enable Security)
-
-	// Enable distribution of network keys - NVRAM - ZCD_NV_PRECFGKEYS_ENABLE (0x0063) 0x01 (Use precfg keys)
-
-	// Set Network Key - NVRAM - ZCD_NV_PRECFGKEY (0x0062) [16]byte (Set network key)
-
-	// Set ZDO Direct Callback - NVRAM - ZCD_NV_ZDO_DIRECT_CB (0x008f) 0x01 (True, Don't write in ZDO_MSG_CB_INCOMING)
-
-	// Set Channels - NVRAM - ZCD_NV_CHANLIST (0x0084) Bitmap (Setting 1 statically uses that, multiple scan least busy)
-
-	// Set PAN ID - NVRAM - ZCD_NV_PANID (0x0083) [2]byte (Set PAN ID)
-
-	// Set Extended PAN ID - NVRAM - ZCD_NV_EXTPANID (0x002d) [8]byte (Set extended PAN ID)
-
-	// Set Enable TC Link Key - NVRAM - ZCD_NV_USE_DEFAULT_TCLK (0x006d) 0x01 (Enable TC Link Key)
-
-	// Set TC Link Key - NVRAM - ZCD_NV_TCLK_TABLE_START (0x0101) [20]byte (Default TC Link, more complex than just key structure)
 
 	return nil
 }
