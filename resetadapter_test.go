@@ -50,7 +50,7 @@ func TestZStack_resetAdapter(t *testing.T) {
 	t.Run("verifies that a request response is made to unpi", func(t *testing.T) {
 		mrr := new(MockRequestResponder)
 
-		mrr.On("RequestResponse", mock.Anything, SysResetReq{ResetType: Soft}, SysResetInd{}).Return(nil)
+		mrr.On("RequestResponse", mock.Anything, SysResetReq{ResetType: Soft}, &SysResetInd{}).Return(nil)
 
 		z := ZStack{RequestResponder: mrr}
 
@@ -66,7 +66,7 @@ func TestZStack_resetAdapter(t *testing.T) {
 	t.Run("verifies that a request response with errors is raised", func(t *testing.T) {
 		mrr := new(MockRequestResponder)
 
-		mrr.On("RequestResponse", mock.Anything, SysResetReq{ResetType: Soft}, SysResetInd{}).Return(errors.New("context expired"))
+		mrr.On("RequestResponse", mock.Anything, SysResetReq{ResetType: Soft}, &SysResetInd{}).Return(errors.New("context expired"))
 
 		z := ZStack{RequestResponder: mrr}
 
