@@ -5,12 +5,17 @@ import (
 	. "github.com/shimmeringbee/unpi/library"
 )
 
-func registerMessages(library *Library) {
-	library.Add(AREQ, SYS, SysResetReqID, SysResetReq{})
-	library.Add(AREQ, SYS, SysResetIndID, SysResetInd{})
+func registerMessages(l *Library) {
+	l.Add(AREQ, SYS, SysResetReqID, SysResetReq{})
+	l.Add(AREQ, SYS, SysResetIndID, SysResetInd{})
 
-	library.Add(SREQ, SYS, SysOSALNVWriteReqID, SysOSALNVWriteReq{})
-	library.Add(SRSP, SYS, SysOSALNVWriteRespID, SysOSALNVWriteResp{})
+	l.Add(SREQ, SYS, SysOSALNVWriteReqID, SysOSALNVWriteReq{})
+	l.Add(SRSP, SYS, SysOSALNVWriteRespID, SysOSALNVWriteResp{})
+
+	l.Add(SREQ, SAPI, SAPIZBStartRequestID, SAPIZBStartRequest{})
+	l.Add(SRSP, SAPI, SAPIZBStartResponseID, SAPIZBStartResponse{})
+
+	l.Add(AREQ, SAPI, SAPIZBStartConfirmID, SAPIZBStartConfirm{})
 }
 
 type ZStackStatus uint8

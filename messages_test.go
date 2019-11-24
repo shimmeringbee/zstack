@@ -67,4 +67,46 @@ func Test_registerMessages(t *testing.T) {
 		assert.True(t, found)
 		assert.Equal(t, reflect.TypeOf(SysOSALNVWriteResp{}), ty)
 	})
+
+	t.Run("SAPIZBStartRequest", func(t *testing.T) {
+		identity, found := ml.GetByObject(&SAPIZBStartRequest{})
+
+		assert.True(t, found)
+		assert.Equal(t, SREQ, identity.MessageType)
+		assert.Equal(t, SAPI, identity.Subsystem)
+		assert.Equal(t, uint8(0x00), identity.CommandID)
+
+		ty, found := ml.GetByIdentifier(SREQ, SAPI, 0x00)
+
+		assert.True(t, found)
+		assert.Equal(t, reflect.TypeOf(SAPIZBStartRequest{}), ty)
+	})
+
+	t.Run("SAPIZBStartResponse", func(t *testing.T) {
+		identity, found := ml.GetByObject(&SAPIZBStartResponse{})
+
+		assert.True(t, found)
+		assert.Equal(t, SRSP, identity.MessageType)
+		assert.Equal(t, SAPI, identity.Subsystem)
+		assert.Equal(t, uint8(0x00), identity.CommandID)
+
+		ty, found := ml.GetByIdentifier(SRSP, SAPI, 0x00)
+
+		assert.True(t, found)
+		assert.Equal(t, reflect.TypeOf(SAPIZBStartResponse{}), ty)
+	})
+
+	t.Run("SAPIZBStartResponse", func(t *testing.T) {
+		identity, found := ml.GetByObject(&SAPIZBStartConfirm{})
+
+		assert.True(t, found)
+		assert.Equal(t, AREQ, identity.MessageType)
+		assert.Equal(t, SAPI, identity.Subsystem)
+		assert.Equal(t, uint8(0x80), identity.CommandID)
+
+		ty, found := ml.GetByIdentifier(AREQ, SAPI, 0x80)
+
+		assert.True(t, found)
+		assert.Equal(t, reflect.TypeOf(SAPIZBStartConfirm{}), ty)
+	})
 }
