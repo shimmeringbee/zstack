@@ -21,7 +21,7 @@ func (z *ZStack) GetDeviceNetworkAddress(ctx context.Context) (zigbee.NetworkAdd
 func (z *ZStack) getDeviceInfo(ctx context.Context, parameter DeviceInfoParameter) ([8]byte, error) {
 	resp := SAPIZBGetDeviceInfoResp{}
 
-	if err := z.RequestResponder.RequestResponse(ctx, SAPIZBGetDeviceInfoReq{Parameter:parameter}, &resp); err != nil {
+	if err := z.requestResponder.RequestResponse(ctx, SAPIZBGetDeviceInfoReq{Parameter: parameter}, &resp); err != nil {
 		return [8]byte{}, err
 	}
 

@@ -96,20 +96,6 @@ func Test_registerMessages(t *testing.T) {
 		assert.Equal(t, reflect.TypeOf(SAPIZBStartResponse{}), ty)
 	})
 
-	t.Run("SAPIZBStartConfirm", func(t *testing.T) {
-		identity, found := ml.GetByObject(&SAPIZBStartConfirm{})
-
-		assert.True(t, found)
-		assert.Equal(t, AREQ, identity.MessageType)
-		assert.Equal(t, SAPI, identity.Subsystem)
-		assert.Equal(t, uint8(0x80), identity.CommandID)
-
-		ty, found := ml.GetByIdentifier(AREQ, SAPI, 0x80)
-
-		assert.True(t, found)
-		assert.Equal(t, reflect.TypeOf(SAPIZBStartConfirm{}), ty)
-	})
-
 	t.Run("SAPIZBPermitJoiningRequest", func(t *testing.T) {
 		identity, found := ml.GetByObject(&SAPIZBPermitJoiningRequest{})
 
@@ -164,5 +150,19 @@ func Test_registerMessages(t *testing.T) {
 
 		assert.True(t, found)
 		assert.Equal(t, reflect.TypeOf(SAPIZBGetDeviceInfoResp{}), ty)
+	})
+
+	t.Run("ZDOStateChangeInd", func(t *testing.T) {
+		identity, found := ml.GetByObject(&ZDOStateChangeInd{})
+
+		assert.True(t, found)
+		assert.Equal(t, AREQ, identity.MessageType)
+		assert.Equal(t, ZDO, identity.Subsystem)
+		assert.Equal(t, uint8(0xc0), identity.CommandID)
+
+		ty, found := ml.GetByIdentifier(AREQ, ZDO, 0xc0)
+
+		assert.True(t, found)
+		assert.Equal(t, reflect.TypeOf(ZDOStateChangeInd{}), ty)
 	})
 }

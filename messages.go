@@ -15,13 +15,13 @@ func registerMessages(l *Library) {
 	l.Add(SREQ, SAPI, SAPIZBStartRequestID, SAPIZBStartRequest{})
 	l.Add(SRSP, SAPI, SAPIZBStartResponseID, SAPIZBStartResponse{})
 
-	l.Add(AREQ, SAPI, SAPIZBStartConfirmID, SAPIZBStartConfirm{})
-
 	l.Add(SREQ, SAPI, SAPIZBPermitJoiningRequestID, SAPIZBPermitJoiningRequest{})
 	l.Add(SRSP, SAPI, SAPIZBPermitJoiningResponseID, SAPIZBPermitJoiningResponse{})
 
 	l.Add(SREQ, SAPI, SAPIZBGetDeviceInfoReqID, SAPIZBGetDeviceInfoReq{})
 	l.Add(SRSP, SAPI, SAPIZBGetDeviceInfoRespID, SAPIZBGetDeviceInfoResp{})
+
+	l.Add(AREQ, ZDO, ZDOStateChangeIndID, ZDOStateChangeInd{})
 }
 
 type ZStackStatus uint8

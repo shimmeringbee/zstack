@@ -32,7 +32,7 @@ func (z *ZStack) writeNVRAM(ctx context.Context, v interface{}) error {
 
 	writeResponse := SysOSALNVWriteResp{}
 
-	if err := z.RequestResponder.RequestResponse(ctx, writeRequest, &writeResponse); err != nil {
+	if err := z.requestResponder.RequestResponse(ctx, writeRequest, &writeResponse); err != nil {
 		return err
 	}
 

@@ -2,6 +2,7 @@ package zstack
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/shimmeringbee/zigbee"
 )
@@ -63,6 +64,17 @@ func (z *ZStack) Initialise(ctx context.Context, nc zigbee.NetworkConfiguration)
 				RXFrameCounter: 0,
 			})
 		},
+		func(invokeCtx context.Context) error {
+			address, err := z.GetDeviceIEEEAddress(ctx)
+
+			if err != nil {
+				return err
+			}
+
+			z.NetworkProperties.IEEEAddress = address
+
+			return nil
+		},
 	}
 
 	for _, f := range initFunctions {
@@ -71,26 +83,65 @@ func (z *ZStack) Initialise(ctx context.Context, nc zigbee.NetworkConfiguration)
 		}
 	}
 
+	if err := z.startZigbeeStack(ctx); err != nil {
+		return err
+	}
+
+	if err := Retry(ctx, DefaultZStackTimeout, DefaultZStackRetries, func(invokeCtx context.Context) error {
+		address, err := z.GetDeviceNetworkAddress(ctx)
+
+		if err != nil {
+			return err
+		}
+
+		z.NetworkProperties.NetworkAddress = address
+
+		return nil
+	}); err != nil {
+		return err
+	}
+
+	if err := Retry(ctx, DefaultZStackTimeout, DefaultZStackRetries, func(invokeCtx context.Context) error {
+		return z.DenyJoin(invokeCtx)
+	}); err != nil {
+		return err
+	}
+
 	return nil
 }
 
 func (z *ZStack) startZigbeeStack(ctx context.Context) error {
 	if err := Retry(ctx, DefaultZStackTimeout, DefaultZStackRetries, func(invokeCtx context.Context) error {
-		return z.RequestResponder.RequestResponse(invokeCtx, SAPIZBStartRequest{}, &SAPIZBStartResponse{})
+		return z.requestResponder.RequestResponse(invokeCtx, SAPIZBStartRequest{}, &SAPIZBStartResponse{})
 	}); err != nil {
 		return err
 	}
 
-	confirmation := SAPIZBStartConfirm{}
-	if err := z.Awaiter.Await(ctx, &confirmation); err != nil {
+	ch := make(chan bool, 1)
+	defer close(ch)
+
+	err, cancel := z.subscriber.Subscribe(&ZDOStateChangeInd{}, func(unmarshall func(v interface{}) error) {
+		stateChange := ZDOStateChangeInd{}
+		err := unmarshall(&stateChange)
+
+		if err == nil {
+			if stateChange.State == DeviceZBCoordinator {
+				ch <- true
+			}
+		}
+	})
+	defer cancel()
+
+	if err != nil {
 		return err
 	}
 
-	if confirmation.Status != ZBSuccess {
-		return fmt.Errorf("failed to start application on zigbee adapter: status %d", confirmation.Status)
+	select {
+	case <-ch:
+		return nil
+	case <-ctx.Done():
+		return errors.New("context expired while waiting for adapter start up")
 	}
-
-	return nil
 }
 
 type SAPIZBStartRequest struct{}
@@ -108,8 +159,15 @@ const (
 	ZBInit    ZBStartStatus = 0x22
 )
 
-type SAPIZBStartConfirm struct {
-	Status ZBStartStatus
+type ZDOState uint8
+
+const (
+	DeviceCoordinatorStarting ZDOState = 0x08
+	DeviceZBCoordinator       ZDOState = 0x09
+)
+
+type ZDOStateChangeInd struct {
+	State ZDOState
 }
 
-const SAPIZBStartConfirmID uint8 = 0x80
+const ZDOStateChangeIndID uint8 = 0xc0

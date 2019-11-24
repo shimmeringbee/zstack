@@ -20,7 +20,7 @@ func TestZStack_writeNVRAM(t *testing.T) {
 			Value:    []byte{0x02},
 		}, &SysOSALNVWriteResp{}).Return(nil)
 
-		z := ZStack{RequestResponder: mrr}
+		z := ZStack{requestResponder: mrr}
 
 		ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
 		defer cancel()
@@ -34,7 +34,7 @@ func TestZStack_writeNVRAM(t *testing.T) {
 	t.Run("verifies that write requests that fail raise an error", func(t *testing.T) {
 		mrr := &FailingMockRequestResponse{}
 
-		z := ZStack{RequestResponder: mrr}
+		z := ZStack{requestResponder: mrr}
 
 		ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
 		defer cancel()
@@ -53,7 +53,7 @@ func TestZStack_writeNVRAM(t *testing.T) {
 			Value:    []byte{0x02},
 		}, &SysOSALNVWriteResp{}).Return(errors.New("context expired"))
 
-		z := ZStack{RequestResponder: mrr}
+		z := ZStack{requestResponder: mrr}
 
 		ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
 		defer cancel()
@@ -67,7 +67,7 @@ func TestZStack_writeNVRAM(t *testing.T) {
 	t.Run("verifies that unknown structure raises an error", func(t *testing.T) {
 		mrr := new(MockRequestResponder)
 
-		z := ZStack{RequestResponder: mrr}
+		z := ZStack{requestResponder: mrr}
 
 		ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
 		defer cancel()

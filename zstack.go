@@ -17,9 +17,14 @@ type Awaiter interface {
 	Await(ctx context.Context, resp interface{}) error
 }
 
+type Subscriber interface {
+	Subscribe(message interface{}, callback func(unmarshall func(v interface{}) error)) (error, func())
+}
+
 type ZStack struct {
-	RequestResponder  RequestResponder
-	Awaiter           Awaiter
+	requestResponder  RequestResponder
+	awaiter           Awaiter
+	subscriber        Subscriber
 	NetworkProperties NetworkProperties
 }
 
@@ -47,7 +52,8 @@ func New(uart io.ReadWriter) *ZStack {
 	znp := broker.NewBroker(uart, uart, ml)
 
 	return &ZStack{
-		RequestResponder: znp,
-		Awaiter:          znp,
+		requestResponder: znp,
+		awaiter:          znp,
+		subscriber:       znp,
 	}
 }

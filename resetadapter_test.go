@@ -52,7 +52,7 @@ func TestZStack_resetAdapter(t *testing.T) {
 
 		mrr.On("RequestResponse", mock.Anything, SysResetReq{ResetType: Soft}, &SysResetInd{}).Return(nil)
 
-		z := ZStack{RequestResponder: mrr}
+		z := ZStack{requestResponder: mrr}
 
 		ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
 		defer cancel()
@@ -68,7 +68,7 @@ func TestZStack_resetAdapter(t *testing.T) {
 
 		mrr.On("RequestResponse", mock.Anything, SysResetReq{ResetType: Soft}, &SysResetInd{}).Return(errors.New("context expired"))
 
-		z := ZStack{RequestResponder: mrr}
+		z := ZStack{requestResponder: mrr}
 
 		ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
 		defer cancel()

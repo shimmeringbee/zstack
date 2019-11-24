@@ -21,7 +21,7 @@ func (z *ZStack) DenyJoin(ctx context.Context) error {
 func (z *ZStack) sendJoin(ctx context.Context, address zigbee.NetworkAddress, timeout uint8, newState JoinState) error {
 	response := SAPIZBPermitJoiningResponse{}
 
-	if err := z.RequestResponder.RequestResponse(ctx, SAPIZBPermitJoiningRequest{
+	if err := z.requestResponder.RequestResponse(ctx, SAPIZBPermitJoiningRequest{
 		Destination: address,
 		Timeout:     timeout,
 	}, &response); err != nil {

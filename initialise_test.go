@@ -44,6 +44,46 @@ func TestZStack_Initialise(t *testing.T) {
 			Payload:     nvramWriteResponse,
 		}).Times(11)
 
+		unpiMock.On(SREQ, SAPI, SAPIZBStartRequestID).Return(Frame{
+			MessageType: SRSP,
+			Subsystem:   SAPI,
+			CommandID:   SAPIZBStartResponseID,
+			Payload:     nil,
+		})
+
+		go func() {
+			time.Sleep(10 * time.Millisecond)
+			unpiMock.InjectOutgoing(Frame{
+				MessageType: AREQ,
+				Subsystem:   ZDO,
+				CommandID:   ZDOStateChangeIndID,
+				Payload:     []byte{0x09},
+			})
+		}()
+
+		unpiMock.On(SREQ, SAPI, SAPIZBGetDeviceInfoReqID).Return(
+			Frame{
+				MessageType: SRSP,
+				Subsystem:   SAPI,
+				CommandID:   SAPIZBGetDeviceInfoRespID,
+				Payload:     []byte{0x01, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f},
+			},
+			Frame{
+				MessageType: SRSP,
+				Subsystem:   SAPI,
+				CommandID:   SAPIZBGetDeviceInfoRespID,
+				Payload:     []byte{0x02, 0x08, 0x09, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
+			},
+		).Times(2)
+
+		unpiMock.On(SREQ, SAPI, SAPIZBPermitJoiningRequestID).Return(
+			Frame{
+				MessageType: SRSP,
+				Subsystem:   SAPI,
+				CommandID:   SAPIZBPermitJoiningResponseID,
+				Payload:     []byte{0x00},
+			})
+
 		nc := zigbee.NetworkConfiguration{
 			PANID:         [2]byte{0x01, 0x02},
 			ExtendedPANID: [8]byte{0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08},
@@ -69,6 +109,9 @@ func TestZStack_Initialise(t *testing.T) {
 		assert.Equal(t, []byte{0x2d, 0x00, 0x00, 0x08, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08}, nvramOn.CapturedCalls[8].Frame.Payload)
 		assert.Equal(t, []byte{0x6d, 0x00, 0x00, 0x01, 0x01}, nvramOn.CapturedCalls[9].Frame.Payload)
 		assert.Equal(t, []byte{0x01, 0x01, 0x00, 0x20, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x5a, 0x69, 0x67, 0x42, 0x65, 0x65, 0x41, 0x6c, 0x6c, 0x69, 0x61, 0x6e, 0x63, 0x65, 0x30, 0x39, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, nvramOn.CapturedCalls[10].Frame.Payload)
+
+		assert.Equal(t, zigbee.IEEEAddress{0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f}, zstack.NetworkProperties.IEEEAddress)
+		assert.Equal(t, zigbee.NetworkAddress{0x08, 0x09}, zstack.NetworkProperties.NetworkAddress)
 	})
 }
 
@@ -92,9 +135,9 @@ func TestZStack_startZigbeeStack(t *testing.T) {
 			time.Sleep(50 * time.Millisecond)
 			unpiMock.InjectOutgoing(Frame{
 				MessageType: AREQ,
-				Subsystem:   SAPI,
-				CommandID:   SAPIZBStartConfirmID,
-				Payload:     []byte{0x00},
+				Subsystem:   ZDO,
+				CommandID:   ZDOStateChangeIndID,
+				Payload:     []byte{0x09},
 			})
 		}()
 
@@ -104,8 +147,8 @@ func TestZStack_startZigbeeStack(t *testing.T) {
 		unpiMock.AssertCalls(t)
 	})
 
-	t.Run("starts zigbee stack errors when confirmation is not ZB_SUCCESS", func(t *testing.T) {
-		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	t.Run("context timeout while waiting for state change", func(t *testing.T) {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
@@ -118,16 +161,6 @@ func TestZStack_startZigbeeStack(t *testing.T) {
 			CommandID:   SAPIZBStartResponseID,
 			Payload:     nil,
 		})
-
-		go func() {
-			time.Sleep(50 * time.Millisecond)
-			unpiMock.InjectOutgoing(Frame{
-				MessageType: AREQ,
-				Subsystem:   SAPI,
-				CommandID:   SAPIZBStartConfirmID,
-				Payload:     []byte{0x22},
-			})
-		}()
 
 		err := zstack.startZigbeeStack(ctx)
 		assert.Error(t, err)
