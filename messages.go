@@ -16,6 +16,9 @@ func registerMessages(l *Library) {
 	l.Add(SRSP, SAPI, SAPIZBStartResponseID, SAPIZBStartResponse{})
 
 	l.Add(AREQ, SAPI, SAPIZBStartConfirmID, SAPIZBStartConfirm{})
+
+	l.Add(SREQ, SAPI, SAPIZBPermitJoiningRequestID, SAPIZBPermitJoiningRequest{})
+	l.Add(SRSP, SAPI, SAPIZBPermitJoiningResponseID, SAPIZBPermitJoiningResponse{})
 }
 
 type ZStackStatus uint8

@@ -13,7 +13,7 @@ import (
 
 func TestZStack_Initialise(t *testing.T) {
 	t.Run("test initialisation process", func(t *testing.T) {
-		ctx, cancel := context.WithTimeout(context.Background(), 2 * time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
@@ -74,7 +74,7 @@ func TestZStack_Initialise(t *testing.T) {
 
 func TestZStack_startZigbeeStack(t *testing.T) {
 	t.Run("starts zigbee stack and waits for confirmation", func(t *testing.T) {
-		ctx, cancel := context.WithTimeout(context.Background(), 2 * time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
@@ -105,7 +105,7 @@ func TestZStack_startZigbeeStack(t *testing.T) {
 	})
 
 	t.Run("starts zigbee stack errors when confirmation is not ZB_SUCCESS", func(t *testing.T) {
-		ctx, cancel := context.WithTimeout(context.Background(), 2 * time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()

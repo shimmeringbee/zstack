@@ -96,7 +96,7 @@ func Test_registerMessages(t *testing.T) {
 		assert.Equal(t, reflect.TypeOf(SAPIZBStartResponse{}), ty)
 	})
 
-	t.Run("SAPIZBStartResponse", func(t *testing.T) {
+	t.Run("SAPIZBStartConfirm", func(t *testing.T) {
 		identity, found := ml.GetByObject(&SAPIZBStartConfirm{})
 
 		assert.True(t, found)
@@ -108,5 +108,33 @@ func Test_registerMessages(t *testing.T) {
 
 		assert.True(t, found)
 		assert.Equal(t, reflect.TypeOf(SAPIZBStartConfirm{}), ty)
+	})
+
+	t.Run("SAPIZBPermitJoiningRequest", func(t *testing.T) {
+		identity, found := ml.GetByObject(&SAPIZBPermitJoiningRequest{})
+
+		assert.True(t, found)
+		assert.Equal(t, SREQ, identity.MessageType)
+		assert.Equal(t, SAPI, identity.Subsystem)
+		assert.Equal(t, uint8(0x08), identity.CommandID)
+
+		ty, found := ml.GetByIdentifier(SREQ, SAPI, 0x08)
+
+		assert.True(t, found)
+		assert.Equal(t, reflect.TypeOf(SAPIZBPermitJoiningRequest{}), ty)
+	})
+
+	t.Run("SAPIZBPermitJoiningResponse", func(t *testing.T) {
+		identity, found := ml.GetByObject(&SAPIZBPermitJoiningResponse{})
+
+		assert.True(t, found)
+		assert.Equal(t, SRSP, identity.MessageType)
+		assert.Equal(t, SAPI, identity.Subsystem)
+		assert.Equal(t, uint8(0x08), identity.CommandID)
+
+		ty, found := ml.GetByIdentifier(SRSP, SAPI, 0x08)
+
+		assert.True(t, found)
+		assert.Equal(t, reflect.TypeOf(SAPIZBPermitJoiningResponse{}), ty)
 	})
 }
