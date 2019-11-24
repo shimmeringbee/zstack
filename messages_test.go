@@ -137,4 +137,32 @@ func Test_registerMessages(t *testing.T) {
 		assert.True(t, found)
 		assert.Equal(t, reflect.TypeOf(SAPIZBPermitJoiningResponse{}), ty)
 	})
+
+	t.Run("SAPIZBGetDeviceInfoReq", func(t *testing.T) {
+		identity, found := ml.GetByObject(&SAPIZBGetDeviceInfoReq{})
+
+		assert.True(t, found)
+		assert.Equal(t, SREQ, identity.MessageType)
+		assert.Equal(t, SAPI, identity.Subsystem)
+		assert.Equal(t, uint8(0x06), identity.CommandID)
+
+		ty, found := ml.GetByIdentifier(SREQ, SAPI, 0x06)
+
+		assert.True(t, found)
+		assert.Equal(t, reflect.TypeOf(SAPIZBGetDeviceInfoReq{}), ty)
+	})
+
+	t.Run("SAPIZBGetDeviceInfoResp", func(t *testing.T) {
+		identity, found := ml.GetByObject(&SAPIZBGetDeviceInfoResp{})
+
+		assert.True(t, found)
+		assert.Equal(t, SRSP, identity.MessageType)
+		assert.Equal(t, SAPI, identity.Subsystem)
+		assert.Equal(t, uint8(0x06), identity.CommandID)
+
+		ty, found := ml.GetByIdentifier(SRSP, SAPI, 0x06)
+
+		assert.True(t, found)
+		assert.Equal(t, reflect.TypeOf(SAPIZBGetDeviceInfoResp{}), ty)
+	})
 }
