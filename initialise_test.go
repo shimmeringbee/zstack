@@ -8,10 +8,14 @@ import (
 	"github.com/shimmeringbee/zigbee"
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"time"
 )
 
 func TestZStack_Initialise(t *testing.T) {
 	t.Run("test initialisation process", func(t *testing.T) {
+		ctx, cancel := context.WithTimeout(context.Background(), 2 * time.Second)
+		defer cancel()
+
 		unpiMock := unpiTest.NewMockAdapter()
 		zstack := New(unpiMock)
 		defer unpiMock.Stop()
@@ -46,7 +50,7 @@ func TestZStack_Initialise(t *testing.T) {
 			NetworkKey:    [16]byte{0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08},
 			Channel:       zigbee.DefaultChannel,
 		}
-		err := zstack.Initialise(context.Background(), nc)
+		err := zstack.Initialise(ctx, nc)
 
 		assert.NoError(t, err)
 		unpiMock.AssertCalls(t)
@@ -65,5 +69,69 @@ func TestZStack_Initialise(t *testing.T) {
 		assert.Equal(t, []byte{0x2d, 0x00, 0x00, 0x08, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08}, nvramOn.CapturedCalls[8].Frame.Payload)
 		assert.Equal(t, []byte{0x6d, 0x00, 0x00, 0x01, 0x01}, nvramOn.CapturedCalls[9].Frame.Payload)
 		assert.Equal(t, []byte{0x01, 0x01, 0x00, 0x20, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x5a, 0x69, 0x67, 0x42, 0x65, 0x65, 0x41, 0x6c, 0x6c, 0x69, 0x61, 0x6e, 0x63, 0x65, 0x30, 0x39, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, nvramOn.CapturedCalls[10].Frame.Payload)
+	})
+}
+
+func TestZStack_startZigbeeStack(t *testing.T) {
+	t.Run("starts zigbee stack and waits for confirmation", func(t *testing.T) {
+		ctx, cancel := context.WithTimeout(context.Background(), 2 * time.Second)
+		defer cancel()
+
+		unpiMock := unpiTest.NewMockAdapter()
+		zstack := New(unpiMock)
+		defer unpiMock.Stop()
+
+		unpiMock.On(SREQ, SAPI, SAPIZBStartRequestID).Return(Frame{
+			MessageType: SRSP,
+			Subsystem:   SAPI,
+			CommandID:   SAPIZBStartResponseID,
+			Payload:     nil,
+		})
+
+		go func() {
+			time.Sleep(50 * time.Millisecond)
+			unpiMock.InjectOutgoing(Frame{
+				MessageType: AREQ,
+				Subsystem:   SAPI,
+				CommandID:   SAPIZBStartConfirmID,
+				Payload:     []byte{0x00},
+			})
+		}()
+
+		err := zstack.startZigbeeStack(ctx)
+		assert.NoError(t, err)
+
+		unpiMock.AssertCalls(t)
+	})
+
+	t.Run("starts zigbee stack errors when confirmation is not ZB_SUCCESS", func(t *testing.T) {
+		ctx, cancel := context.WithTimeout(context.Background(), 2 * time.Second)
+		defer cancel()
+
+		unpiMock := unpiTest.NewMockAdapter()
+		zstack := New(unpiMock)
+		defer unpiMock.Stop()
+
+		unpiMock.On(SREQ, SAPI, SAPIZBStartRequestID).Return(Frame{
+			MessageType: SRSP,
+			Subsystem:   SAPI,
+			CommandID:   SAPIZBStartResponseID,
+			Payload:     nil,
+		})
+
+		go func() {
+			time.Sleep(50 * time.Millisecond)
+			unpiMock.InjectOutgoing(Frame{
+				MessageType: AREQ,
+				Subsystem:   SAPI,
+				CommandID:   SAPIZBStartConfirmID,
+				Payload:     []byte{0x22},
+			})
+		}()
+
+		err := zstack.startZigbeeStack(ctx)
+		assert.Error(t, err)
+
+		unpiMock.AssertCalls(t)
 	})
 }

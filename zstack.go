@@ -12,8 +12,13 @@ type RequestResponder interface {
 	RequestResponse(ctx context.Context, req interface{}, resp interface{}) error
 }
 
+type Awaiter interface {
+	Await(ctx context.Context, resp interface{}) error
+}
+
 type ZStack struct {
 	RequestResponder RequestResponder
+	Awaiter Awaiter
 }
 
 const DefaultZStackTimeout = 5 * time.Second
@@ -27,5 +32,6 @@ func New(uart io.ReadWriter) *ZStack {
 
 	return &ZStack{
 		RequestResponder: znp,
+		Awaiter: znp,
 	}
 }

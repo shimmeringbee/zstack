@@ -2,6 +2,7 @@ package zstack
 
 import (
 	"context"
+	"fmt"
 	"github.com/shimmeringbee/zigbee"
 )
 
@@ -66,9 +67,49 @@ func (z *ZStack) Initialise(ctx context.Context, nc zigbee.NetworkConfiguration)
 
 	for _, f := range initFunctions {
 		if err := Retry(ctx, DefaultZStackTimeout, DefaultZStackRetries, f); err != nil {
-			return err
+			return fmt.Errorf("failed during configuration and initialisation: %w", err)
 		}
 	}
 
 	return nil
 }
+
+func (z *ZStack) startZigbeeStack(ctx context.Context) error {
+	if err := Retry(ctx, DefaultZStackTimeout, DefaultZStackRetries, func(invokeCtx context.Context) error {
+		return z.RequestResponder.RequestResponse(invokeCtx, SAPIZBStartRequest{}, &SAPIZBStartResponse{})
+	}); err != nil {
+		return err
+	}
+
+	confirmation := SAPIZBStartConfirm{}
+	if err := z.Awaiter.Await(ctx, &confirmation); err != nil {
+		return err
+	}
+
+	if confirmation.Status != ZBSuccess {
+		return fmt.Errorf("failed to start application on zigbee adapter: status %d", confirmation.Status)
+	}
+
+	return nil
+}
+
+type SAPIZBStartRequest struct{}
+
+const SAPIZBStartRequestID uint8 = 0x00
+
+type SAPIZBStartResponse struct{}
+
+const SAPIZBStartResponseID uint8 = 0x00
+
+type ZBStartStatus uint8
+
+const (
+	ZBSuccess ZBStartStatus = 0x00
+	ZBInit    ZBStartStatus = 0x22
+)
+
+type SAPIZBStartConfirm struct {
+	Status ZBStartStatus
+}
+
+const SAPIZBStartConfirmID uint8 = 0x80
