@@ -6,23 +6,26 @@ import (
 )
 
 func (z *ZStack) GetDeviceIEEEAddress(ctx context.Context) (zigbee.IEEEAddress, error) {
-	return z.getDeviceInfo(ctx, IEEEAddress)
+	data, err := z.getDeviceInfo(ctx, IEEEAddress)
+
+	ieeeAddress := zigbee.IEEEAddress(data)
+
+	return ieeeAddress, err
 }
 
 func (z *ZStack) GetDeviceNetworkAddress(ctx context.Context) (zigbee.NetworkAddress, error) {
 	data, err := z.getDeviceInfo(ctx, NetworkAddress)
 
-	networkAddress := zigbee.NetworkAddress{}
-	copy(networkAddress[0:2], data[0:2])
+	networkAddress := zigbee.NetworkAddress(data & 0xffff)
 
 	return networkAddress, err
 }
 
-func (z *ZStack) getDeviceInfo(ctx context.Context, parameter DeviceInfoParameter) ([8]byte, error) {
+func (z *ZStack) getDeviceInfo(ctx context.Context, parameter DeviceInfoParameter) (uint64, error) {
 	resp := SAPIZBGetDeviceInfoResp{}
 
 	if err := z.requestResponder.RequestResponse(ctx, SAPIZBGetDeviceInfoReq{Parameter: parameter}, &resp); err != nil {
-		return [8]byte{}, err
+		return 0, err
 	}
 
 	return resp.Value, nil
@@ -49,7 +52,7 @@ const SAPIZBGetDeviceInfoReqID uint8 = 0x06
 
 type SAPIZBGetDeviceInfoResp struct {
 	Parameter DeviceInfoParameter
-	Value     [8]byte
+	Value     uint64
 }
 
 const SAPIZBGetDeviceInfoRespID uint8 = 0x06

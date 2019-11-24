@@ -31,7 +31,7 @@ func TestZStack_PermitJoin(t *testing.T) {
 
 		unpiMock.AssertCalls(t)
 
-		assert.Equal(t, []byte{0xff, 0xfc, 0xff}, c.CapturedCalls[0].Frame.Payload)
+		assert.Equal(t, []byte{0xfc, 0xff, 0xff}, c.CapturedCalls[0].Frame.Payload)
 		assert.Equal(t, OnAllRouters, zstack.NetworkProperties.JoinState)
 	})
 
@@ -42,7 +42,7 @@ func TestZStack_PermitJoin(t *testing.T) {
 		unpiMock := unpiTest.NewMockAdapter()
 		zstack := New(unpiMock)
 		defer unpiMock.Stop()
-		zstack.NetworkProperties.NetworkAddress = zigbee.NetworkAddress{0x01, 0x02}
+		zstack.NetworkProperties.NetworkAddress = zigbee.NetworkAddress(0x0102)
 
 		c := unpiMock.On(SREQ, SAPI, SAPIZBPermitJoiningRequestID).Return(Frame{
 			MessageType: SRSP,
@@ -56,7 +56,7 @@ func TestZStack_PermitJoin(t *testing.T) {
 
 		unpiMock.AssertCalls(t)
 
-		assert.Equal(t, []byte{0x01, 0x02, 0xff}, c.CapturedCalls[0].Frame.Payload)
+		assert.Equal(t, []byte{0x02, 0x01, 0xff}, c.CapturedCalls[0].Frame.Payload)
 		assert.Equal(t, OnCoordinator, zstack.NetworkProperties.JoinState)
 	})
 
@@ -104,7 +104,8 @@ func TestZStack_DenyJoin(t *testing.T) {
 
 		unpiMock.AssertCalls(t)
 
-		assert.Equal(t, []byte{0xff, 0xfc, 0x00}, c.CapturedCalls[0].Frame.Payload)
+
+		assert.Equal(t, []byte{0xfc, 0xff, 0x00}, c.CapturedCalls[0].Frame.Payload)
 		assert.Equal(t, Off, zstack.NetworkProperties.JoinState)
 	})
 

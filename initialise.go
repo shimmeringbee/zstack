@@ -58,7 +58,7 @@ func (z *ZStack) Initialise(ctx context.Context, nc zigbee.NetworkConfiguration)
 		},
 		func(invokeCtx context.Context) error {
 			return z.writeNVRAM(invokeCtx, ZCDNVTCLKTableStart{
-				Address:        zigbee.IEEEAddress{0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff},
+				Address:        zigbee.IEEEAddress(0xffffffffffffffff),
 				NetworkKey:     zigbee.TCLinkKey,
 				TXFrameCounter: 0,
 				RXFrameCounter: 0,

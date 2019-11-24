@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/shimmeringbee/bytecodec"
+	"github.com/shimmeringbee/zigbee"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"testing"
@@ -187,12 +188,12 @@ func TestZStack_NVRAMStructs(t *testing.T) {
 
 	t.Run("ZCDNVPANID", func(t *testing.T) {
 		s := ZCDNVPANID{
-			PANID: [2]byte{0x01, 0x02},
+			PANID: zigbee.PANID(0x0102),
 		}
 
 		actualBytes, err := bytecodec.Marshall(s)
 
-		expectedBytes := []byte{0x01, 0x02}
+		expectedBytes := []byte{0x02, 0x01}
 
 		assert.NoError(t, err)
 		assert.Equal(t, expectedBytes, actualBytes)
@@ -200,12 +201,12 @@ func TestZStack_NVRAMStructs(t *testing.T) {
 
 	t.Run("ZCDNVExtPANID", func(t *testing.T) {
 		s := ZCDNVExtPANID{
-			ExtendedPANID: [8]byte{0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08},
+			ExtendedPANID: zigbee.ExtendedPANID(0x0102030405060708),
 		}
 
 		actualBytes, err := bytecodec.Marshall(s)
 
-		expectedBytes := []byte{0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08}
+		expectedBytes := []byte{0x08, 0x07, 0x06, 0x05, 0x04, 0x03, 0x02, 0x01}
 
 		assert.NoError(t, err)
 		assert.Equal(t, expectedBytes, actualBytes)
@@ -226,7 +227,7 @@ func TestZStack_NVRAMStructs(t *testing.T) {
 
 	t.Run("ZCDNVTCLKTableStart", func(t *testing.T) {
 		s := ZCDNVTCLKTableStart{
-			Address:        [8]byte{0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08},
+			Address:       zigbee.IEEEAddress(0x0807060504030201),
 			NetworkKey:     [16]byte{0x00, 0x01, 0x02, 0x03, 0x00, 0x01, 0x02, 0x03, 0x00, 0x01, 0x02, 0x03, 0x00, 0x01, 0x02, 0x03},
 			TXFrameCounter: 123456,
 			RXFrameCounter: 654321,
