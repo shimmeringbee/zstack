@@ -22,6 +22,10 @@ func registerMessages(l *Library) {
 	l.Add(SRSP, SAPI, SAPIZBGetDeviceInfoRespID, SAPIZBGetDeviceInfoResp{})
 
 	l.Add(AREQ, ZDO, ZDOStateChangeIndID, ZDOStateChangeInd{})
+
+	l.Add(AREQ, ZDO, ZdoEndDeviceAnnceIndID, ZdoEndDeviceAnnceInd{})
+	l.Add(AREQ, ZDO, ZdoLeaveIndID, ZdoLeaveInd{})
+	l.Add(AREQ, ZDO, ZdoTcDevIndID, ZdoTcDevInd{})
 }
 
 type ZStackStatus uint8

@@ -165,4 +165,46 @@ func Test_registerMessages(t *testing.T) {
 		assert.True(t, found)
 		assert.Equal(t, reflect.TypeOf(ZDOStateChangeInd{}), ty)
 	})
+
+	t.Run("ZdoEndDeviceAnnceInd", func(t *testing.T) {
+		identity, found := ml.GetByObject(&ZdoEndDeviceAnnceInd{})
+
+		assert.True(t, found)
+		assert.Equal(t, AREQ, identity.MessageType)
+		assert.Equal(t, ZDO, identity.Subsystem)
+		assert.Equal(t, uint8(0xc1), identity.CommandID)
+
+		ty, found := ml.GetByIdentifier(AREQ, ZDO, 0xc1)
+
+		assert.True(t, found)
+		assert.Equal(t, reflect.TypeOf(ZdoEndDeviceAnnceInd{}), ty)
+	})
+
+	t.Run("ZdoLeaveInd", func(t *testing.T) {
+		identity, found := ml.GetByObject(&ZdoLeaveInd{})
+
+		assert.True(t, found)
+		assert.Equal(t, AREQ, identity.MessageType)
+		assert.Equal(t, ZDO, identity.Subsystem)
+		assert.Equal(t, uint8(0xc9), identity.CommandID)
+
+		ty, found := ml.GetByIdentifier(AREQ, ZDO, 0xc9)
+
+		assert.True(t, found)
+		assert.Equal(t, reflect.TypeOf(ZdoLeaveInd{}), ty)
+	})
+
+	t.Run("ZdoTcDevInd", func(t *testing.T) {
+		identity, found := ml.GetByObject(&ZdoTcDevInd{})
+
+		assert.True(t, found)
+		assert.Equal(t, AREQ, identity.MessageType)
+		assert.Equal(t, ZDO, identity.Subsystem)
+		assert.Equal(t, uint8(0xca), identity.CommandID)
+
+		ty, found := ml.GetByIdentifier(AREQ, ZDO, 0xca)
+
+		assert.True(t, found)
+		assert.Equal(t, reflect.TypeOf(ZdoTcDevInd{}), ty)
+	})
 }
