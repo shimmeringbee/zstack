@@ -26,6 +26,7 @@ type ZStack struct {
 	awaiter           Awaiter
 	subscriber        Subscriber
 	NetworkProperties NetworkProperties
+	events            chan interface{}
 }
 
 type JoinState uint8
@@ -44,6 +45,7 @@ type NetworkProperties struct {
 
 const DefaultZStackTimeout = 5 * time.Second
 const DefaultZStackRetries = 3
+const DefaultInflightEvents = 50
 
 func New(uart io.ReadWriter) *ZStack {
 	ml := library.NewLibrary()
@@ -55,5 +57,6 @@ func New(uart io.ReadWriter) *ZStack {
 		requestResponder: znp,
 		awaiter:          znp,
 		subscriber:       znp,
+		events:           make(chan interface{}, DefaultInflightEvents),
 	}
 }
