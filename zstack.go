@@ -22,11 +22,15 @@ type Subscriber interface {
 }
 
 type ZStack struct {
-	requestResponder  RequestResponder
-	awaiter           Awaiter
-	subscriber        Subscriber
+	requestResponder RequestResponder
+	awaiter          Awaiter
+	subscriber       Subscriber
+
 	NetworkProperties NetworkProperties
-	events            chan interface{}
+
+	events chan interface{}
+
+	addressCache map[zigbee.IEEEAddress]zigbee.NetworkAddress
 }
 
 type JoinState uint8
@@ -58,5 +62,6 @@ func New(uart io.ReadWriter) *ZStack {
 		awaiter:          znp,
 		subscriber:       znp,
 		events:           make(chan interface{}, DefaultInflightEvents),
+		addressCache:     map[zigbee.IEEEAddress]zigbee.NetworkAddress{},
 	}
 }
