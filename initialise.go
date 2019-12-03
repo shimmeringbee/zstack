@@ -8,10 +8,6 @@ import (
 )
 
 func (z *ZStack) Initialise(ctx context.Context, nc zigbee.NetworkConfiguration) error {
-	if err := z.initialiseEvents(); err != nil {
-		return err
-	}
-
 	initFunctions := []func(context.Context) error{
 		func(invokeCtx context.Context) error {
 			return z.resetAdapter(invokeCtx, Soft)

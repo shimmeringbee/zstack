@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/shimmeringbee/zigbee"
 	"log"
+	"reflect"
 	"time"
 )
 
@@ -27,6 +28,12 @@ func (z *ZStack) networkManager() {
 	_, cancel := z.subscriber.Subscribe(&ZdoMGMTLQIResp{}, z.receiveLQIUpdate)
 	defer cancel()
 
+	_, cancel = z.subscriber.Subscribe(&ZdoEndDeviceAnnceInd{}, z.handleEndDeviceAnnouncement)
+	defer cancel()
+
+	_, cancel = z.subscriber.Subscribe(&ZdoLeaveInd{}, z.handleLeaveAnnouncement)
+	defer cancel()
+
 	for {
 		select {
 		case <-immediateStart:
@@ -35,11 +42,23 @@ func (z *ZStack) networkManager() {
 			z.pollForNetworkStatus()
 		case <-z.networkManagerStop:
 			return
-		case ue := <- z.networkManagerIncoming:
+		case ue := <-z.networkManagerIncoming:
 			switch e := ue.(type) {
 			case ZdoMGMTLQIResp:
 				d, _ := json.MarshalIndent(e, "", "\t")
 				fmt.Println(string(d))
+			case ZdoEndDeviceAnnceInd:
+				z.events <- DeviceJoinEvent{
+					NetworkAddress: e.NetworkAddress,
+					IEEEAddress:    e.IEEEAddress,
+				}
+			case ZdoLeaveInd:
+				z.events <- DeviceLeaveEvent{
+					NetworkAddress: e.SourceAddress,
+					IEEEAddress:    e.IEEEAddress,
+				}
+			default:
+				fmt.Printf("received unknown %+v", reflect.TypeOf(ue))
 			}
 		}
 	}
@@ -63,6 +82,22 @@ func (z *ZStack) pollForNetworkStatus() {
 func (z *ZStack) receiveLQIUpdate(u func(interface{}) error) {
 	msg := ZdoMGMTLQIResp{}
 	if err := u(&msg); err == nil {
+		z.networkManagerIncoming <- msg
+	}
+}
+
+func (z *ZStack) handleEndDeviceAnnouncement(u func(interface{}) error) {
+	msg := ZdoEndDeviceAnnceInd{}
+	var err error
+	if err = u(&msg); err == nil {
+		z.networkManagerIncoming <- msg
+	}
+}
+
+func (z *ZStack) handleLeaveAnnouncement(u func(interface{}) error) {
+	msg := ZdoLeaveInd{}
+	var err error
+	if err = u(&msg); err == nil {
 		z.networkManagerIncoming <- msg
 	}
 }
