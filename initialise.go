@@ -111,6 +111,8 @@ func (z *ZStack) Initialise(ctx context.Context, nc zigbee.NetworkConfiguration)
 		return err
 	}
 
+	z.startNetworkManager()
+
 	return nil
 }
 

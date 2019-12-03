@@ -30,7 +30,10 @@ type ZStack struct {
 
 	events chan interface{}
 
-	addressCache map[zigbee.IEEEAddress]zigbee.NetworkAddress
+	networkManagerStop     chan bool
+	networkManagerIncoming chan interface{}
+
+	devices map[zigbee.IEEEAddress]Device
 }
 
 type JoinState uint8
@@ -58,10 +61,16 @@ func New(uart io.ReadWriter) *ZStack {
 	znp := broker.NewBroker(uart, uart, ml)
 
 	return &ZStack{
-		requestResponder: znp,
-		awaiter:          znp,
-		subscriber:       znp,
-		events:           make(chan interface{}, DefaultInflightEvents),
-		addressCache:     map[zigbee.IEEEAddress]zigbee.NetworkAddress{},
+		requestResponder:       znp,
+		awaiter:                znp,
+		subscriber:             znp,
+		events:                 make(chan interface{}, DefaultInflightEvents),
+		networkManagerStop:     make(chan bool, 1),
+		networkManagerIncoming: make(chan interface{}, DefaultInflightEvents),
+		devices:                map[zigbee.IEEEAddress]Device{},
 	}
+}
+
+func (z *ZStack) Stop() {
+	z.stopNetworkManager()
 }

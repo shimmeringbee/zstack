@@ -9,22 +9,22 @@ import (
 )
 
 func Test_registerMessages(t *testing.T) {
-	ml := NewLibrary()
-	registerMessages(ml)
+		ml := NewLibrary()
+		registerMessages(ml)
 
-	t.Run("SysResetReq", func(t *testing.T) {
-		identity, found := ml.GetByObject(&SysResetReq{})
+		t.Run("SysResetReq", func(t *testing.T) {
+			identity, found := ml.GetByObject(&SysResetReq{})
 
-		assert.True(t, found)
-		assert.Equal(t, AREQ, identity.MessageType)
-		assert.Equal(t, SYS, identity.Subsystem)
-		assert.Equal(t, uint8(0x00), identity.CommandID)
+			assert.True(t, found)
+			assert.Equal(t, AREQ, identity.MessageType)
+			assert.Equal(t, SYS, identity.Subsystem)
+			assert.Equal(t, uint8(0x00), identity.CommandID)
 
-		ty, found := ml.GetByIdentifier(AREQ, SYS, 0x00)
+			ty, found := ml.GetByIdentifier(AREQ, SYS, 0x00)
 
-		assert.True(t, found)
-		assert.Equal(t, reflect.TypeOf(SysResetReq{}), ty)
-	})
+			assert.True(t, found)
+			assert.Equal(t, reflect.TypeOf(SysResetReq{}), ty)
+		})
 
 	t.Run("SysResetInd", func(t *testing.T) {
 		identity, found := ml.GetByObject(&SysResetInd{})
@@ -206,5 +206,47 @@ func Test_registerMessages(t *testing.T) {
 
 		assert.True(t, found)
 		assert.Equal(t, reflect.TypeOf(ZdoTcDevInd{}), ty)
+	})
+
+	t.Run("ZdoMGMTLQIReq", func(t *testing.T) {
+		identity, found := ml.GetByObject(&ZdoMGMTLQIReq{})
+
+		assert.True(t, found)
+		assert.Equal(t, SREQ, identity.MessageType)
+		assert.Equal(t, ZDO, identity.Subsystem)
+		assert.Equal(t, uint8(0x31), identity.CommandID)
+
+		ty, found := ml.GetByIdentifier(SREQ, ZDO, 0x31)
+
+		assert.True(t, found)
+		assert.Equal(t, reflect.TypeOf(ZdoMGMTLQIReq{}), ty)
+	})
+
+	t.Run("ZdoMGMTLQIReqResp", func(t *testing.T) {
+		identity, found := ml.GetByObject(&ZdoMGMTLQIReqResp{})
+
+		assert.True(t, found)
+		assert.Equal(t, SRSP, identity.MessageType)
+		assert.Equal(t, ZDO, identity.Subsystem)
+		assert.Equal(t, uint8(0x31), identity.CommandID)
+
+		ty, found := ml.GetByIdentifier(SRSP, ZDO, 0x31)
+
+		assert.True(t, found)
+		assert.Equal(t, reflect.TypeOf(ZdoMGMTLQIReqResp{}), ty)
+	})
+
+	t.Run("ZdoMGMTLQIResp", func(t *testing.T) {
+		identity, found := ml.GetByObject(&ZdoMGMTLQIResp{})
+
+		assert.True(t, found)
+		assert.Equal(t, AREQ, identity.MessageType)
+		assert.Equal(t, ZDO, identity.Subsystem)
+		assert.Equal(t, uint8(0xb1), identity.CommandID)
+
+		ty, found := ml.GetByIdentifier(AREQ, ZDO, 0xb1)
+
+		assert.True(t, found)
+		assert.Equal(t, reflect.TypeOf(ZdoMGMTLQIResp{}), ty)
 	})
 }

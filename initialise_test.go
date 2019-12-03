@@ -19,6 +19,7 @@ func TestZStack_Initialise(t *testing.T) {
 		unpiMock := unpiTest.NewMockAdapter()
 		zstack := New(unpiMock)
 		defer unpiMock.Stop()
+		defer zstack.Stop()
 
 		resetResponse, _ := bytecodec.Marshall(SysResetInd{
 			Reason:            External,
