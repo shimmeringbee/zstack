@@ -21,6 +21,8 @@ func (z *ZStack) stopNetworkManager() {
 }
 
 func (z *ZStack) networkManager() {
+	z.addOrUpdateDevice(z.NetworkProperties.IEEEAddress, z.NetworkProperties.NetworkAddress).Role = RoleCoordinator
+
 	immediateStart := make(chan bool, 1)
 	defer close(immediateStart)
 	immediateStart <- true
@@ -48,11 +50,13 @@ func (z *ZStack) networkManager() {
 				d, _ := json.MarshalIndent(e, "", "\t")
 				fmt.Println(string(d))
 			case ZdoEndDeviceAnnceInd:
+				z.addOrUpdateDevice(e.IEEEAddress, e.NetworkAddress)
 				z.events <- DeviceJoinEvent{
 					NetworkAddress: e.NetworkAddress,
 					IEEEAddress:    e.IEEEAddress,
 				}
 			case ZdoLeaveInd:
+				z.removeDevice(e.IEEEAddress)
 				z.events <- DeviceLeaveEvent{
 					NetworkAddress: e.SourceAddress,
 					IEEEAddress:    e.IEEEAddress,
@@ -102,6 +106,27 @@ func (z *ZStack) handleLeaveAnnouncement(u func(interface{}) error) {
 	}
 }
 
+func (z *ZStack) addOrUpdateDevice(ieee zigbee.IEEEAddress, network zigbee.NetworkAddress) *Device {
+	_, present := z.devices[ieee]
+
+	if present {
+		z.devices[ieee].NetworkAddress = network
+	} else {
+		z.devices[ieee] = &Device{
+			NetworkAddress: network,
+			IEEEAddress:    ieee,
+			Role:           RoleUnknown,
+			Neighbours:     map[zigbee.IEEEAddress]*DeviceNeighbour{},
+		}
+	}
+
+	return z.devices[ieee]
+}
+
+func (z *ZStack) removeDevice(ieee zigbee.IEEEAddress) {
+	delete(z.devices, ieee)
+}
+
 type DeviceRole uint8
 
 const (
@@ -115,7 +140,7 @@ type Device struct {
 	NetworkAddress zigbee.NetworkAddress
 	IEEEAddress    zigbee.IEEEAddress
 	Role           DeviceRole
-	Neighbours     map[zigbee.IEEEAddress]DeviceNeighbour
+	Neighbours     map[zigbee.IEEEAddress]*DeviceNeighbour
 }
 
 type DeviceNeighbour struct {

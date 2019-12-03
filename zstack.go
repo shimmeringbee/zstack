@@ -33,7 +33,7 @@ type ZStack struct {
 	networkManagerStop     chan bool
 	networkManagerIncoming chan interface{}
 
-	devices map[zigbee.IEEEAddress]Device
+	devices map[zigbee.IEEEAddress]*Device
 }
 
 type JoinState uint8
@@ -67,7 +67,7 @@ func New(uart io.ReadWriter) *ZStack {
 		events:                 make(chan interface{}, DefaultInflightEvents),
 		networkManagerStop:     make(chan bool, 1),
 		networkManagerIncoming: make(chan interface{}, DefaultInflightEvents),
-		devices:                map[zigbee.IEEEAddress]Device{},
+		devices:                map[zigbee.IEEEAddress]*Device{},
 	}
 }
 
