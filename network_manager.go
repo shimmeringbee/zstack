@@ -2,7 +2,6 @@ package zstack
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"github.com/shimmeringbee/zigbee"
 	"log"
@@ -21,7 +20,7 @@ func (z *ZStack) stopNetworkManager() {
 }
 
 func (z *ZStack) networkManager() {
-	z.addOrUpdateDevice(z.NetworkProperties.IEEEAddress, z.NetworkProperties.NetworkAddress).Role = RoleCoordinator
+	z.addOrUpdateDevice(z.NetworkProperties.IEEEAddress, z.NetworkProperties.NetworkAddress, Role(RoleCoordinator))
 
 	immediateStart := make(chan bool, 1)
 	defer close(immediateStart)
@@ -30,27 +29,32 @@ func (z *ZStack) networkManager() {
 	_, cancel := z.subscriber.Subscribe(&ZdoMGMTLQIResp{}, z.receiveLQIUpdate)
 	defer cancel()
 
-	_, cancel = z.subscriber.Subscribe(&ZdoEndDeviceAnnceInd{}, z.handleEndDeviceAnnouncement)
+	_, cancel = z.subscriber.Subscribe(&ZdoEndDeviceAnnceInd{}, z.receiveEndDeviceAnnouncement)
 	defer cancel()
 
-	_, cancel = z.subscriber.Subscribe(&ZdoLeaveInd{}, z.handleLeaveAnnouncement)
+	_, cancel = z.subscriber.Subscribe(&ZdoLeaveInd{}, z.receiveLeaveAnnouncement)
 	defer cancel()
 
 	for {
 		select {
 		case <-immediateStart:
-			z.pollForNetworkStatus()
+			z.pollRoutersForNetworkStatus()
 		case <-time.After(defaultPollingInterval * time.Second):
-			z.pollForNetworkStatus()
+			z.pollRoutersForNetworkStatus()
 		case <-z.networkManagerStop:
 			return
 		case ue := <-z.networkManagerIncoming:
 			switch e := ue.(type) {
 			case ZdoMGMTLQIResp:
-				d, _ := json.MarshalIndent(e, "", "\t")
-				fmt.Println(string(d))
+				z.processLQITable(e)
 			case ZdoEndDeviceAnnceInd:
-				z.addOrUpdateDevice(e.IEEEAddress, e.NetworkAddress)
+				role := RoleEndDevice
+
+				if e.Capabilities&0x02 == 0x02 {
+					role = RoleRouter
+				}
+
+				z.addOrUpdateDevice(e.IEEEAddress, e.NetworkAddress, Role(role))
 				z.events <- DeviceJoinEvent{
 					NetworkAddress: e.NetworkAddress,
 					IEEEAddress:    e.IEEEAddress,
@@ -68,19 +72,35 @@ func (z *ZStack) networkManager() {
 	}
 }
 
-func (z *ZStack) pollForNetworkStatus() {
+func (z *ZStack) pollRoutersForNetworkStatus() {
+	for _, device := range z.devices {
+		if device.Role == RoleCoordinator || device.Role == RoleRouter {
+			go z.pollDeviceForNetworkStatus(*device)
+		}
+	}
+}
+
+func (z *ZStack) pollDeviceForNetworkStatus(device Device) {
+	log.Printf("polling %v (%d) for network status\n", device.IEEEAddress, device.NetworkAddress)
+	z.requestLQITable(device)
+}
+
+func (z *ZStack) requestLQITable(device Device) {
 	ctx, cancel := context.WithTimeout(context.Background(), DefaultZStackTimeout)
 	defer cancel()
 
 	resp := ZdoMGMTLQIReqResp{}
-
-	if err := z.requestResponder.RequestResponse(ctx, ZdoMGMTLQIReq{DestinationAddress: 0, StartIndex: 0}, &resp); err != nil {
+	if err := z.requestResponder.RequestResponse(ctx, ZdoMGMTLQIReq{DestinationAddress: device.NetworkAddress, StartIndex: 0}, &resp); err != nil {
 		log.Printf("failed to request lqi tables: %v\n", err)
 	}
 
 	if resp.Status != ZSuccess {
 		log.Printf("failed to request lqi tables: from adapter\n")
 	}
+}
+
+func (z *ZStack) processLQITable(lqi ZdoMGMTLQIResp) {
+
 }
 
 func (z *ZStack) receiveLQIUpdate(u func(interface{}) error) {
@@ -90,7 +110,7 @@ func (z *ZStack) receiveLQIUpdate(u func(interface{}) error) {
 	}
 }
 
-func (z *ZStack) handleEndDeviceAnnouncement(u func(interface{}) error) {
+func (z *ZStack) receiveEndDeviceAnnouncement(u func(interface{}) error) {
 	msg := ZdoEndDeviceAnnceInd{}
 	var err error
 	if err = u(&msg); err == nil {
@@ -98,7 +118,7 @@ func (z *ZStack) handleEndDeviceAnnouncement(u func(interface{}) error) {
 	}
 }
 
-func (z *ZStack) handleLeaveAnnouncement(u func(interface{}) error) {
+func (z *ZStack) receiveLeaveAnnouncement(u func(interface{}) error) {
 	msg := ZdoLeaveInd{}
 	var err error
 	if err = u(&msg); err == nil {
@@ -106,7 +126,15 @@ func (z *ZStack) handleLeaveAnnouncement(u func(interface{}) error) {
 	}
 }
 
-func (z *ZStack) addOrUpdateDevice(ieee zigbee.IEEEAddress, network zigbee.NetworkAddress) *Device {
+type DeviceFact func(*Device)
+
+func Role(role DeviceRole) DeviceFact {
+	return func(device *Device) {
+		device.Role = role
+	}
+}
+
+func (z *ZStack) addOrUpdateDevice(ieee zigbee.IEEEAddress, network zigbee.NetworkAddress, facts ...DeviceFact) *Device {
 	_, present := z.devices[ieee]
 
 	if present {
@@ -118,6 +146,10 @@ func (z *ZStack) addOrUpdateDevice(ieee zigbee.IEEEAddress, network zigbee.Netwo
 			Role:           RoleUnknown,
 			Neighbours:     map[zigbee.IEEEAddress]*DeviceNeighbour{},
 		}
+	}
+
+	for _, f := range facts {
+		f(z.devices[ieee])
 	}
 
 	return z.devices[ieee]

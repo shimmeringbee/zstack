@@ -12,7 +12,7 @@ import (
 )
 
 func Test_NetworkManager(t *testing.T) {
-	t.Run("issues a LQI poll request", func(t *testing.T) {
+	t.Run("issues a LQI poll request only for coordinators or routers", func(t *testing.T) {
 		unpiMock := unpiTest.NewMockAdapter()
 		zstack := New(unpiMock)
 		defer unpiMock.Stop()
@@ -23,7 +23,10 @@ func Test_NetworkManager(t *testing.T) {
 			Subsystem:   ZDO,
 			CommandID:   ZdoMGMTLQIReqRespID,
 			Payload:     []byte{0x00},
-		})
+		}).Times(2)
+
+		zstack.devices[zigbee.IEEEAddress(1)] = &Device{NetworkAddress: 1, IEEEAddress: 1, Role: RoleRouter}
+		zstack.devices[zigbee.IEEEAddress(2)] = &Device{NetworkAddress: 2, IEEEAddress: 2, Role: RoleUnknown}
 
 		zstack.startNetworkManager()
 		defer zstack.stopNetworkManager()
@@ -91,7 +94,7 @@ func Test_NetworkManager(t *testing.T) {
 			SourceAddress:  zigbee.NetworkAddress(0x1000),
 			NetworkAddress: zigbee.NetworkAddress(0x2000),
 			IEEEAddress:    zigbee.IEEEAddress(0x0102030405060708),
-			Capabilities:   181,
+			Capabilities:   0b00000010,
 		}
 
 		data, _ := bytecodec.Marshall(announce)
@@ -117,6 +120,7 @@ func Test_NetworkManager(t *testing.T) {
 		assert.True(t, found)
 		assert.Equal(t, announce.IEEEAddress, device.IEEEAddress)
 		assert.Equal(t, announce.NetworkAddress, device.NetworkAddress)
+		assert.Equal(t, RoleRouter, device.Role)
 	})
 
 	t.Run("emits DeviceLeave event when device leave announcement received", func(t *testing.T) {
@@ -133,7 +137,7 @@ func Test_NetworkManager(t *testing.T) {
 			Subsystem:   ZDO,
 			CommandID:   ZdoMGMTLQIReqRespID,
 			Payload:     []byte{0x00},
-		})
+		}).UnlimitedTimes()
 
 		zstack.startNetworkManager()
 		defer zstack.stopNetworkManager()
@@ -143,7 +147,11 @@ func Test_NetworkManager(t *testing.T) {
 			IEEEAddress:   zigbee.IEEEAddress(0x0102030405060708),
 		}
 
-		zstack.devices[announce.IEEEAddress] = &Device{}
+		zstack.devices[announce.IEEEAddress] = &Device{
+			NetworkAddress: 1234,
+			IEEEAddress:    announce.IEEEAddress,
+			Role:           RoleUnknown,
+		}
 
 		data, _ := bytecodec.Marshall(announce)
 
