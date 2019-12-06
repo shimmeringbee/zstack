@@ -66,6 +66,10 @@ func Test_NetworkManager(t *testing.T) {
 		assert.Equal(t, expectedAddress, device.NetworkAddress)
 		assert.Equal(t, RoleCoordinator, device.Role)
 
+		reverseIEEE, found := zstack.devicesByNetAddr[expectedAddress]
+		assert.True(t, found)
+		assert.Equal(t, expectedIEEE, reverseIEEE)
+
 		unpiMock.AssertCalls(t)
 	})
 
@@ -83,7 +87,7 @@ func Test_NetworkManager(t *testing.T) {
 			Subsystem:   ZDO,
 			CommandID:   ZdoMGMTLQIReqRespID,
 			Payload:     []byte{0x00},
-		})
+		}).UnlimitedTimes()
 
 		zstack.startNetworkManager()
 		defer zstack.stopNetworkManager()
@@ -121,6 +125,10 @@ func Test_NetworkManager(t *testing.T) {
 		assert.Equal(t, announce.IEEEAddress, device.IEEEAddress)
 		assert.Equal(t, announce.NetworkAddress, device.NetworkAddress)
 		assert.Equal(t, RoleRouter, device.Role)
+
+		reverseIEEE, found := zstack.devicesByNetAddr[announce.NetworkAddress]
+		assert.True(t, found)
+		assert.Equal(t, announce.IEEEAddress, reverseIEEE)
 	})
 
 	t.Run("emits DeviceLeave event when device leave announcement received", func(t *testing.T) {
@@ -148,12 +156,16 @@ func Test_NetworkManager(t *testing.T) {
 		}
 
 		zstack.devices[announce.IEEEAddress] = &Device{
-			NetworkAddress: 1234,
+			NetworkAddress: 0x2000,
 			IEEEAddress:    announce.IEEEAddress,
 			Role:           RoleUnknown,
 		}
 
+		zstack.devicesByNetAddr[announce.SourceAddress] = announce.IEEEAddress
+
 		data, _ := bytecodec.Marshall(announce)
+
+		time.Sleep(10 * time.Millisecond)
 
 		unpiMock.InjectOutgoing(Frame{
 			MessageType: AREQ,
@@ -174,6 +186,110 @@ func Test_NetworkManager(t *testing.T) {
 
 		_, found := zstack.devices[announce.IEEEAddress]
 		assert.False(t, found)
+
+		_, found = zstack.devicesByNetAddr[announce.SourceAddress]
+		assert.False(t, found)
+	})
+	
+	t.Run("a new router will be queried for network state", func(t *testing.T) {
+		unpiMock := unpiTest.NewMockAdapter()
+		zstack := New(unpiMock)
+		defer unpiMock.Stop()
+		defer unpiMock.AssertCalls(t)
+
+		c := unpiMock.On(SREQ, ZDO, ZdoMGMTLQIReqID).Return(Frame{
+			MessageType: SRSP,
+			Subsystem:   ZDO,
+			CommandID:   ZdoMGMTLQIReqRespID,
+			Payload:     []byte{0x00},
+		}).Times(2)
+
+		zstack.startNetworkManager()
+		defer zstack.stopNetworkManager()
+
+		time.Sleep(10 * time.Millisecond)
+
+		announce := ZdoEndDeviceAnnceInd{
+			SourceAddress:  zigbee.NetworkAddress(0x1000),
+			NetworkAddress: zigbee.NetworkAddress(0x2000),
+			IEEEAddress:    zigbee.IEEEAddress(0x0102030405060708),
+			Capabilities:   0b00000010,
+		}
+
+		data, _ := bytecodec.Marshall(announce)
+
+		unpiMock.InjectOutgoing(Frame{
+			MessageType: AREQ,
+			Subsystem:   ZDO,
+			CommandID:   ZdoEndDeviceAnnceIndID,
+			Payload:     data,
+		})
+
+		time.Sleep(10 * time.Millisecond)
+
+		assert.Equal(t, 2, len(c.CapturedCalls))
+
+		frame := c.CapturedCalls[1]
+
+		lqiReq := ZdoMGMTLQIReq{}
+		_ = bytecodec.Unmarshall(frame.Frame.Payload, &lqiReq)
+
+		assert.Equal(t, zigbee.NetworkAddress(0x2000), lqiReq.DestinationAddress)
 	})
 
+	t.Run("devices in LQI query are added to network manager", func(t *testing.T) {
+		unpiMock := unpiTest.NewMockAdapter()
+		zstack := New(unpiMock)
+		defer unpiMock.Stop()
+		defer unpiMock.AssertCalls(t)
+
+		unpiMock.On(SREQ, ZDO, ZdoMGMTLQIReqID).Return(Frame{
+			MessageType: SRSP,
+			Subsystem:   ZDO,
+			CommandID:   ZdoMGMTLQIReqRespID,
+			Payload:     []byte{0x00},
+		}).UnlimitedTimes()
+
+		zstack.startNetworkManager()
+		defer zstack.stopNetworkManager()
+
+		time.Sleep(10 * time.Millisecond)
+
+		announce := ZdoMGMTLQIResp{
+			SourceAddress:         0,
+			Status:                0,
+			NeighbourTableEntries: 1,
+			StartIndex:            0,
+			Neighbors:             []ZdoMGMTLQINeighbour{
+				{
+					ExtendedPANID:  zstack.NetworkProperties.ExtendedPANID,
+					IEEEAddress:    zigbee.IEEEAddress(0x1000),
+					NetworkAddress: zigbee.NetworkAddress(0x2000),
+					Status:         0b00000001,
+					PermitJoining:  0,
+					Depth:          0,
+					LQI:            67,
+				},
+			},
+		}
+
+		data, _ := bytecodec.Marshall(announce)
+
+		unpiMock.InjectOutgoing(Frame{
+			MessageType: AREQ,
+			Subsystem:   ZDO,
+			CommandID:   ZdoMGMTLQIRespID,
+			Payload:     data,
+		})
+
+		time.Sleep(10 * time.Millisecond)
+
+		device, found := zstack.devices[zigbee.IEEEAddress(0x1000)]
+		assert.True(t, found)
+
+		if found {
+			assert.Equal(t, zigbee.NetworkAddress(0x2000), device.NetworkAddress)
+			assert.Equal(t, RoleRouter, device.Role)
+		}
+	})
 }

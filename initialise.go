@@ -8,6 +8,11 @@ import (
 )
 
 func (z *ZStack) Initialise(ctx context.Context, nc zigbee.NetworkConfiguration) error {
+	z.NetworkProperties.PANID = nc.PANID
+	z.NetworkProperties.ExtendedPANID = nc.ExtendedPANID
+	z.NetworkProperties.NetworkKey = nc.NetworkKey
+	z.NetworkProperties.Channel = nc.Channel
+
 	initFunctions := []func(context.Context) error{
 		func(invokeCtx context.Context) error {
 			return z.resetAdapter(invokeCtx, Soft)

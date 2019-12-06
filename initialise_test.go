@@ -96,6 +96,11 @@ func TestZStack_Initialise(t *testing.T) {
 		assert.NoError(t, err)
 		unpiMock.AssertCalls(t)
 
+		assert.Equal(t, nc.PANID, zstack.NetworkProperties.PANID)
+		assert.Equal(t, nc.ExtendedPANID, zstack.NetworkProperties.ExtendedPANID)
+		assert.Equal(t, nc.NetworkKey, zstack.NetworkProperties.NetworkKey)
+		assert.Equal(t, nc.Channel, zstack.NetworkProperties.Channel)
+
 		assert.Equal(t, []byte{0x01}, resetOn.CapturedCalls[0].Frame.Payload)
 		assert.Equal(t, []byte{0x03, 0x00, 0x00, 0x01, 0x03}, nvramOn.CapturedCalls[0].Frame.Payload)
 		assert.Equal(t, []byte{0x01}, resetOn.CapturedCalls[1].Frame.Payload)

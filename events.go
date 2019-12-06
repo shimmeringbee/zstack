@@ -22,4 +22,6 @@ type BasicDeviceEvent struct {
 
 type DeviceJoinEvent BasicDeviceEvent
 
+type DeviceRediscoveredEvent BasicDeviceEvent
+
 type DeviceLeaveEvent BasicDeviceEvent

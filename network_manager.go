@@ -20,7 +20,7 @@ func (z *ZStack) stopNetworkManager() {
 }
 
 func (z *ZStack) networkManager() {
-	z.addOrUpdateDevice(z.NetworkProperties.IEEEAddress, z.NetworkProperties.NetworkAddress, Role(RoleCoordinator))
+	z.addOrUpdateDevice(z.NetworkProperties.IEEEAddress, z.NetAddr(z.NetworkProperties.NetworkAddress), z.Role(RoleCoordinator))
 
 	immediateStart := make(chan bool, 1)
 	defer close(immediateStart)
@@ -54,7 +54,7 @@ func (z *ZStack) networkManager() {
 					role = RoleRouter
 				}
 
-				z.addOrUpdateDevice(e.IEEEAddress, e.NetworkAddress, Role(role))
+				z.addOrUpdateDevice(e.IEEEAddress, z.NetAddr(e.NetworkAddress), z.Role(role))
 				z.events <- DeviceJoinEvent{
 					NetworkAddress: e.NetworkAddress,
 					IEEEAddress:    e.IEEEAddress,
@@ -100,7 +100,27 @@ func (z *ZStack) requestLQITable(device Device) {
 }
 
 func (z *ZStack) processLQITable(lqi ZdoMGMTLQIResp) {
+	if lqi.Status != ZSuccess {
+		log.Printf("failed lqi response from %+v\n", lqi.SourceAddress)
+		return
+	}
 
+	fmt.Printf("LQI: %+v\n", lqi)
+
+	for _, neighbour := range lqi.Neighbors {
+		role := RoleUnknown
+
+		switch neighbour.Status & 0x03 {
+		case 0x00:
+			role = RoleCoordinator
+		case 0x01:
+			role = RoleRouter
+		case 0x02:
+			role = RoleEndDevice
+		}
+
+		z.addOrUpdateDevice(neighbour.IEEEAddress, z.NetAddr(neighbour.NetworkAddress), z.Role(role))
+	}
 }
 
 func (z *ZStack) receiveLQIUpdate(u func(interface{}) error) {
@@ -124,60 +144,6 @@ func (z *ZStack) receiveLeaveAnnouncement(u func(interface{}) error) {
 	if err = u(&msg); err == nil {
 		z.networkManagerIncoming <- msg
 	}
-}
-
-type DeviceFact func(*Device)
-
-func Role(role DeviceRole) DeviceFact {
-	return func(device *Device) {
-		device.Role = role
-	}
-}
-
-func (z *ZStack) addOrUpdateDevice(ieee zigbee.IEEEAddress, network zigbee.NetworkAddress, facts ...DeviceFact) *Device {
-	_, present := z.devices[ieee]
-
-	if present {
-		z.devices[ieee].NetworkAddress = network
-	} else {
-		z.devices[ieee] = &Device{
-			NetworkAddress: network,
-			IEEEAddress:    ieee,
-			Role:           RoleUnknown,
-			Neighbours:     map[zigbee.IEEEAddress]*DeviceNeighbour{},
-		}
-	}
-
-	for _, f := range facts {
-		f(z.devices[ieee])
-	}
-
-	return z.devices[ieee]
-}
-
-func (z *ZStack) removeDevice(ieee zigbee.IEEEAddress) {
-	delete(z.devices, ieee)
-}
-
-type DeviceRole uint8
-
-const (
-	RoleCoordinator DeviceRole = 0x00
-	RoleRouter      DeviceRole = 0x01
-	RoleEndDevice   DeviceRole = 0x02
-	RoleUnknown     DeviceRole = 0xff
-)
-
-type Device struct {
-	NetworkAddress zigbee.NetworkAddress
-	IEEEAddress    zigbee.IEEEAddress
-	Role           DeviceRole
-	Neighbours     map[zigbee.IEEEAddress]*DeviceNeighbour
-}
-
-type DeviceNeighbour struct {
-	IEEEAddress zigbee.IEEEAddress
-	LQI         uint8
 }
 
 type ZdoMGMTLQIReq struct {
