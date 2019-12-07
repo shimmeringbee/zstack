@@ -8,9 +8,9 @@ func (z *ZStack) addOrUpdateDevice(ieee zigbee.IEEEAddress, facts ...DeviceFact)
 
 	if !present {
 		z.devices[ieee] = &Device{
-			IEEEAddress:    ieee,
-			Role:           RoleUnknown,
-			Neighbours:     map[zigbee.IEEEAddress]*DeviceNeighbour{},
+			IEEEAddress: ieee,
+			Role:        RoleUnknown,
+			Neighbours:  map[zigbee.IEEEAddress]*DeviceNeighbour{},
 		}
 
 		newDevice = true
@@ -21,6 +21,17 @@ func (z *ZStack) addOrUpdateDevice(ieee zigbee.IEEEAddress, facts ...DeviceFact)
 	}
 
 	return z.devices[ieee], newDevice
+}
+
+func (z *ZStack) getDevice(netaddr zigbee.NetworkAddress) (*Device, bool) {
+	ieee, found := z.devicesByNetAddr[netaddr]
+
+	if found {
+		device, found := z.devices[ieee]
+		return device, found
+	}
+
+	return nil, found
 }
 
 type DeviceFact func(*Device)
@@ -49,6 +60,10 @@ func (z *ZStack) removeDevice(ieee zigbee.IEEEAddress) {
 		delete(z.devices, ieee)
 		delete(z.devicesByNetAddr, device.NetworkAddress)
 	}
+
+	for _, device := range z.devices {
+		delete(device.Neighbours, ieee)
+	}
 }
 
 type DeviceRole uint8
@@ -67,6 +82,16 @@ type Device struct {
 	Neighbours     map[zigbee.IEEEAddress]*DeviceNeighbour
 }
 
+type DeviceRelationship uint8
+
+const (
+	RelationshipParent  DeviceRelationship = 0x00
+	RelationshipChild   DeviceRelationship = 0x01
+	RelationshipSibling DeviceRelationship = 0x02
+	RelationshipUnknown DeviceRelationship = 0x03
+)
+
 type DeviceNeighbour struct {
-	LQI         uint8
+	Relationship DeviceRelationship
+	LQI          uint8
 }

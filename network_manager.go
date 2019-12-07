@@ -105,9 +105,13 @@ func (z *ZStack) processLQITable(lqi ZdoMGMTLQIResp) {
 		return
 	}
 
-	fmt.Printf("LQI: %+v\n", lqi)
+	sourceDevice, sourceFound := z.getDevice(lqi.SourceAddress)
 
 	for _, neighbour := range lqi.Neighbors {
+		if neighbour.ExtendedPANID != z.NetworkProperties.ExtendedPANID {
+			continue
+		}
+
 		role := RoleUnknown
 
 		switch neighbour.Status & 0x03 {
@@ -120,6 +124,18 @@ func (z *ZStack) processLQITable(lqi ZdoMGMTLQIResp) {
 		}
 
 		z.addOrUpdateDevice(neighbour.IEEEAddress, z.NetAddr(neighbour.NetworkAddress), z.Role(role))
+
+		if sourceFound {
+			dn, found := sourceDevice.Neighbours[neighbour.IEEEAddress]
+
+			if !found {
+				dn = &DeviceNeighbour{}
+				sourceDevice.Neighbours[neighbour.IEEEAddress] = dn
+			}
+
+			dn.LQI = neighbour.LQI
+			dn.Relationship = DeviceRelationship((neighbour.Status & 0x70) >> 4)
+		}
 	}
 }
 

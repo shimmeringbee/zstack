@@ -155,6 +155,9 @@ func Test_NetworkManager(t *testing.T) {
 			IEEEAddress:   zigbee.IEEEAddress(0x0102030405060708),
 		}
 
+		zstack.devices[zigbee.IEEEAddress(0)] = &Device{ Neighbours: map[zigbee.IEEEAddress]*DeviceNeighbour{}}
+		zstack.devices[zigbee.IEEEAddress(0)].Neighbours[announce.IEEEAddress] = &DeviceNeighbour{LQI:50}
+
 		zstack.devices[announce.IEEEAddress] = &Device{
 			NetworkAddress: 0x2000,
 			IEEEAddress:    announce.IEEEAddress,
@@ -188,6 +191,9 @@ func Test_NetworkManager(t *testing.T) {
 		assert.False(t, found)
 
 		_, found = zstack.devicesByNetAddr[announce.SourceAddress]
+		assert.False(t, found)
+
+		_, found = zstack.devices[zigbee.IEEEAddress(0)].Neighbours[deviceLeave.IEEEAddress]
 		assert.False(t, found)
 	})
 	
@@ -265,6 +271,15 @@ func Test_NetworkManager(t *testing.T) {
 					ExtendedPANID:  zstack.NetworkProperties.ExtendedPANID,
 					IEEEAddress:    zigbee.IEEEAddress(0x1000),
 					NetworkAddress: zigbee.NetworkAddress(0x2000),
+					Status:         0b00100001,
+					PermitJoining:  0,
+					Depth:          0,
+					LQI:            67,
+				},
+				{
+					ExtendedPANID:  0xfffffff,
+					IEEEAddress:    zigbee.IEEEAddress(0x2000),
+					NetworkAddress: zigbee.NetworkAddress(0x4000),
 					Status:         0b00000001,
 					PermitJoining:  0,
 					Depth:          0,
@@ -291,5 +306,15 @@ func Test_NetworkManager(t *testing.T) {
 			assert.Equal(t, zigbee.NetworkAddress(0x2000), device.NetworkAddress)
 			assert.Equal(t, RoleRouter, device.Role)
 		}
+
+		_, found = zstack.devices[zigbee.IEEEAddress(0x2000)]
+		assert.False(t, found)
+
+		requestingDevice, _ := zstack.devices[zigbee.IEEEAddress(0)]
+
+		neighbourEntry, found := requestingDevice.Neighbours[zigbee.IEEEAddress(0x1000)]
+		assert.True(t, found)
+		assert.Equal(t, uint8(67), neighbourEntry.LQI)
+		assert.Equal(t, RelationshipSibling, neighbourEntry.Relationship)
 	})
 }
