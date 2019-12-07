@@ -276,6 +276,60 @@ func Test_NetworkManager(t *testing.T) {
 					Depth:          0,
 					LQI:            67,
 				},
+			},
+		}
+
+		data, _ := bytecodec.Marshall(announce)
+
+		unpiMock.InjectOutgoing(Frame{
+			MessageType: AREQ,
+			Subsystem:   ZDO,
+			CommandID:   ZdoMGMTLQIRespID,
+			Payload:     data,
+		})
+
+		time.Sleep(10 * time.Millisecond)
+
+		device, found := zstack.devices[zigbee.IEEEAddress(0x1000)]
+		assert.True(t, found)
+
+		if found {
+			assert.Equal(t, zigbee.NetworkAddress(0x2000), device.NetworkAddress)
+			assert.Equal(t, RoleRouter, device.Role)
+		}
+
+		requestingDevice, _ := zstack.devices[zigbee.IEEEAddress(0)]
+
+		neighbourEntry, found := requestingDevice.Neighbours[zigbee.IEEEAddress(0x1000)]
+		assert.True(t, found)
+		assert.Equal(t, uint8(67), neighbourEntry.LQI)
+		assert.Equal(t, RelationshipSibling, neighbourEntry.Relationship)
+	})
+
+	t.Run("devices in LQI query are only added if Ext PANID matches", func(t *testing.T) {
+		unpiMock := unpiTest.NewMockAdapter()
+		zstack := New(unpiMock)
+		defer unpiMock.Stop()
+		defer unpiMock.AssertCalls(t)
+
+		unpiMock.On(SREQ, ZDO, ZdoMGMTLQIReqID).Return(Frame{
+			MessageType: SRSP,
+			Subsystem:   ZDO,
+			CommandID:   ZdoMGMTLQIReqRespID,
+			Payload:     []byte{0x00},
+		}).UnlimitedTimes()
+
+		zstack.startNetworkManager()
+		defer zstack.stopNetworkManager()
+
+		time.Sleep(10 * time.Millisecond)
+
+		announce := ZdoMGMTLQIResp{
+			SourceAddress:         0,
+			Status:                0,
+			NeighbourTableEntries: 1,
+			StartIndex:            0,
+			Neighbors:             []ZdoMGMTLQINeighbour{
 				{
 					ExtendedPANID:  0xfffffff,
 					IEEEAddress:    zigbee.IEEEAddress(0x2000),
@@ -299,22 +353,51 @@ func Test_NetworkManager(t *testing.T) {
 
 		time.Sleep(10 * time.Millisecond)
 
-		device, found := zstack.devices[zigbee.IEEEAddress(0x1000)]
-		assert.True(t, found)
+		_, found := zstack.devices[zigbee.IEEEAddress(0x2000)]
+		assert.False(t, found)
+	})
 
-		if found {
-			assert.Equal(t, zigbee.NetworkAddress(0x2000), device.NetworkAddress)
-			assert.Equal(t, RoleRouter, device.Role)
+	t.Run("neighbours are removed from device if LQI does not return them", func(t *testing.T) {
+		unpiMock := unpiTest.NewMockAdapter()
+		zstack := New(unpiMock)
+		defer unpiMock.Stop()
+		defer unpiMock.AssertCalls(t)
+
+		unpiMock.On(SREQ, ZDO, ZdoMGMTLQIReqID).Return(Frame{
+			MessageType: SRSP,
+			Subsystem:   ZDO,
+			CommandID:   ZdoMGMTLQIReqRespID,
+			Payload:     []byte{0x00},
+		}).UnlimitedTimes()
+
+		zstack.startNetworkManager()
+		defer zstack.stopNetworkManager()
+
+		time.Sleep(10 * time.Millisecond)
+
+		zstack.devices[zigbee.IEEEAddress(0)].Neighbours[zigbee.IEEEAddress(0x1000)] = &DeviceNeighbour{}
+
+		announce := ZdoMGMTLQIResp{
+			SourceAddress:         0,
+			Status:                0,
+			NeighbourTableEntries: 1,
+			StartIndex:            0,
+			Neighbors:             []ZdoMGMTLQINeighbour{},
 		}
 
-		_, found = zstack.devices[zigbee.IEEEAddress(0x2000)]
-		assert.False(t, found)
+		data, _ := bytecodec.Marshall(announce)
+
+		unpiMock.InjectOutgoing(Frame{
+			MessageType: AREQ,
+			Subsystem:   ZDO,
+			CommandID:   ZdoMGMTLQIRespID,
+			Payload:     data,
+		})
+
+		time.Sleep(10 * time.Millisecond)
 
 		requestingDevice, _ := zstack.devices[zigbee.IEEEAddress(0)]
-
-		neighbourEntry, found := requestingDevice.Neighbours[zigbee.IEEEAddress(0x1000)]
-		assert.True(t, found)
-		assert.Equal(t, uint8(67), neighbourEntry.LQI)
-		assert.Equal(t, RelationshipSibling, neighbourEntry.Relationship)
+		_, found := requestingDevice.Neighbours[zigbee.IEEEAddress(0x1000)]
+		assert.False(t, found)
 	})
 }

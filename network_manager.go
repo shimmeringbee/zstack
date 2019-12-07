@@ -105,6 +105,8 @@ func (z *ZStack) processLQITable(lqi ZdoMGMTLQIResp) {
 		return
 	}
 
+	currentTime := time.Now()
+
 	sourceDevice, sourceFound := z.getDevice(lqi.SourceAddress)
 
 	for _, neighbour := range lqi.Neighbors {
@@ -135,6 +137,21 @@ func (z *ZStack) processLQITable(lqi ZdoMGMTLQIResp) {
 
 			dn.LQI = neighbour.LQI
 			dn.Relationship = DeviceRelationship((neighbour.Status & 0x70) >> 4)
+			dn.LastObserved = currentTime
+		}
+	}
+
+	if sourceFound {
+		var oldNeighbours []zigbee.IEEEAddress
+
+		for ieee, neighbour := range sourceDevice.Neighbours {
+			if neighbour.LastObserved.Before(currentTime) {
+				oldNeighbours = append(oldNeighbours, ieee)
+			}
+		}
+
+		for _, ieee := range oldNeighbours {
+			delete(sourceDevice.Neighbours, ieee)
 		}
 	}
 }

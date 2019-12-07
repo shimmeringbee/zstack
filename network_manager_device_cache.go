@@ -1,6 +1,9 @@
 package zstack
 
-import "github.com/shimmeringbee/zigbee"
+import (
+	"github.com/shimmeringbee/zigbee"
+	"time"
+)
 
 func (z *ZStack) addOrUpdateDevice(ieee zigbee.IEEEAddress, facts ...DeviceFact) (*Device, bool) {
 	_, present := z.devices[ieee]
@@ -94,4 +97,5 @@ const (
 type DeviceNeighbour struct {
 	Relationship DeviceRelationship
 	LQI          uint8
+	LastObserved time.Time
 }
