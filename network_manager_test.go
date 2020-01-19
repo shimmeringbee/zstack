@@ -306,7 +306,7 @@ func Test_NetworkManager(t *testing.T) {
 		assert.Equal(t, RelationshipSibling, neighbourEntry.Relationship)
 	})
 
-	t.Run("devices in LQI query are only added if Ext PANID matches", func(t *testing.T) {
+	t.Run("devices in LQI query are not added if Ext PANID does not match", func(t *testing.T) {
 		unpiMock := unpiTest.NewMockAdapter()
 		zstack := New(unpiMock)
 		defer unpiMock.Stop()
@@ -354,6 +354,59 @@ func Test_NetworkManager(t *testing.T) {
 		time.Sleep(10 * time.Millisecond)
 
 		_, found := zstack.devices[zigbee.IEEEAddress(0x2000)]
+		assert.False(t, found)
+	})
+
+	t.Run("devices in LQI query are not added if it has an invalid IEEE address", func(t *testing.T) {
+		unpiMock := unpiTest.NewMockAdapter()
+		zstack := New(unpiMock)
+		zstack.NetworkProperties.IEEEAddress = zigbee.IEEEAddress(1)
+
+		defer unpiMock.Stop()
+		defer unpiMock.AssertCalls(t)
+
+		unpiMock.On(SREQ, ZDO, ZdoMGMTLQIReqID).Return(Frame{
+			MessageType: SRSP,
+			Subsystem:   ZDO,
+			CommandID:   ZdoMGMTLQIReqRespID,
+			Payload:     []byte{0x00},
+		}).UnlimitedTimes()
+
+		zstack.startNetworkManager()
+		defer zstack.stopNetworkManager()
+
+		time.Sleep(10 * time.Millisecond)
+
+		announce := ZdoMGMTLQIResp{
+			SourceAddress:         0,
+			Status:                0,
+			NeighbourTableEntries: 1,
+			StartIndex:            0,
+			Neighbors:             []ZdoMGMTLQINeighbour{
+				{
+					ExtendedPANID:  zstack.NetworkProperties.ExtendedPANID,
+					IEEEAddress:    zigbee.IEEEAddress(0),
+					NetworkAddress: zigbee.NetworkAddress(0x4000),
+					Status:         0b00000001,
+					PermitJoining:  0,
+					Depth:          0,
+					LQI:            67,
+				},
+			},
+		}
+
+		data, _ := bytecodec.Marshall(announce)
+
+		unpiMock.InjectOutgoing(Frame{
+			MessageType: AREQ,
+			Subsystem:   ZDO,
+			CommandID:   ZdoMGMTLQIRespID,
+			Payload:     data,
+		})
+
+		time.Sleep(10 * time.Millisecond)
+
+		_, found := zstack.devices[zigbee.IEEEAddress(0)]
 		assert.False(t, found)
 	})
 

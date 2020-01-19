@@ -95,7 +95,7 @@ func (z *ZStack) requestLQITable(device Device) {
 	}
 
 	if resp.Status != ZSuccess {
-		log.Printf("failed to request lqi tables: from adapter\n")
+		log.Printf("failed to request lqi tables: from the adapter\n")
 	}
 }
 
@@ -110,7 +110,7 @@ func (z *ZStack) processLQITable(lqi ZdoMGMTLQIResp) {
 	sourceDevice, sourceFound := z.getDevice(lqi.SourceAddress)
 
 	for _, neighbour := range lqi.Neighbors {
-		if neighbour.ExtendedPANID != z.NetworkProperties.ExtendedPANID {
+		if neighbour.ExtendedPANID != z.NetworkProperties.ExtendedPANID || neighbour.IEEEAddress == zigbee.EmptyIEEEAddress {
 			continue
 		}
 
