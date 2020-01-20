@@ -5,23 +5,23 @@ import (
 	"github.com/shimmeringbee/zigbee"
 )
 
-func (z *ZStack) GetDeviceIEEEAddress(ctx context.Context) (zigbee.IEEEAddress, error) {
-	data, err := z.getDeviceInfo(ctx, IEEEAddress)
+func (z *ZStack) GetAdapterIEEEAddress(ctx context.Context) (zigbee.IEEEAddress, error) {
+	data, err := z.getAddressInfo(ctx, IEEEAddress)
 
 	ieeeAddress := zigbee.IEEEAddress(data)
 
 	return ieeeAddress, err
 }
 
-func (z *ZStack) GetDeviceNetworkAddress(ctx context.Context) (zigbee.NetworkAddress, error) {
-	data, err := z.getDeviceInfo(ctx, NetworkAddress)
+func (z *ZStack) GetAddressNetworkAddress(ctx context.Context) (zigbee.NetworkAddress, error) {
+	data, err := z.getAddressInfo(ctx, NetworkAddress)
 
 	networkAddress := zigbee.NetworkAddress(data & 0xffff)
 
 	return networkAddress, err
 }
 
-func (z *ZStack) getDeviceInfo(ctx context.Context, parameter DeviceInfoParameter) (uint64, error) {
+func (z *ZStack) getAddressInfo(ctx context.Context, parameter DeviceInfoParameter) (uint64, error) {
 	resp := SAPIZBGetDeviceInfoResp{}
 
 	if err := z.requestResponder.RequestResponse(ctx, SAPIZBGetDeviceInfoReq{Parameter: parameter}, &resp); err != nil {

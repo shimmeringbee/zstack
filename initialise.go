@@ -70,7 +70,7 @@ func (z *ZStack) Initialise(ctx context.Context, nc zigbee.NetworkConfiguration)
 			})
 		},
 		func(invokeCtx context.Context) error {
-			address, err := z.GetDeviceIEEEAddress(ctx)
+			address, err := z.GetAdapterIEEEAddress(ctx)
 
 			if err != nil {
 				return err
@@ -93,7 +93,7 @@ func (z *ZStack) Initialise(ctx context.Context, nc zigbee.NetworkConfiguration)
 	}
 
 	if err := Retry(ctx, DefaultZStackTimeout, DefaultZStackRetries, func(invokeCtx context.Context) error {
-		address, err := z.GetDeviceNetworkAddress(ctx)
+		address, err := z.GetAddressNetworkAddress(ctx)
 
 		if err != nil {
 			return err
