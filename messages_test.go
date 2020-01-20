@@ -249,4 +249,32 @@ func Test_registerMessages(t *testing.T) {
 		assert.True(t, found)
 		assert.Equal(t, reflect.TypeOf(ZdoMGMTLQIResp{}), ty)
 	})
+
+	t.Run("AFRegisterReq", func(t *testing.T) {
+		identity, found := ml.GetByObject(&AFRegisterReq{})
+
+		assert.True(t, found)
+		assert.Equal(t, SREQ, identity.MessageType)
+		assert.Equal(t, AF, identity.Subsystem)
+		assert.Equal(t, uint8(0x00), identity.CommandID)
+
+		ty, found := ml.GetByIdentifier(SREQ, AF, 0x00)
+
+		assert.True(t, found)
+		assert.Equal(t, reflect.TypeOf(AFRegisterReq{}), ty)
+	})
+
+	t.Run("AFRegisterResp", func(t *testing.T) {
+		identity, found := ml.GetByObject(&AFRegisterResp{})
+
+		assert.True(t, found)
+		assert.Equal(t, SRSP, identity.MessageType)
+		assert.Equal(t, AF, identity.Subsystem)
+		assert.Equal(t, uint8(0x00), identity.CommandID)
+
+		ty, found := ml.GetByIdentifier(SRSP, AF, 0x00)
+
+		assert.True(t, found)
+		assert.Equal(t, reflect.TypeOf(AFRegisterResp{}), ty)
+	})
 }

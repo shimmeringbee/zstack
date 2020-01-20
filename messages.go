@@ -30,6 +30,9 @@ func registerMessages(l *Library) {
 	l.Add(SREQ, ZDO, ZdoMGMTLQIReqID, ZdoMGMTLQIReq{})
 	l.Add(SRSP, ZDO, ZdoMGMTLQIReqRespID, ZdoMGMTLQIReqResp{})
 	l.Add(AREQ, ZDO, ZdoMGMTLQIRespID, ZdoMGMTLQIResp{})
+
+	l.Add(SREQ, AF, AFRegisterReqID, AFRegisterReq{})
+	l.Add(SRSP, AF, AFRegisterRespID, AFRegisterResp{})
 }
 
 type ZStackStatus uint8
