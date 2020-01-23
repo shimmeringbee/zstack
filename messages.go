@@ -1,6 +1,7 @@
 package zstack
 
 import (
+	"errors"
 	. "github.com/shimmeringbee/unpi"
 	. "github.com/shimmeringbee/unpi/library"
 )
@@ -41,6 +42,9 @@ type GenericZStackStatus struct {
 	Status ZStackStatus
 }
 
+var ErrorZFailure = errors.New("ZStack has returned a failure")
+
 const (
 	ZSuccess ZStackStatus = 0x00
+	ZFailure ZStackStatus = 0x01
 )

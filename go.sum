@@ -10,10 +10,6 @@ github.com/shimmeringbee/unpi v0.0.0-20191124160853-b7506f4268dc h1:XyZJUCcg8zjU
 github.com/shimmeringbee/unpi v0.0.0-20191124160853-b7506f4268dc/go.mod h1:MYXlvqOqrIksiJBc209E8DvznRbaDQqGknnC6/ldlv4=
 github.com/shimmeringbee/zigbee v0.0.0-20191117130828-cab4fe16ac87 h1:Yi9tjP5tI85XvDdo9HLLAjMklomwmWGLe+DVxQCIjnE=
 github.com/shimmeringbee/zigbee v0.0.0-20191117130828-cab4fe16ac87/go.mod h1:WVZ5totAgMhUc1ubHym27LsKRnXv1MAiGyaDEs4dzak=
-github.com/shimmeringbee/zigbee v0.0.0-20191124202252-a2411f533fcf h1:0tuCjQUyYpduHUfp+VTq/kxBkw3nd4Y2wTpxc44QFts=
-github.com/shimmeringbee/zigbee v0.0.0-20191124202252-a2411f533fcf/go.mod h1:WVZ5totAgMhUc1ubHym27LsKRnXv1MAiGyaDEs4dzak=
-github.com/shimmeringbee/zigbee v0.0.0-20200119191548-ead6f733dc84 h1:YRL3oocv0SF78Sx5wYVtHHtBfPRdjFnQs6IcNAcQWms=
-github.com/shimmeringbee/zigbee v0.0.0-20200119191548-ead6f733dc84/go.mod h1:WVZ5totAgMhUc1ubHym27LsKRnXv1MAiGyaDEs4dzak=
 github.com/shimmeringbee/zigbee v0.0.0-20200120203528-41c732360d3b h1:t2oXaGn3t/PFHs4PhlDEkDdTXunyNC3b46ecqEmKxyE=
 github.com/shimmeringbee/zigbee v0.0.0-20200120203528-41c732360d3b/go.mod h1:WVZ5totAgMhUc1ubHym27LsKRnXv1MAiGyaDEs4dzak=
 github.com/shimmeringbee/zstack v0.0.0-20191118220231-acddb74ca28e/go.mod h1:U7Upz3GOefZyV1IA28N3v/iY4MLBqkujTspCZr5mv6k=
