@@ -60,7 +60,7 @@ func TestZStack_RegisterAdapterEndpoint(t *testing.T) {
 	})
 }
 
-func Test_endpointRegisterMessages(t *testing.T) {
+func Test_EndpointRegisterMessages(t *testing.T) {
 	t.Run("verify AFRegisterReq marshals", func(t *testing.T) {
 		req := AFRegisterReq{
 			Endpoint:         1,
