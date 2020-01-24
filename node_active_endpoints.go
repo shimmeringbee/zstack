@@ -1,6 +1,55 @@
 package zstack
 
-import "github.com/shimmeringbee/zigbee"
+import (
+	"context"
+	"errors"
+	"github.com/shimmeringbee/zigbee"
+)
+
+func (z *ZStack) QueryNodeEndpoints(ctx context.Context, networkAddress zigbee.NetworkAddress) ([]byte, error) {
+	ch := make(chan ZdoActiveEpRsp)
+
+	err, stop := z.subscriber.Subscribe(ZdoActiveEpRsp{}, func(unmarshal func(v interface{}) error) {
+		msg := ZdoActiveEpRsp{}
+		err := unmarshal(&msg)
+
+		if err == nil && msg.OfInterestAddress == networkAddress {
+			ch <- msg
+		}
+	})
+
+	defer stop()
+
+	if err != nil {
+		return []byte{}, err
+	}
+
+	request := ZdoActiveEpReq{
+		DestinationAddress: networkAddress,
+		OfInterestAddress:  networkAddress,
+	}
+
+	resp := ZdoActiveEpReqReply{}
+
+	if err := z.requestResponder.RequestResponse(ctx, request, &resp); err != nil {
+		return []byte{}, err
+	}
+
+	if resp.Status != ZSuccess {
+		return []byte{}, ErrorZFailure
+	}
+
+	select {
+	case response := <-ch:
+		if response.Status == ZSuccess {
+			return response.ActiveEndpoints, nil
+		} else {
+			return []byte{}, errors.New("error response received from node")
+		}
+	case <-ctx.Done():
+		return []byte{}, errors.New("context expired while waiting for response from node")
+	}
+}
 
 type ZdoActiveEpReq struct {
 	DestinationAddress zigbee.NetworkAddress
