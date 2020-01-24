@@ -14,7 +14,10 @@ func (z *ZStack) QueryNodeEndpoints(ctx context.Context, networkAddress zigbee.N
 		err := unmarshal(&msg)
 
 		if err == nil && msg.OfInterestAddress == networkAddress {
-			ch <- msg
+			select {
+			case ch <- msg:
+			case <-ctx.Done():
+			}
 		}
 	})
 
