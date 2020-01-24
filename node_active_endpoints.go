@@ -8,7 +8,6 @@ import (
 
 func (z *ZStack) QueryNodeEndpoints(ctx context.Context, networkAddress zigbee.NetworkAddress) ([]byte, error) {
 	ch := make(chan ZdoActiveEpRsp)
-	defer close(ch)
 
 	err, stop := z.subscriber.Subscribe(ZdoActiveEpRsp{}, func(unmarshal func(v interface{}) error) {
 		msg := ZdoActiveEpRsp{}
