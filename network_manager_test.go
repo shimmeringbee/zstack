@@ -261,7 +261,7 @@ func Test_NetworkManager(t *testing.T) {
 
 		time.Sleep(10 * time.Millisecond)
 
-		announce := ZdoMGMTLQIResp{
+		announce := ZdoMGMTLQIRsp{
 			SourceAddress:         0,
 			Status:                0,
 			NeighbourTableEntries: 1,
@@ -284,7 +284,7 @@ func Test_NetworkManager(t *testing.T) {
 		unpiMock.InjectOutgoing(Frame{
 			MessageType: AREQ,
 			Subsystem:   ZDO,
-			CommandID:   ZdoMGMTLQIRespID,
+			CommandID:   ZdoMGMTLQIRspID,
 			Payload:     data,
 		})
 
@@ -324,7 +324,7 @@ func Test_NetworkManager(t *testing.T) {
 
 		time.Sleep(10 * time.Millisecond)
 
-		announce := ZdoMGMTLQIResp{
+		announce := ZdoMGMTLQIRsp{
 			SourceAddress:         0,
 			Status:                0,
 			NeighbourTableEntries: 1,
@@ -347,7 +347,7 @@ func Test_NetworkManager(t *testing.T) {
 		unpiMock.InjectOutgoing(Frame{
 			MessageType: AREQ,
 			Subsystem:   ZDO,
-			CommandID:   ZdoMGMTLQIRespID,
+			CommandID:   ZdoMGMTLQIRspID,
 			Payload:     data,
 		})
 
@@ -377,7 +377,7 @@ func Test_NetworkManager(t *testing.T) {
 
 		time.Sleep(10 * time.Millisecond)
 
-		announce := ZdoMGMTLQIResp{
+		announce := ZdoMGMTLQIRsp{
 			SourceAddress:         0,
 			Status:                0,
 			NeighbourTableEntries: 1,
@@ -400,7 +400,7 @@ func Test_NetworkManager(t *testing.T) {
 		unpiMock.InjectOutgoing(Frame{
 			MessageType: AREQ,
 			Subsystem:   ZDO,
-			CommandID:   ZdoMGMTLQIRespID,
+			CommandID:   ZdoMGMTLQIRspID,
 			Payload:     data,
 		})
 
@@ -430,7 +430,7 @@ func Test_NetworkManager(t *testing.T) {
 
 		zstack.devices[zigbee.IEEEAddress(0)].Neighbours[zigbee.IEEEAddress(0x1000)] = &DeviceNeighbour{}
 
-		announce := ZdoMGMTLQIResp{
+		announce := ZdoMGMTLQIRsp{
 			SourceAddress:         0,
 			Status:                0,
 			NeighbourTableEntries: 1,
@@ -443,7 +443,7 @@ func Test_NetworkManager(t *testing.T) {
 		unpiMock.InjectOutgoing(Frame{
 			MessageType: AREQ,
 			Subsystem:   ZDO,
-			CommandID:   ZdoMGMTLQIRespID,
+			CommandID:   ZdoMGMTLQIRspID,
 			Payload:     data,
 		})
 

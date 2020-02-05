@@ -236,8 +236,8 @@ func Test_registerMessages(t *testing.T) {
 		assert.Equal(t, reflect.TypeOf(ZdoMGMTLQIReqReply{}), ty)
 	})
 
-	t.Run("ZdoMGMTLQIResp", func(t *testing.T) {
-		identity, found := ml.GetByObject(&ZdoMGMTLQIResp{})
+	t.Run("ZdoMGMTLQIRsp", func(t *testing.T) {
+		identity, found := ml.GetByObject(&ZdoMGMTLQIRsp{})
 
 		assert.True(t, found)
 		assert.Equal(t, AREQ, identity.MessageType)
@@ -247,7 +247,7 @@ func Test_registerMessages(t *testing.T) {
 		ty, found := ml.GetByIdentifier(AREQ, ZDO, 0xb1)
 
 		assert.True(t, found)
-		assert.Equal(t, reflect.TypeOf(ZdoMGMTLQIResp{}), ty)
+		assert.Equal(t, reflect.TypeOf(ZdoMGMTLQIRsp{}), ty)
 	})
 
 	t.Run("AFRegister", func(t *testing.T) {

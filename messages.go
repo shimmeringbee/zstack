@@ -30,7 +30,7 @@ func registerMessages(l *Library) {
 
 	l.Add(SREQ, ZDO, ZdoMGMTLQIReqID, ZdoMGMTLQIReq{})
 	l.Add(SRSP, ZDO, ZdoMGMTLQIReqReplyID, ZdoMGMTLQIReqReply{})
-	l.Add(AREQ, ZDO, ZdoMGMTLQIRespID, ZdoMGMTLQIResp{})
+	l.Add(AREQ, ZDO, ZdoMGMTLQIRspID, ZdoMGMTLQIRsp{})
 
 	l.Add(SREQ, AF, AFRegisterID, AFRegister{})
 	l.Add(SRSP, AF, AFRegisterReplyID, AFRegisterReply{})

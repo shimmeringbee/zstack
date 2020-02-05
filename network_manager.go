@@ -26,7 +26,7 @@ func (z *ZStack) networkManager() {
 	defer close(immediateStart)
 	immediateStart <- true
 
-	_, cancel := z.subscriber.Subscribe(&ZdoMGMTLQIResp{}, z.receiveLQIUpdate)
+	_, cancel := z.subscriber.Subscribe(&ZdoMGMTLQIRsp{}, z.receiveLQIUpdate)
 	defer cancel()
 
 	_, cancel = z.subscriber.Subscribe(&ZdoEndDeviceAnnceInd{}, z.receiveEndDeviceAnnouncement)
@@ -45,7 +45,7 @@ func (z *ZStack) networkManager() {
 			return
 		case ue := <-z.networkManagerIncoming:
 			switch e := ue.(type) {
-			case ZdoMGMTLQIResp:
+			case ZdoMGMTLQIRsp:
 				z.processLQITable(e)
 			case ZdoEndDeviceAnnceInd:
 				role := RoleEndDevice
@@ -99,7 +99,7 @@ func (z *ZStack) requestLQITable(device Device) {
 	}
 }
 
-func (z *ZStack) processLQITable(lqi ZdoMGMTLQIResp) {
+func (z *ZStack) processLQITable(lqi ZdoMGMTLQIRsp) {
 	if lqi.Status != ZSuccess {
 		log.Printf("failed lqi response from %+v\n", lqi.SourceAddress)
 		return
@@ -157,7 +157,7 @@ func (z *ZStack) processLQITable(lqi ZdoMGMTLQIResp) {
 }
 
 func (z *ZStack) receiveLQIUpdate(u func(interface{}) error) {
-	msg := ZdoMGMTLQIResp{}
+	msg := ZdoMGMTLQIRsp{}
 	if err := u(&msg); err == nil {
 		z.networkManagerIncoming <- msg
 	}
@@ -200,7 +200,7 @@ type ZdoMGMTLQINeighbour struct {
 	LQI            uint8
 }
 
-type ZdoMGMTLQIResp struct {
+type ZdoMGMTLQIRsp struct {
 	SourceAddress         zigbee.NetworkAddress
 	Status                ZStackStatus
 	NeighbourTableEntries uint8
@@ -208,4 +208,4 @@ type ZdoMGMTLQIResp struct {
 	Neighbors             []ZdoMGMTLQINeighbour `bclength:"8"`
 }
 
-const ZdoMGMTLQIRespID uint8 = 0xb1
+const ZdoMGMTLQIRspID uint8 = 0xb1
