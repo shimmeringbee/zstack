@@ -278,6 +278,48 @@ func Test_registerMessages(t *testing.T) {
 		assert.Equal(t, reflect.TypeOf(AFRegisterReply{}), ty)
 	})
 
+	t.Run("ZdoActiveEpReq", func(t *testing.T) {
+		identity, found := ml.GetByObject(&ZdoActiveEpReq{})
+
+		assert.True(t, found)
+		assert.Equal(t, SREQ, identity.MessageType)
+		assert.Equal(t, ZDO, identity.Subsystem)
+		assert.Equal(t, uint8(0x05), identity.CommandID)
+
+		ty, found := ml.GetByIdentifier(SREQ, ZDO, 0x05)
+
+		assert.True(t, found)
+		assert.Equal(t, reflect.TypeOf(ZdoActiveEpReq{}), ty)
+	})
+
+	t.Run("ZdoActiveEpReqReply", func(t *testing.T) {
+		identity, found := ml.GetByObject(&ZdoActiveEpReqReply{})
+
+		assert.True(t, found)
+		assert.Equal(t, SRSP, identity.MessageType)
+		assert.Equal(t, ZDO, identity.Subsystem)
+		assert.Equal(t, uint8(0x05), identity.CommandID)
+
+		ty, found := ml.GetByIdentifier(SRSP, ZDO, 0x05)
+
+		assert.True(t, found)
+		assert.Equal(t, reflect.TypeOf(ZdoActiveEpReqReply{}), ty)
+	})
+
+	t.Run("ZdoActiveEpRsp", func(t *testing.T) {
+		identity, found := ml.GetByObject(&ZdoActiveEpRsp{})
+
+		assert.True(t, found)
+		assert.Equal(t, AREQ, identity.MessageType)
+		assert.Equal(t, ZDO, identity.Subsystem)
+		assert.Equal(t, uint8(0x85), identity.CommandID)
+
+		ty, found := ml.GetByIdentifier(AREQ, ZDO, 0x85)
+
+		assert.True(t, found)
+		assert.Equal(t, reflect.TypeOf(ZdoActiveEpRsp{}), ty)
+	})
+
 	t.Run("ZdoSimpleDescReq", func(t *testing.T) {
 		identity, found := ml.GetByObject(&ZdoSimpleDescReq{})
 
