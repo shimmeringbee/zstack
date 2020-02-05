@@ -278,45 +278,45 @@ func Test_registerMessages(t *testing.T) {
 		assert.Equal(t, reflect.TypeOf(AFRegisterReply{}), ty)
 	})
 
-	t.Run("ZdoActiveEpReq", func(t *testing.T) {
-		identity, found := ml.GetByObject(&ZdoActiveEpReq{})
+	t.Run("ZdoSimpleDescReq", func(t *testing.T) {
+		identity, found := ml.GetByObject(&ZdoSimpleDescReq{})
 
 		assert.True(t, found)
 		assert.Equal(t, SREQ, identity.MessageType)
 		assert.Equal(t, ZDO, identity.Subsystem)
-		assert.Equal(t, uint8(0x05), identity.CommandID)
+		assert.Equal(t, uint8(0x04), identity.CommandID)
 
-		ty, found := ml.GetByIdentifier(SREQ, ZDO, 0x05)
+		ty, found := ml.GetByIdentifier(SREQ, ZDO, 0x04)
 
 		assert.True(t, found)
-		assert.Equal(t, reflect.TypeOf(ZdoActiveEpReq{}), ty)
+		assert.Equal(t, reflect.TypeOf(ZdoSimpleDescReq{}), ty)
 	})
 
-	t.Run("ZdoActiveEpReqReply", func(t *testing.T) {
-		identity, found := ml.GetByObject(&ZdoActiveEpReqReply{})
+	t.Run("ZdoSimpleDescReqReply", func(t *testing.T) {
+		identity, found := ml.GetByObject(&ZdoSimpleDescReqReply{})
 
 		assert.True(t, found)
 		assert.Equal(t, SRSP, identity.MessageType)
 		assert.Equal(t, ZDO, identity.Subsystem)
-		assert.Equal(t, uint8(0x05), identity.CommandID)
+		assert.Equal(t, uint8(0x04), identity.CommandID)
 
-		ty, found := ml.GetByIdentifier(SRSP, ZDO, 0x05)
+		ty, found := ml.GetByIdentifier(SRSP, ZDO, 0x04)
 
 		assert.True(t, found)
-		assert.Equal(t, reflect.TypeOf(ZdoActiveEpReqReply{}), ty)
+		assert.Equal(t, reflect.TypeOf(ZdoSimpleDescReqReply{}), ty)
 	})
 
-	t.Run("ZdoActiveEpRsp", func(t *testing.T) {
-		identity, found := ml.GetByObject(&ZdoActiveEpRsp{})
+	t.Run("ZdoSimpleDescRsp", func(t *testing.T) {
+		identity, found := ml.GetByObject(&ZdoSimpleDescRsp{})
 
 		assert.True(t, found)
 		assert.Equal(t, AREQ, identity.MessageType)
 		assert.Equal(t, ZDO, identity.Subsystem)
-		assert.Equal(t, uint8(0x85), identity.CommandID)
+		assert.Equal(t, uint8(0x84), identity.CommandID)
 
-		ty, found := ml.GetByIdentifier(AREQ, ZDO, 0x85)
+		ty, found := ml.GetByIdentifier(AREQ, ZDO, 0x84)
 
 		assert.True(t, found)
-		assert.Equal(t, reflect.TypeOf(ZdoActiveEpRsp{}), ty)
+		assert.Equal(t, reflect.TypeOf(ZdoSimpleDescRsp{}), ty)
 	})
 }
