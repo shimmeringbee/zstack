@@ -89,7 +89,7 @@ func (z *ZStack) requestLQITable(device Device) {
 	ctx, cancel := context.WithTimeout(context.Background(), DefaultZStackTimeout)
 	defer cancel()
 
-	resp := ZdoMGMTLQIReqResp{}
+	resp := ZdoMGMTLQIReqReply{}
 	if err := z.requestResponder.RequestResponse(ctx, ZdoMGMTLQIReq{DestinationAddress: device.NetworkAddress, StartIndex: 0}, &resp); err != nil {
 		log.Printf("failed to request lqi tables: %v\n", err)
 	}
@@ -186,9 +186,9 @@ type ZdoMGMTLQIReq struct {
 
 const ZdoMGMTLQIReqID uint8 = 0x31
 
-type ZdoMGMTLQIReqResp GenericZStackStatus
+type ZdoMGMTLQIReqReply GenericZStackStatus
 
-const ZdoMGMTLQIReqRespID uint8 = 0x31
+const ZdoMGMTLQIReqReplyID uint8 = 0x31
 
 type ZdoMGMTLQINeighbour struct {
 	ExtendedPANID  zigbee.ExtendedPANID

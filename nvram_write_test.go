@@ -15,11 +15,11 @@ func TestZStack_writeNVRAM(t *testing.T) {
 	t.Run("verifies that a request response is made to unpi", func(t *testing.T) {
 		mrr := new(MockRequestResponder)
 
-		mrr.On("RequestResponse", mock.Anything, SysOSALNVWriteReq{
+		mrr.On("RequestResponse", mock.Anything, SysOSALNVWrite{
 			NVItemID: ZCDNVLogicalTypeID,
 			Offset:   0,
 			Value:    []byte{0x02},
-		}, &SysOSALNVWriteResp{}).Return(nil)
+		}, &SysOSALNVWriteReply{}).Return(nil)
 
 		z := ZStack{requestResponder: mrr}
 
@@ -48,11 +48,11 @@ func TestZStack_writeNVRAM(t *testing.T) {
 	t.Run("verifies that a request response with errors is raised", func(t *testing.T) {
 		mrr := new(MockRequestResponder)
 
-		mrr.On("RequestResponse", mock.Anything, SysOSALNVWriteReq{
+		mrr.On("RequestResponse", mock.Anything, SysOSALNVWrite{
 			NVItemID: ZCDNVLogicalTypeID,
 			Offset:   0,
 			Value:    []byte{0x02},
-		}, &SysOSALNVWriteResp{}).Return(errors.New("context expired"))
+		}, &SysOSALNVWriteReply{}).Return(errors.New("context expired"))
 
 		z := ZStack{requestResponder: mrr}
 
@@ -83,7 +83,7 @@ func TestZStack_writeNVRAM(t *testing.T) {
 type FailingMockRequestResponse struct{}
 
 func (m *FailingMockRequestResponse) RequestResponse(ctx context.Context, req interface{}, resp interface{}) error {
-	response, ok := resp.(*SysOSALNVWriteResp)
+	response, ok := resp.(*SysOSALNVWriteReply)
 
 	if !ok {
 		panic("incorrect type passed to mock")

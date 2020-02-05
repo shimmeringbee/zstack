@@ -6,7 +6,7 @@ import (
 )
 
 func (z *ZStack) RegisterAdapterEndpoint(ctx context.Context, endpoint uint8, appProfileId uint16, appDeviceId uint16, appDeviceVersion uint8, inClusters []zigbee.ZCLClusterID, outClusters []zigbee.ZCLClusterID) error {
-	request := AFRegisterReq{
+	request := AFRegister{
 		Endpoint:         endpoint,
 		AppProfileId:     appProfileId,
 		AppDeviceId:      appDeviceId,
@@ -16,7 +16,7 @@ func (z *ZStack) RegisterAdapterEndpoint(ctx context.Context, endpoint uint8, ap
 		AppOutClusters:   outClusters,
 	}
 
-	resp := AFRegisterResp{}
+	resp := AFRegisterReply{}
 
 	if err := z.requestResponder.RequestResponse(ctx, request, &resp); err != nil {
 		return err
@@ -29,7 +29,7 @@ func (z *ZStack) RegisterAdapterEndpoint(ctx context.Context, endpoint uint8, ap
 	return nil
 }
 
-type AFRegisterReq struct {
+type AFRegister struct {
 	Endpoint         uint8
 	AppProfileId     uint16
 	AppDeviceId      uint16
@@ -39,8 +39,8 @@ type AFRegisterReq struct {
 	AppOutClusters   []zigbee.ZCLClusterID `bclength:"8"`
 }
 
-const AFRegisterReqID uint8 = 0x00
+const AFRegisterID uint8 = 0x00
 
-type AFRegisterResp GenericZStackStatus
+type AFRegisterReply GenericZStackStatus
 
-const AFRegisterRespID uint8 = 0x00
+const AFRegisterReplyID uint8 = 0x00

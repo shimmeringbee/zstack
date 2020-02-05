@@ -22,9 +22,9 @@ func (z *ZStack) GetAddressNetworkAddress(ctx context.Context) (zigbee.NetworkAd
 }
 
 func (z *ZStack) getAddressInfo(ctx context.Context, parameter DeviceInfoParameter) (uint64, error) {
-	resp := SAPIZBGetDeviceInfoResp{}
+	resp := SAPIZBGetDeviceInfoReply{}
 
-	if err := z.requestResponder.RequestResponse(ctx, SAPIZBGetDeviceInfoReq{Parameter: parameter}, &resp); err != nil {
+	if err := z.requestResponder.RequestResponse(ctx, SAPIZBGetDeviceInfo{Parameter: parameter}, &resp); err != nil {
 		return 0, err
 	}
 
@@ -44,15 +44,15 @@ const (
 	OperatingExtendedPANID DeviceInfoParameter = 0x07
 )
 
-type SAPIZBGetDeviceInfoReq struct {
+type SAPIZBGetDeviceInfo struct {
 	Parameter DeviceInfoParameter
 }
 
-const SAPIZBGetDeviceInfoReqID uint8 = 0x06
+const SAPIZBGetDeviceInfoID uint8 = 0x06
 
-type SAPIZBGetDeviceInfoResp struct {
+type SAPIZBGetDeviceInfoReply struct {
 	Parameter DeviceInfoParameter
 	Value     uint64
 }
 
-const SAPIZBGetDeviceInfoRespID uint8 = 0x06
+const SAPIZBGetDeviceInfoReplyID uint8 = 0x06

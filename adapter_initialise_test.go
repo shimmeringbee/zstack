@@ -37,18 +37,18 @@ func TestZStack_Initialise(t *testing.T) {
 			Payload:     resetResponse,
 		}).Times(3)
 
-		nvramWriteResponse, _ := bytecodec.Marshall(SysOSALNVWriteResp{Status: ZSuccess})
-		nvramOn := unpiMock.On(SREQ, SYS, SysOSALNVWriteReqID).Return(Frame{
+		nvramWriteResponse, _ := bytecodec.Marshall(SysOSALNVWriteReply{Status: ZSuccess})
+		nvramOn := unpiMock.On(SREQ, SYS, SysOSALNVWriteID).Return(Frame{
 			MessageType: SRSP,
 			Subsystem:   SYS,
-			CommandID:   SysOSALNVWriteRespID,
+			CommandID:   SysOSALNVWriteReplyID,
 			Payload:     nvramWriteResponse,
 		}).Times(11)
 
 		unpiMock.On(SREQ, SAPI, SAPIZBStartRequestID).Return(Frame{
 			MessageType: SRSP,
 			Subsystem:   SAPI,
-			CommandID:   SAPIZBStartResponseID,
+			CommandID:   SAPIZBStartRequestReplyID,
 			Payload:     nil,
 		})
 
@@ -62,17 +62,17 @@ func TestZStack_Initialise(t *testing.T) {
 			})
 		}()
 
-		unpiMock.On(SREQ, SAPI, SAPIZBGetDeviceInfoReqID).Return(
+		unpiMock.On(SREQ, SAPI, SAPIZBGetDeviceInfoID).Return(
 			Frame{
 				MessageType: SRSP,
 				Subsystem:   SAPI,
-				CommandID:   SAPIZBGetDeviceInfoRespID,
+				CommandID:   SAPIZBGetDeviceInfoReplyID,
 				Payload:     []byte{0x01, 0x0f, 0x0e, 0x0d, 0x0c, 0x0b, 0x0a, 0x09, 0x08},
 			},
 			Frame{
 				MessageType: SRSP,
 				Subsystem:   SAPI,
-				CommandID:   SAPIZBGetDeviceInfoRespID,
+				CommandID:   SAPIZBGetDeviceInfoReplyID,
 				Payload:     []byte{0x02, 0x09, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
 			},
 		).Times(2)
@@ -81,7 +81,7 @@ func TestZStack_Initialise(t *testing.T) {
 			Frame{
 				MessageType: SRSP,
 				Subsystem:   SAPI,
-				CommandID:   SAPIZBPermitJoiningResponseID,
+				CommandID:   SAPIZBPermitJoiningRequestReplyID,
 				Payload:     []byte{0x00},
 			})
 
@@ -133,7 +133,7 @@ func TestZStack_startZigbeeStack(t *testing.T) {
 		unpiMock.On(SREQ, SAPI, SAPIZBStartRequestID).Return(Frame{
 			MessageType: SRSP,
 			Subsystem:   SAPI,
-			CommandID:   SAPIZBStartResponseID,
+			CommandID:   SAPIZBStartRequestReplyID,
 			Payload:     nil,
 		})
 
@@ -164,7 +164,7 @@ func TestZStack_startZigbeeStack(t *testing.T) {
 		unpiMock.On(SREQ, SAPI, SAPIZBStartRequestID).Return(Frame{
 			MessageType: SRSP,
 			Subsystem:   SAPI,
-			CommandID:   SAPIZBStartResponseID,
+			CommandID:   SAPIZBStartRequestReplyID,
 			Payload:     nil,
 		})
 

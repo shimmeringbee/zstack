@@ -40,8 +40,8 @@ func Test_registerMessages(t *testing.T) {
 		assert.Equal(t, reflect.TypeOf(SysResetInd{}), ty)
 	})
 
-	t.Run("SysOSALNVWriteReq", func(t *testing.T) {
-		identity, found := ml.GetByObject(&SysOSALNVWriteReq{})
+	t.Run("SysOSALNVWrite", func(t *testing.T) {
+		identity, found := ml.GetByObject(&SysOSALNVWrite{})
 
 		assert.True(t, found)
 		assert.Equal(t, SREQ, identity.MessageType)
@@ -51,11 +51,11 @@ func Test_registerMessages(t *testing.T) {
 		ty, found := ml.GetByIdentifier(SREQ, SYS, 0x09)
 
 		assert.True(t, found)
-		assert.Equal(t, reflect.TypeOf(SysOSALNVWriteReq{}), ty)
+		assert.Equal(t, reflect.TypeOf(SysOSALNVWrite{}), ty)
 	})
 
-	t.Run("SysOSALNVWriteResp", func(t *testing.T) {
-		identity, found := ml.GetByObject(&SysOSALNVWriteResp{})
+	t.Run("SysOSALNVWriteReply", func(t *testing.T) {
+		identity, found := ml.GetByObject(&SysOSALNVWriteReply{})
 
 		assert.True(t, found)
 		assert.Equal(t, SRSP, identity.MessageType)
@@ -65,7 +65,7 @@ func Test_registerMessages(t *testing.T) {
 		ty, found := ml.GetByIdentifier(SRSP, SYS, 0x09)
 
 		assert.True(t, found)
-		assert.Equal(t, reflect.TypeOf(SysOSALNVWriteResp{}), ty)
+		assert.Equal(t, reflect.TypeOf(SysOSALNVWriteReply{}), ty)
 	})
 
 	t.Run("SAPIZBStartRequest", func(t *testing.T) {
@@ -82,8 +82,8 @@ func Test_registerMessages(t *testing.T) {
 		assert.Equal(t, reflect.TypeOf(SAPIZBStartRequest{}), ty)
 	})
 
-	t.Run("SAPIZBStartResponse", func(t *testing.T) {
-		identity, found := ml.GetByObject(&SAPIZBStartResponse{})
+	t.Run("SAPIZBStartRequestReply", func(t *testing.T) {
+		identity, found := ml.GetByObject(&SAPIZBStartRequestReply{})
 
 		assert.True(t, found)
 		assert.Equal(t, SRSP, identity.MessageType)
@@ -93,7 +93,7 @@ func Test_registerMessages(t *testing.T) {
 		ty, found := ml.GetByIdentifier(SRSP, SAPI, 0x00)
 
 		assert.True(t, found)
-		assert.Equal(t, reflect.TypeOf(SAPIZBStartResponse{}), ty)
+		assert.Equal(t, reflect.TypeOf(SAPIZBStartRequestReply{}), ty)
 	})
 
 	t.Run("SAPIZBPermitJoiningRequest", func(t *testing.T) {
@@ -110,8 +110,8 @@ func Test_registerMessages(t *testing.T) {
 		assert.Equal(t, reflect.TypeOf(SAPIZBPermitJoiningRequest{}), ty)
 	})
 
-	t.Run("SAPIZBPermitJoiningResponse", func(t *testing.T) {
-		identity, found := ml.GetByObject(&SAPIZBPermitJoiningResponse{})
+	t.Run("SAPIZBPermitJoiningRequestReply", func(t *testing.T) {
+		identity, found := ml.GetByObject(&SAPIZBPermitJoiningRequestReply{})
 
 		assert.True(t, found)
 		assert.Equal(t, SRSP, identity.MessageType)
@@ -121,11 +121,11 @@ func Test_registerMessages(t *testing.T) {
 		ty, found := ml.GetByIdentifier(SRSP, SAPI, 0x08)
 
 		assert.True(t, found)
-		assert.Equal(t, reflect.TypeOf(SAPIZBPermitJoiningResponse{}), ty)
+		assert.Equal(t, reflect.TypeOf(SAPIZBPermitJoiningRequestReply{}), ty)
 	})
 
-	t.Run("SAPIZBGetDeviceInfoReq", func(t *testing.T) {
-		identity, found := ml.GetByObject(&SAPIZBGetDeviceInfoReq{})
+	t.Run("SAPIZBGetDeviceInfo", func(t *testing.T) {
+		identity, found := ml.GetByObject(&SAPIZBGetDeviceInfo{})
 
 		assert.True(t, found)
 		assert.Equal(t, SREQ, identity.MessageType)
@@ -135,11 +135,11 @@ func Test_registerMessages(t *testing.T) {
 		ty, found := ml.GetByIdentifier(SREQ, SAPI, 0x06)
 
 		assert.True(t, found)
-		assert.Equal(t, reflect.TypeOf(SAPIZBGetDeviceInfoReq{}), ty)
+		assert.Equal(t, reflect.TypeOf(SAPIZBGetDeviceInfo{}), ty)
 	})
 
-	t.Run("SAPIZBGetDeviceInfoResp", func(t *testing.T) {
-		identity, found := ml.GetByObject(&SAPIZBGetDeviceInfoResp{})
+	t.Run("SAPIZBGetDeviceInfoReply", func(t *testing.T) {
+		identity, found := ml.GetByObject(&SAPIZBGetDeviceInfoReply{})
 
 		assert.True(t, found)
 		assert.Equal(t, SRSP, identity.MessageType)
@@ -149,7 +149,7 @@ func Test_registerMessages(t *testing.T) {
 		ty, found := ml.GetByIdentifier(SRSP, SAPI, 0x06)
 
 		assert.True(t, found)
-		assert.Equal(t, reflect.TypeOf(SAPIZBGetDeviceInfoResp{}), ty)
+		assert.Equal(t, reflect.TypeOf(SAPIZBGetDeviceInfoReply{}), ty)
 	})
 
 	t.Run("ZDOStateChangeInd", func(t *testing.T) {
@@ -222,8 +222,8 @@ func Test_registerMessages(t *testing.T) {
 		assert.Equal(t, reflect.TypeOf(ZdoMGMTLQIReq{}), ty)
 	})
 
-	t.Run("ZdoMGMTLQIReqResp", func(t *testing.T) {
-		identity, found := ml.GetByObject(&ZdoMGMTLQIReqResp{})
+	t.Run("ZdoMGMTLQIReqReply", func(t *testing.T) {
+		identity, found := ml.GetByObject(&ZdoMGMTLQIReqReply{})
 
 		assert.True(t, found)
 		assert.Equal(t, SRSP, identity.MessageType)
@@ -233,7 +233,7 @@ func Test_registerMessages(t *testing.T) {
 		ty, found := ml.GetByIdentifier(SRSP, ZDO, 0x31)
 
 		assert.True(t, found)
-		assert.Equal(t, reflect.TypeOf(ZdoMGMTLQIReqResp{}), ty)
+		assert.Equal(t, reflect.TypeOf(ZdoMGMTLQIReqReply{}), ty)
 	})
 
 	t.Run("ZdoMGMTLQIResp", func(t *testing.T) {
@@ -250,8 +250,8 @@ func Test_registerMessages(t *testing.T) {
 		assert.Equal(t, reflect.TypeOf(ZdoMGMTLQIResp{}), ty)
 	})
 
-	t.Run("AFRegisterReq", func(t *testing.T) {
-		identity, found := ml.GetByObject(&AFRegisterReq{})
+	t.Run("AFRegister", func(t *testing.T) {
+		identity, found := ml.GetByObject(&AFRegister{})
 
 		assert.True(t, found)
 		assert.Equal(t, SREQ, identity.MessageType)
@@ -261,11 +261,11 @@ func Test_registerMessages(t *testing.T) {
 		ty, found := ml.GetByIdentifier(SREQ, AF, 0x00)
 
 		assert.True(t, found)
-		assert.Equal(t, reflect.TypeOf(AFRegisterReq{}), ty)
+		assert.Equal(t, reflect.TypeOf(AFRegister{}), ty)
 	})
 
-	t.Run("AFRegisterResp", func(t *testing.T) {
-		identity, found := ml.GetByObject(&AFRegisterResp{})
+	t.Run("AFRegisterReply", func(t *testing.T) {
+		identity, found := ml.GetByObject(&AFRegisterReply{})
 
 		assert.True(t, found)
 		assert.Equal(t, SRSP, identity.MessageType)
@@ -275,7 +275,7 @@ func Test_registerMessages(t *testing.T) {
 		ty, found := ml.GetByIdentifier(SRSP, AF, 0x00)
 
 		assert.True(t, found)
-		assert.Equal(t, reflect.TypeOf(AFRegisterResp{}), ty)
+		assert.Equal(t, reflect.TypeOf(AFRegisterReply{}), ty)
 	})
 
 	t.Run("ZdoActiveEpReq", func(t *testing.T) {

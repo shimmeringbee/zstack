@@ -20,10 +20,10 @@ func TestZStack_RegisterAdapterEndpoint(t *testing.T) {
 		zstack := New(unpiMock)
 		defer unpiMock.Stop()
 
-		c := unpiMock.On(SREQ, AF, AFRegisterReqID).Return(Frame{
+		c := unpiMock.On(SREQ, AF, AFRegisterID).Return(Frame{
 			MessageType: SRSP,
 			Subsystem:   AF,
-			CommandID:   AFRegisterRespID,
+			CommandID:   AFRegisterReplyID,
 			Payload:     []byte{0x00},
 		})
 
@@ -45,10 +45,10 @@ func TestZStack_RegisterAdapterEndpoint(t *testing.T) {
 		zstack := New(unpiMock)
 		defer unpiMock.Stop()
 
-		unpiMock.On(SREQ, AF, AFRegisterReqID).Return(Frame{
+		unpiMock.On(SREQ, AF, AFRegisterID).Return(Frame{
 			MessageType: SRSP,
 			Subsystem:   AF,
-			CommandID:   AFRegisterRespID,
+			CommandID:   AFRegisterReplyID,
 			Payload:     []byte{0x01},
 		})
 
@@ -61,8 +61,8 @@ func TestZStack_RegisterAdapterEndpoint(t *testing.T) {
 }
 
 func Test_EndpointRegisterMessages(t *testing.T) {
-	t.Run("verify AFRegisterReq marshals", func(t *testing.T) {
-		req := AFRegisterReq{
+	t.Run("verify AFRegister marshals", func(t *testing.T) {
+		req := AFRegister{
 			Endpoint:         1,
 			AppProfileId:     2,
 			AppDeviceId:      3,
@@ -78,8 +78,8 @@ func Test_EndpointRegisterMessages(t *testing.T) {
 		assert.Equal(t, []byte{0x01, 0x02, 0x00, 0x03, 0x00, 0x04, 0x05, 0x01, 0x10, 0x00, 0x01, 0x20, 0x00}, data)
 	})
 
-	t.Run("verify AFRegisterResp marshals", func(t *testing.T) {
-		req := AFRegisterResp{
+	t.Run("verify AFRegisterReply marshals", func(t *testing.T) {
+		req := AFRegisterReply{
 			Status: 1,
 		}
 

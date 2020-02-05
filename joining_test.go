@@ -22,7 +22,7 @@ func TestZStack_PermitJoin(t *testing.T) {
 		c := unpiMock.On(SREQ, SAPI, SAPIZBPermitJoiningRequestID).Return(Frame{
 			MessageType: SRSP,
 			Subsystem:   SAPI,
-			CommandID:   SAPIZBPermitJoiningResponseID,
+			CommandID:   SAPIZBPermitJoiningRequestReplyID,
 			Payload:     []byte{0x00},
 		})
 
@@ -47,7 +47,7 @@ func TestZStack_PermitJoin(t *testing.T) {
 		c := unpiMock.On(SREQ, SAPI, SAPIZBPermitJoiningRequestID).Return(Frame{
 			MessageType: SRSP,
 			Subsystem:   SAPI,
-			CommandID:   SAPIZBPermitJoiningResponseID,
+			CommandID:   SAPIZBPermitJoiningRequestReplyID,
 			Payload:     []byte{0x00},
 		})
 
@@ -71,7 +71,7 @@ func TestZStack_PermitJoin(t *testing.T) {
 		unpiMock.On(SREQ, SAPI, SAPIZBPermitJoiningRequestID).Return(Frame{
 			MessageType: SRSP,
 			Subsystem:   SAPI,
-			CommandID:   SAPIZBPermitJoiningResponseID,
+			CommandID:   SAPIZBPermitJoiningRequestReplyID,
 			Payload:     []byte{0x01},
 		})
 
@@ -94,7 +94,7 @@ func TestZStack_DenyJoin(t *testing.T) {
 		c := unpiMock.On(SREQ, SAPI, SAPIZBPermitJoiningRequestID).Return(Frame{
 			MessageType: SRSP,
 			Subsystem:   SAPI,
-			CommandID:   SAPIZBPermitJoiningResponseID,
+			CommandID:   SAPIZBPermitJoiningRequestReplyID,
 			Payload:     []byte{0x00},
 		})
 
@@ -120,7 +120,7 @@ func TestZStack_DenyJoin(t *testing.T) {
 		unpiMock.On(SREQ, SAPI, SAPIZBPermitJoiningRequestID).Return(Frame{
 			MessageType: SRSP,
 			Subsystem:   SAPI,
-			CommandID:   SAPIZBPermitJoiningResponseID,
+			CommandID:   SAPIZBPermitJoiningRequestReplyID,
 			Payload:     []byte{0x01},
 		})
 

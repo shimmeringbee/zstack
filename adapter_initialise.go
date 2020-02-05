@@ -119,7 +119,7 @@ func (z *ZStack) Initialise(ctx context.Context, nc zigbee.NetworkConfiguration)
 
 func (z *ZStack) startZigbeeStack(ctx context.Context) error {
 	if err := Retry(ctx, DefaultZStackTimeout, DefaultZStackRetries, func(invokeCtx context.Context) error {
-		return z.requestResponder.RequestResponse(invokeCtx, SAPIZBStartRequest{}, &SAPIZBStartResponse{})
+		return z.requestResponder.RequestResponse(invokeCtx, SAPIZBStartRequest{}, &SAPIZBStartRequestReply{})
 	}); err != nil {
 		return err
 	}
@@ -155,9 +155,9 @@ type SAPIZBStartRequest struct{}
 
 const SAPIZBStartRequestID uint8 = 0x00
 
-type SAPIZBStartResponse struct{}
+type SAPIZBStartRequestReply struct{}
 
-const SAPIZBStartResponseID uint8 = 0x00
+const SAPIZBStartRequestReplyID uint8 = 0x00
 
 type ZBStartStatus uint8
 

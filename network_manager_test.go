@@ -21,7 +21,7 @@ func Test_NetworkManager(t *testing.T) {
 		unpiMock.On(SREQ, ZDO, ZdoMGMTLQIReqID).Return(Frame{
 			MessageType: SRSP,
 			Subsystem:   ZDO,
-			CommandID:   ZdoMGMTLQIReqRespID,
+			CommandID:   ZdoMGMTLQIReqReplyID,
 			Payload:     []byte{0x00},
 		}).Times(2)
 
@@ -51,7 +51,7 @@ func Test_NetworkManager(t *testing.T) {
 		unpiMock.On(SREQ, ZDO, ZdoMGMTLQIReqID).Return(Frame{
 			MessageType: SRSP,
 			Subsystem:   ZDO,
-			CommandID:   ZdoMGMTLQIReqRespID,
+			CommandID:   ZdoMGMTLQIReqReplyID,
 			Payload:     []byte{0x00},
 		})
 
@@ -85,7 +85,7 @@ func Test_NetworkManager(t *testing.T) {
 		unpiMock.On(SREQ, ZDO, ZdoMGMTLQIReqID).Return(Frame{
 			MessageType: SRSP,
 			Subsystem:   ZDO,
-			CommandID:   ZdoMGMTLQIReqRespID,
+			CommandID:   ZdoMGMTLQIReqReplyID,
 			Payload:     []byte{0x00},
 		}).UnlimitedTimes()
 
@@ -143,7 +143,7 @@ func Test_NetworkManager(t *testing.T) {
 		unpiMock.On(SREQ, ZDO, ZdoMGMTLQIReqID).Return(Frame{
 			MessageType: SRSP,
 			Subsystem:   ZDO,
-			CommandID:   ZdoMGMTLQIReqRespID,
+			CommandID:   ZdoMGMTLQIReqReplyID,
 			Payload:     []byte{0x00},
 		}).UnlimitedTimes()
 
@@ -206,7 +206,7 @@ func Test_NetworkManager(t *testing.T) {
 		c := unpiMock.On(SREQ, ZDO, ZdoMGMTLQIReqID).Return(Frame{
 			MessageType: SRSP,
 			Subsystem:   ZDO,
-			CommandID:   ZdoMGMTLQIReqRespID,
+			CommandID:   ZdoMGMTLQIReqReplyID,
 			Payload:     []byte{0x00},
 		}).Times(2)
 
@@ -252,7 +252,7 @@ func Test_NetworkManager(t *testing.T) {
 		unpiMock.On(SREQ, ZDO, ZdoMGMTLQIReqID).Return(Frame{
 			MessageType: SRSP,
 			Subsystem:   ZDO,
-			CommandID:   ZdoMGMTLQIReqRespID,
+			CommandID:   ZdoMGMTLQIReqReplyID,
 			Payload:     []byte{0x00},
 		}).UnlimitedTimes()
 
@@ -315,7 +315,7 @@ func Test_NetworkManager(t *testing.T) {
 		unpiMock.On(SREQ, ZDO, ZdoMGMTLQIReqID).Return(Frame{
 			MessageType: SRSP,
 			Subsystem:   ZDO,
-			CommandID:   ZdoMGMTLQIReqRespID,
+			CommandID:   ZdoMGMTLQIReqReplyID,
 			Payload:     []byte{0x00},
 		}).UnlimitedTimes()
 
@@ -368,7 +368,7 @@ func Test_NetworkManager(t *testing.T) {
 		unpiMock.On(SREQ, ZDO, ZdoMGMTLQIReqID).Return(Frame{
 			MessageType: SRSP,
 			Subsystem:   ZDO,
-			CommandID:   ZdoMGMTLQIReqRespID,
+			CommandID:   ZdoMGMTLQIReqReplyID,
 			Payload:     []byte{0x00},
 		}).UnlimitedTimes()
 
@@ -419,7 +419,7 @@ func Test_NetworkManager(t *testing.T) {
 		unpiMock.On(SREQ, ZDO, ZdoMGMTLQIReqID).Return(Frame{
 			MessageType: SRSP,
 			Subsystem:   ZDO,
-			CommandID:   ZdoMGMTLQIReqRespID,
+			CommandID:   ZdoMGMTLQIReqReplyID,
 			Payload:     []byte{0x00},
 		}).UnlimitedTimes()
 

@@ -10,17 +10,17 @@ func registerMessages(l *Library) {
 	l.Add(AREQ, SYS, SysResetReqID, SysResetReq{})
 	l.Add(AREQ, SYS, SysResetIndID, SysResetInd{})
 
-	l.Add(SREQ, SYS, SysOSALNVWriteReqID, SysOSALNVWriteReq{})
-	l.Add(SRSP, SYS, SysOSALNVWriteRespID, SysOSALNVWriteResp{})
+	l.Add(SREQ, SYS, SysOSALNVWriteID, SysOSALNVWrite{})
+	l.Add(SRSP, SYS, SysOSALNVWriteReplyID, SysOSALNVWriteReply{})
 
 	l.Add(SREQ, SAPI, SAPIZBStartRequestID, SAPIZBStartRequest{})
-	l.Add(SRSP, SAPI, SAPIZBStartResponseID, SAPIZBStartResponse{})
+	l.Add(SRSP, SAPI, SAPIZBStartRequestReplyID, SAPIZBStartRequestReply{})
 
 	l.Add(SREQ, SAPI, SAPIZBPermitJoiningRequestID, SAPIZBPermitJoiningRequest{})
-	l.Add(SRSP, SAPI, SAPIZBPermitJoiningResponseID, SAPIZBPermitJoiningResponse{})
+	l.Add(SRSP, SAPI, SAPIZBPermitJoiningRequestReplyID, SAPIZBPermitJoiningRequestReply{})
 
-	l.Add(SREQ, SAPI, SAPIZBGetDeviceInfoReqID, SAPIZBGetDeviceInfoReq{})
-	l.Add(SRSP, SAPI, SAPIZBGetDeviceInfoRespID, SAPIZBGetDeviceInfoResp{})
+	l.Add(SREQ, SAPI, SAPIZBGetDeviceInfoID, SAPIZBGetDeviceInfo{})
+	l.Add(SRSP, SAPI, SAPIZBGetDeviceInfoReplyID, SAPIZBGetDeviceInfoReply{})
 
 	l.Add(AREQ, ZDO, ZDOStateChangeIndID, ZDOStateChangeInd{})
 
@@ -29,11 +29,11 @@ func registerMessages(l *Library) {
 	l.Add(AREQ, ZDO, ZdoTcDevIndID, ZdoTcDevInd{})
 
 	l.Add(SREQ, ZDO, ZdoMGMTLQIReqID, ZdoMGMTLQIReq{})
-	l.Add(SRSP, ZDO, ZdoMGMTLQIReqRespID, ZdoMGMTLQIReqResp{})
+	l.Add(SRSP, ZDO, ZdoMGMTLQIReqReplyID, ZdoMGMTLQIReqReply{})
 	l.Add(AREQ, ZDO, ZdoMGMTLQIRespID, ZdoMGMTLQIResp{})
 
-	l.Add(SREQ, AF, AFRegisterReqID, AFRegisterReq{})
-	l.Add(SRSP, AF, AFRegisterRespID, AFRegisterResp{})
+	l.Add(SREQ, AF, AFRegisterID, AFRegister{})
+	l.Add(SRSP, AF, AFRegisterReplyID, AFRegisterReply{})
 
 	l.Add(SREQ, ZDO, ZdoActiveEpReqID, ZdoActiveEpReq{})
 	l.Add(SRSP, ZDO, ZdoActiveEpReqReplyID, ZdoActiveEpReqReply{})

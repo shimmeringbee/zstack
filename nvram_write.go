@@ -24,13 +24,13 @@ func (z *ZStack) writeNVRAM(ctx context.Context, v interface{}) error {
 		return err
 	}
 
-	writeRequest := SysOSALNVWriteReq{
+	writeRequest := SysOSALNVWrite{
 		NVItemID: configId,
 		Offset:   0,
 		Value:    configValue,
 	}
 
-	writeResponse := SysOSALNVWriteResp{}
+	writeResponse := SysOSALNVWriteReply{}
 
 	if err := z.requestResponder.RequestResponse(ctx, writeRequest, &writeResponse); err != nil {
 		return err
@@ -43,17 +43,17 @@ func (z *ZStack) writeNVRAM(ctx context.Context, v interface{}) error {
 	return nil
 }
 
-type SysOSALNVWriteReq struct {
+type SysOSALNVWrite struct {
 	NVItemID uint16
 	Offset   uint8
 	Value    []byte `bclength:"8"`
 }
 
-const SysOSALNVWriteReqID uint8 = 0x09
+const SysOSALNVWriteID uint8 = 0x09
 
-type SysOSALNVWriteResp GenericZStackStatus
+type SysOSALNVWriteReply GenericZStackStatus
 
-const SysOSALNVWriteRespID uint8 = 0x09
+const SysOSALNVWriteReplyID uint8 = 0x09
 
 var nvMapping = map[reflect.Type]uint16{
 	reflect.TypeOf(ZCDNVStartUpOption{}):    ZCDNVStartUpOptionID,
