@@ -127,14 +127,11 @@ func (z *ZStack) startZigbeeStack(ctx context.Context) error {
 	ch := make(chan bool, 1)
 	defer close(ch)
 
-	err, cancel := z.subscriber.Subscribe(&ZDOStateChangeInd{}, func(unmarshal func(v interface{}) error) {
-		stateChange := ZDOStateChangeInd{}
-		err := unmarshal(&stateChange)
+	err, cancel := z.subscriber.Subscribe(&ZDOStateChangeInd{}, func(v interface{}) {
+		stateChange := v.(*ZDOStateChangeInd)
 
-		if err == nil {
-			if stateChange.State == DeviceZBCoordinator {
-				ch <- true
-			}
+		if stateChange.State == DeviceZBCoordinator {
+			ch <- true
 		}
 	})
 	defer cancel()

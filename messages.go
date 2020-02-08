@@ -46,8 +46,16 @@ func registerMessages(l *Library) {
 
 type ZStackStatus uint8
 
+type HasSuccess interface {
+	WasSuccessful() bool
+}
+
 type GenericZStackStatus struct {
 	Status ZStackStatus
+}
+
+func (s GenericZStackStatus) WasSuccessful() bool {
+	return s.Status == ZSuccess
 }
 
 var ErrorZFailure = errors.New("ZStack has returned a failure")

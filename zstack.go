@@ -18,7 +18,7 @@ type Awaiter interface {
 }
 
 type Subscriber interface {
-	Subscribe(message interface{}, callback func(unmarshal func(v interface{}) error)) (error, func())
+	Subscribe(message interface{}, callback func(v interface{})) (error, func())
 }
 
 type ZStack struct {

@@ -7,13 +7,12 @@ import (
 )
 
 func (z *ZStack) QueryNodeEndpoints(ctx context.Context, networkAddress zigbee.NetworkAddress) ([]byte, error) {
-	ch := make(chan ZdoActiveEpRsp)
+	ch := make(chan *ZdoActiveEpRsp)
 
-	err, stop := z.subscriber.Subscribe(ZdoActiveEpRsp{}, func(unmarshal func(v interface{}) error) {
-		msg := ZdoActiveEpRsp{}
-		err := unmarshal(&msg)
+	err, stop := z.subscriber.Subscribe(&ZdoActiveEpRsp{}, func(v interface{}) {
+		msg := v.(*ZdoActiveEpRsp)
 
-		if err == nil && msg.OfInterestAddress == networkAddress {
+		if msg.OfInterestAddress == networkAddress {
 			select {
 			case ch <- msg:
 			case <-ctx.Done():

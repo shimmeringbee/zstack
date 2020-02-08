@@ -156,27 +156,19 @@ func (z *ZStack) processLQITable(lqi ZdoMGMTLQIRsp) {
 	}
 }
 
-func (z *ZStack) receiveLQIUpdate(u func(interface{}) error) {
-	msg := ZdoMGMTLQIRsp{}
-	if err := u(&msg); err == nil {
-		z.networkManagerIncoming <- msg
-	}
+func (z *ZStack) receiveLQIUpdate(v interface{}) {
+	msg := v.(*ZdoMGMTLQIRsp)
+	z.networkManagerIncoming <- *msg
 }
 
-func (z *ZStack) receiveEndDeviceAnnouncement(u func(interface{}) error) {
-	msg := ZdoEndDeviceAnnceInd{}
-	var err error
-	if err = u(&msg); err == nil {
-		z.networkManagerIncoming <- msg
-	}
+func (z *ZStack) receiveEndDeviceAnnouncement(v interface{}) {
+	msg := v.(*ZdoEndDeviceAnnceInd)
+	z.networkManagerIncoming <- *msg
 }
 
-func (z *ZStack) receiveLeaveAnnouncement(u func(interface{}) error) {
-	msg := ZdoLeaveInd{}
-	var err error
-	if err = u(&msg); err == nil {
-		z.networkManagerIncoming <- msg
-	}
+func (z *ZStack) receiveLeaveAnnouncement(v interface{}) {
+	msg := v.(*ZdoLeaveInd)
+	z.networkManagerIncoming <- *msg
 }
 
 type ZdoMGMTLQIReq struct {
