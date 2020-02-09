@@ -55,16 +55,16 @@ func (z *ZStack) networkManager() {
 				}
 
 				z.addOrUpdateDevice(e.IEEEAddress, z.NetAddr(e.NetworkAddress), z.Role(role))
-				z.events <- DeviceJoinEvent{
+				z.sendEvent(DeviceJoinEvent{
 					NetworkAddress: e.NetworkAddress,
 					IEEEAddress:    e.IEEEAddress,
-				}
+				})
 			case ZdoLeaveInd:
 				z.removeDevice(e.IEEEAddress)
-				z.events <- DeviceLeaveEvent{
+				z.sendEvent(DeviceLeaveEvent{
 					NetworkAddress: e.SourceAddress,
 					IEEEAddress:    e.IEEEAddress,
-				}
+				})
 			default:
 				fmt.Printf("received unknown %+v", reflect.TypeOf(ue))
 			}

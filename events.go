@@ -6,6 +6,10 @@ import (
 	"github.com/shimmeringbee/zigbee"
 )
 
+func (z *ZStack) sendEvent(event interface{}) {
+	z.events <- event
+}
+
 func (z *ZStack) ReadEvent(ctx context.Context) (interface{}, error) {
 	select {
 	case event := <-z.events:
