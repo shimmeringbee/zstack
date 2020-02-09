@@ -1,12 +1,82 @@
 package zstack
 
 import (
+	"context"
 	"github.com/shimmeringbee/bytecodec"
+	. "github.com/shimmeringbee/unpi"
+	unpiTest "github.com/shimmeringbee/unpi/testing"
+	"github.com/shimmeringbee/zigbee"
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"time"
 )
 
-func Test_IncommingMessage(t *testing.T) {
+func Test_ReceiveMessage(t *testing.T) {
+	t.Run("messages which are received with a known network to ieee mapping are sent to event stream", func(t *testing.T) {
+		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+		defer cancel()
+
+		unpiMock := unpiTest.NewMockAdapter()
+		zstack := New(unpiMock)
+		defer unpiMock.Stop()
+
+		zstack.devicesByNetAddr[0x1000] = 0x1122334455667788
+
+		zstack.startMessageReceiver()
+
+		go func() {
+			time.Sleep(10 * time.Millisecond)
+
+			msg := AfIncomingMsg{
+				GroupID:             0x01,
+				ClusterID:           0x02,
+				SourceAddress:       0x1000,
+				SourceEndpoint:      3,
+				DestinationEndpoint: 4,
+				WasBroadcast:        1,
+				LinkQuality:         55,
+				SecurityUse:         1,
+				TimeStamp:           123412,
+				Sequence:            63,
+				Data:                []byte{0x01, 0x02},
+			}
+
+			data, _ := bytecodec.Marshall(&msg)
+
+			unpiMock.InjectOutgoing(Frame{
+				MessageType: AREQ,
+				Subsystem:   AF,
+				CommandID:   AfIncomingMsgID,
+				Payload:     data,
+			})
+		}()
+
+		event, err := zstack.ReadEvent(ctx)
+		assert.NoError(t, err)
+
+		incommingMsg, ok := event.(zigbee.DeviceIncomingMessageEvent)
+		assert.True(t, ok)
+
+		expectedMsg := zigbee.DeviceIncomingMessageEvent{
+			GroupID:             0x01,
+			ClusterID:           0x02,
+			SourceAddress:       0x1122334455667788,
+			SourceEndpoint:      3,
+			DestinationEndpoint: 4,
+			Broadcast:           true,
+			Secure:              true,
+			LinkQuality:         55,
+			Sequence:            63,
+			Data:                []byte{0x01, 0x02},
+		}
+
+		assert.Equal(t, expectedMsg, incommingMsg)
+
+		unpiMock.AssertCalls(t)
+	})
+}
+
+func Test_IncomingMessage(t *testing.T) {
 	t.Run("verify AfIncomingMsg marshals", func(t *testing.T) {
 		req := AfIncomingMsg{
 			GroupID:             0x0102,

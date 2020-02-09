@@ -113,6 +113,7 @@ func (z *ZStack) Initialise(ctx context.Context, nc zigbee.NetworkConfiguration)
 	}
 
 	z.startNetworkManager()
+	z.startMessageReceiver()
 
 	return nil
 }

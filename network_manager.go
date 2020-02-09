@@ -55,13 +55,13 @@ func (z *ZStack) networkManager() {
 				}
 
 				z.addOrUpdateDevice(e.IEEEAddress, z.NetAddr(e.NetworkAddress), z.Role(role))
-				z.sendEvent(DeviceJoinEvent{
+				z.sendEvent(zigbee.DeviceJoinEvent{
 					NetworkAddress: e.NetworkAddress,
 					IEEEAddress:    e.IEEEAddress,
 				})
 			case ZdoLeaveInd:
 				z.removeDevice(e.IEEEAddress)
-				z.sendEvent(DeviceLeaveEvent{
+				z.sendEvent(zigbee.DeviceLeaveEvent{
 					NetworkAddress: e.SourceAddress,
 					IEEEAddress:    e.IEEEAddress,
 				})

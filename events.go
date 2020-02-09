@@ -3,7 +3,6 @@ package zstack
 import (
 	"context"
 	"errors"
-	"github.com/shimmeringbee/zigbee"
 )
 
 func (z *ZStack) sendEvent(event interface{}) {
@@ -18,14 +17,3 @@ func (z *ZStack) ReadEvent(ctx context.Context) (interface{}, error) {
 		return nil, errors.New("context expired")
 	}
 }
-
-type BasicDeviceEvent struct {
-	NetworkAddress zigbee.NetworkAddress
-	IEEEAddress    zigbee.IEEEAddress
-}
-
-type DeviceJoinEvent BasicDeviceEvent
-
-type DeviceRediscoveredEvent BasicDeviceEvent
-
-type DeviceLeaveEvent BasicDeviceEvent

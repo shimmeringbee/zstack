@@ -33,6 +33,8 @@ type ZStack struct {
 	networkManagerStop     chan bool
 	networkManagerIncoming chan interface{}
 
+	messageReceiverStop func()
+
 	devices          map[zigbee.IEEEAddress]*Device
 	devicesByNetAddr map[zigbee.NetworkAddress]zigbee.IEEEAddress
 }
@@ -79,4 +81,5 @@ func New(uart io.ReadWriter) *ZStack {
 
 func (z *ZStack) Stop() {
 	z.stopNetworkManager()
+	z.stopMessageReceiver()
 }

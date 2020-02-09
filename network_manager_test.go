@@ -113,7 +113,7 @@ func Test_NetworkManager(t *testing.T) {
 		event, err := zstack.ReadEvent(ctx)
 		assert.NoError(t, err)
 
-		deviceJoin, ok := event.(DeviceJoinEvent)
+		deviceJoin, ok := event.(zigbee.DeviceJoinEvent)
 
 		assert.True(t, ok)
 
@@ -180,7 +180,7 @@ func Test_NetworkManager(t *testing.T) {
 		event, err := zstack.ReadEvent(ctx)
 		assert.NoError(t, err)
 
-		deviceLeave, ok := event.(DeviceLeaveEvent)
+		deviceLeave, ok := event.(zigbee.DeviceLeaveEvent)
 
 		assert.True(t, ok)
 
