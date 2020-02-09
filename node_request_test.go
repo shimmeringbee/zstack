@@ -21,9 +21,10 @@ func Test_NodeRequest(t *testing.T)  {
 
 		type NotSuccessful struct {}
 
-		err := zstack.nodeRequest(ctx, &NotSuccessful{}, &NotSuccessful{}, &NotSuccessful{}, AnyResponse)
+		resp, err := zstack.nodeRequest(ctx, &NotSuccessful{}, &NotSuccessful{}, &NotSuccessful{}, AnyResponse)
 
 		assert.Error(t, err)
+		assert.Nil(t, resp)
 		assert.Equal(t, ReplyDoesNotReportSuccess, err)
 	})
 
@@ -42,8 +43,10 @@ func Test_NodeRequest(t *testing.T)  {
 			Payload:     []byte{0x01},
 		})
 
-		err := zstack.nodeRequest(ctx, &ZdoActiveEpReq{}, &ZdoActiveEpReqReply{}, &ZdoActiveEpRsp{}, AnyResponse)
+		resp, err := zstack.nodeRequest(ctx, &ZdoActiveEpReq{}, &ZdoActiveEpReqReply{}, &ZdoActiveEpRsp{}, AnyResponse)
+
 		assert.Error(t, err)
+		assert.Nil(t, resp)
 		assert.Equal(t, ErrorZFailure, err)
 
 		unpiMock.AssertCalls(t)
@@ -74,10 +77,12 @@ func Test_NodeRequest(t *testing.T)  {
 			})
 		}()
 
-		response := &ZdoActiveEpRsp{}
-		err := zstack.nodeRequest(ctx, &ZdoActiveEpReq{DestinationAddress:0x4000, OfInterestAddress:0x4000}, &ZdoActiveEpReqReply{}, response, AnyResponse)
+		resp, err := zstack.nodeRequest(ctx, &ZdoActiveEpReq{DestinationAddress:0x4000, OfInterestAddress:0x4000}, &ZdoActiveEpReqReply{}, &ZdoActiveEpRsp{}, AnyResponse)
+		castResp, ok := resp.(*ZdoActiveEpRsp)
+
 		assert.NoError(t, err)
-		assert.Equal(t, []byte{0x01, 0x02, 0x03}, response.ActiveEndpoints)
+		assert.True(t, ok)
+		assert.Equal(t, []byte{0x01, 0x02, 0x03}, castResp.ActiveEndpoints)
 
 		unpiMock.AssertCalls(t)
 	})
@@ -114,13 +119,15 @@ func Test_NodeRequest(t *testing.T)  {
 			})
 		}()
 
-		response := &ZdoActiveEpRsp{}
-		err := zstack.nodeRequest(ctx, &ZdoActiveEpReq{DestinationAddress:0x4000, OfInterestAddress:0x4000}, &ZdoActiveEpReqReply{}, response, func(i interface{}) bool {
+		resp, err := zstack.nodeRequest(ctx, &ZdoActiveEpReq{DestinationAddress:0x4000, OfInterestAddress:0x4000}, &ZdoActiveEpReqReply{}, &ZdoActiveEpRsp{}, func(i interface{}) bool {
 			response := i.(*ZdoActiveEpRsp)
 			return response.OfInterestAddress == 0x4000
 		})
+		castResp, ok := resp.(*ZdoActiveEpRsp)
+
 		assert.NoError(t, err)
-		assert.Equal(t, []byte{0x02}, response.ActiveEndpoints)
+		assert.True(t, ok)
+		assert.Equal(t, []byte{0x02}, castResp.ActiveEndpoints)
 
 		unpiMock.AssertCalls(t)
 	})
@@ -156,13 +163,14 @@ func Test_NodeRequest(t *testing.T)  {
 			})
 		}()
 
-		response := &ZdoActiveEpRsp{}
-		err := zstack.nodeRequest(ctx, &ZdoActiveEpReq{DestinationAddress:0x4000, OfInterestAddress:0x4000}, &ZdoActiveEpReqReply{}, response, func(i interface{}) bool {
-			response := i.(*ZdoActiveEpRsp)
-			return response.OfInterestAddress == 0x4000
+		resp, err := zstack.nodeRequest(ctx, &ZdoActiveEpReq{DestinationAddress:0x4000, OfInterestAddress:0x4000}, &ZdoActiveEpReqReply{}, &ZdoActiveEpRsp{}, func(i interface{}) bool {
+			return i.(*ZdoActiveEpRsp).OfInterestAddress == 0x4000
 		})
+		castResp, ok := resp.(*ZdoActiveEpRsp)
+
 		assert.NoError(t, err)
-		assert.Equal(t, []byte{0x02}, response.ActiveEndpoints)
+		assert.True(t, ok)
+		assert.Equal(t, []byte{0x02}, castResp.ActiveEndpoints)
 
 		unpiMock.AssertCalls(t)
 	})
@@ -192,11 +200,13 @@ func Test_NodeRequest(t *testing.T)  {
 			})
 		}()
 
-		response := &ZdoActiveEpRsp{}
-		err := zstack.nodeRequest(ctx, &ZdoActiveEpReq{DestinationAddress:0x4000, OfInterestAddress:0x4000}, &ZdoActiveEpReqReply{}, response, AnyResponse)
+		resp, err := zstack.nodeRequest(ctx, &ZdoActiveEpReq{DestinationAddress:0x4000, OfInterestAddress:0x4000}, &ZdoActiveEpReqReply{}, &ZdoActiveEpRsp{}, AnyResponse)
+		castResp, ok := resp.(*ZdoActiveEpRsp)
+
 		assert.Error(t, err)
+		assert.True(t, ok)
 		assert.Equal(t, NodeResponseWasNotSuccess, err)
-		assert.Equal(t, []byte{0x01, 0x02, 0x03}, response.ActiveEndpoints)
+		assert.Equal(t, []byte{0x01, 0x02, 0x03}, castResp.ActiveEndpoints)
 
 		unpiMock.AssertCalls(t)
 	})

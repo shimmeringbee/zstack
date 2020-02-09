@@ -11,14 +11,18 @@ func (z *ZStack) QueryNodeEndpoints(ctx context.Context, networkAddress zigbee.N
 		OfInterestAddress:  networkAddress,
 	}
 
-	resp := ZdoActiveEpRsp{}
-
-	err := z.nodeRequest(ctx, &request, &ZdoActiveEpReqReply{}, &resp, func(i interface{}) bool {
+	resp, err := z.nodeRequest(ctx, &request, &ZdoActiveEpReqReply{}, &ZdoActiveEpRsp{}, func(i interface{}) bool {
 		msg := i.(*ZdoActiveEpRsp)
 		return msg.OfInterestAddress == networkAddress
 	})
 
-	return resp.ActiveEndpoints, err
+	castResp, ok := resp.(*ZdoActiveEpRsp)
+
+	if ok {
+		return castResp.ActiveEndpoints, err
+	} else {
+		return nil, err
+	}
 }
 
 type ZdoActiveEpReq struct {

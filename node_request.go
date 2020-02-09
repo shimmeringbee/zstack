@@ -12,19 +12,19 @@ func AnyResponse(v interface{}) bool {
 var ReplyDoesNotReportSuccess = errors.New("reply struct does not support Successor interface")
 var NodeResponseWasNotSuccess = errors.New("response from node was not success")
 
-func (z *ZStack) nodeRequest(ctx context.Context, request interface{}, reply interface{}, response interface{}, responseFilter func(interface{}) bool) error {
+func (z *ZStack) nodeRequest(ctx context.Context, request interface{}, reply interface{}, response interface{}, responseFilter func(interface{}) bool) (interface{}, error) {
 	replySuccessor, replySupportsSuccessor := reply.(Successor)
 
 	if !replySupportsSuccessor {
-		return ReplyDoesNotReportSuccess
+		return nil, ReplyDoesNotReportSuccess
 	}
 
-	ch := make(chan bool)
+	ch := make(chan interface{})
 
 	err, stop := z.subscriber.Subscribe(response, func(v interface{}) {
 		if responseFilter(v) {
 			select {
-			case ch <- true:
+			case ch <- v:
 			case <-ctx.Done():
 			}
 		}
@@ -32,26 +32,26 @@ func (z *ZStack) nodeRequest(ctx context.Context, request interface{}, reply int
 	defer stop()
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if err := z.requestResponder.RequestResponse(ctx, request, reply); err != nil {
-		return err
+		return nil, err
 	}
 
 	if !replySuccessor.WasSuccessful() {
-		return ErrorZFailure
+		return nil, ErrorZFailure
 	}
 
 	select {
-	case <-ch:
-		responseSuccessor, responseSupportsSuccessor := response.(Successor)
+	case v := <-ch:
+		responseSuccessor, responseSupportsSuccessor := v.(Successor)
 
 		if responseSupportsSuccessor && !responseSuccessor.WasSuccessful() {
-			return NodeResponseWasNotSuccess
+			return v, NodeResponseWasNotSuccess
 		}
-		return nil
+		return v, nil
 	case <-ctx.Done():
-		return errors.New("context expired while waiting for response from node")
+		return nil, errors.New("context expired while waiting for response from node")
 	}
 }
