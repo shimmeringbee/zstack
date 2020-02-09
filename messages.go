@@ -46,7 +46,7 @@ func registerMessages(l *Library) {
 
 type ZStackStatus uint8
 
-type HasSuccess interface {
+type Successor interface {
 	WasSuccessful() bool
 }
 

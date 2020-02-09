@@ -182,6 +182,16 @@ func Test_ActiveEndpointMessages(t *testing.T) {
 		assert.Equal(t, []byte{0x01}, data)
 	})
 
+	t.Run("generic ZdoActiveEpReqReply returns true if success", func(t *testing.T) {
+		g := ZdoActiveEpReqReply{Status:ZSuccess}
+		assert.True(t, g.WasSuccessful())
+	})
+
+	t.Run("generic ZdoActiveEpReqReply returns false if not success", func(t *testing.T) {
+		g := ZdoActiveEpReqReply{Status:ZFailure}
+		assert.False(t, g.WasSuccessful())
+	})
+
 	t.Run("verify ZdoActiveEpRsp marshals", func(t *testing.T) {
 		req := ZdoActiveEpRsp{
 			SourceAddress:     zigbee.NetworkAddress(0x2000),
@@ -194,5 +204,15 @@ func Test_ActiveEndpointMessages(t *testing.T) {
 
 		assert.NoError(t, err)
 		assert.Equal(t, []byte{0x00, 0x20, 0x01, 0x00, 0x40, 0x03, 0x01, 0x02, 0x03}, data)
+	})
+
+	t.Run("generic ZdoActiveEpRsp returns true if success", func(t *testing.T) {
+		g := ZdoActiveEpRsp{Status:ZSuccess}
+		assert.True(t, g.WasSuccessful())
+	})
+
+	t.Run("generic ZdoActiveEpRsp returns false if not success", func(t *testing.T) {
+		g := ZdoActiveEpRsp{Status:ZFailure}
+		assert.False(t, g.WasSuccessful())
 	})
 }

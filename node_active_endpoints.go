@@ -2,55 +2,23 @@ package zstack
 
 import (
 	"context"
-	"errors"
 	"github.com/shimmeringbee/zigbee"
 )
 
 func (z *ZStack) QueryNodeEndpoints(ctx context.Context, networkAddress zigbee.NetworkAddress) ([]byte, error) {
-	ch := make(chan *ZdoActiveEpRsp)
-
-	err, stop := z.subscriber.Subscribe(&ZdoActiveEpRsp{}, func(v interface{}) {
-		msg := v.(*ZdoActiveEpRsp)
-
-		if msg.OfInterestAddress == networkAddress {
-			select {
-			case ch <- msg:
-			case <-ctx.Done():
-			}
-		}
-	})
-
-	defer stop()
-
-	if err != nil {
-		return []byte{}, err
-	}
-
 	request := ZdoActiveEpReq{
 		DestinationAddress: networkAddress,
 		OfInterestAddress:  networkAddress,
 	}
 
-	resp := ZdoActiveEpReqReply{}
+	resp := ZdoActiveEpRsp{}
 
-	if err := z.requestResponder.RequestResponse(ctx, request, &resp); err != nil {
-		return []byte{}, err
-	}
+	err := z.nodeRequest(ctx, &request, &ZdoActiveEpReqReply{}, &resp, func(i interface{}) bool {
+		msg := i.(*ZdoActiveEpRsp)
+		return msg.OfInterestAddress == networkAddress
+	})
 
-	if resp.Status != ZSuccess {
-		return []byte{}, ErrorZFailure
-	}
-
-	select {
-	case response := <-ch:
-		if response.Status == ZSuccess {
-			return response.ActiveEndpoints, nil
-		} else {
-			return []byte{}, errors.New("error response received from node")
-		}
-	case <-ctx.Done():
-		return []byte{}, errors.New("context expired while waiting for response from node")
-	}
+	return resp.ActiveEndpoints, err
 }
 
 type ZdoActiveEpReq struct {
@@ -62,6 +30,10 @@ const ZdoActiveEpReqID uint8 = 0x05
 
 type ZdoActiveEpReqReply GenericZStackStatus
 
+func (r ZdoActiveEpReqReply) WasSuccessful() bool {
+	return r.Status == ZSuccess
+}
+
 const ZdoActiveEpReqReplyID uint8 = 0x05
 
 type ZdoActiveEpRsp struct {
@@ -69,6 +41,10 @@ type ZdoActiveEpRsp struct {
 	Status            ZStackStatus
 	OfInterestAddress zigbee.NetworkAddress
 	ActiveEndpoints   []byte `bclength:"8"`
+}
+
+func (r ZdoActiveEpRsp) WasSuccessful() bool {
+	return r.Status == ZSuccess
 }
 
 const ZdoActiveEpRspID uint8 = 0x85
