@@ -52,7 +52,7 @@ func Test_QueryNodeEndpointDescription(t *testing.T) {
 	})
 }
 
-func Test_SimpleDescriptionMessages(t *testing.T) {
+func Test_EndpointDescriptionMessages(t *testing.T) {
 	t.Run("verify ZdoSimpleDescReq marshals", func(t *testing.T) {
 		req := ZdoSimpleDescReq{
 			DestinationAddress: zigbee.NetworkAddress(0x2000),
@@ -77,12 +77,12 @@ func Test_SimpleDescriptionMessages(t *testing.T) {
 		assert.Equal(t, []byte{0x01}, data)
 	})
 
-	t.Run("generic ZdoSimpleDescReqReply returns true if success", func(t *testing.T) {
+	t.Run("ZdoSimpleDescReqReply returns true if success", func(t *testing.T) {
 		g := ZdoSimpleDescReqReply{Status: ZSuccess}
 		assert.True(t, g.WasSuccessful())
 	})
 
-	t.Run("generic ZdoSimpleDescReqReply returns false if not success", func(t *testing.T) {
+	t.Run("ZdoSimpleDescReqReply returns false if not success", func(t *testing.T) {
 		g := ZdoSimpleDescReqReply{Status: ZFailure}
 		assert.False(t, g.WasSuccessful())
 	})
@@ -107,12 +107,12 @@ func Test_SimpleDescriptionMessages(t *testing.T) {
 		assert.Equal(t, []byte{0x00, 0x20, 0x01, 0x00, 0x40, 0x0a, 0x08, 0x34, 0x12, 0x78, 0x56, 0x00, 0x01, 0x34, 0x12, 0x01, 0x78, 0x56}, data)
 	})
 
-	t.Run("generic ZdoSimpleDescRsp returns true if success", func(t *testing.T) {
+	t.Run("ZdoSimpleDescRsp returns true if success", func(t *testing.T) {
 		g := ZdoSimpleDescRsp{Status: ZSuccess}
 		assert.True(t, g.WasSuccessful())
 	})
 
-	t.Run("generic ZdoSimpleDescRsp returns false if not success", func(t *testing.T) {
+	t.Run("ZdoSimpleDescRsp returns false if not success", func(t *testing.T) {
 		g := ZdoSimpleDescRsp{Status: ZFailure}
 		assert.False(t, g.WasSuccessful())
 	})
