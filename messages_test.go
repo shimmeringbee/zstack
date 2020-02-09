@@ -499,4 +499,18 @@ func Test_registerMessages(t *testing.T) {
 		assert.True(t, found)
 		assert.Equal(t, reflect.TypeOf(ZdoUnbindRsp{}), ty)
 	})
+
+	t.Run("AfIncomingMsg", func(t *testing.T) {
+		identity, found := ml.GetByObject(&AfIncomingMsg{})
+
+		assert.True(t, found)
+		assert.Equal(t, AREQ, identity.MessageType)
+		assert.Equal(t, AF, identity.Subsystem)
+		assert.Equal(t, uint8(0x81), identity.CommandID)
+
+		ty, found := ml.GetByIdentifier(AREQ, AF, 0x81)
+
+		assert.True(t, found)
+		assert.Equal(t, reflect.TypeOf(AfIncomingMsg{}), ty)
+	})
 }
