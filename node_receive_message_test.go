@@ -58,16 +58,17 @@ func Test_ReceiveMessage(t *testing.T) {
 		assert.True(t, ok)
 
 		expectedMsg := zigbee.DeviceIncomingMessageEvent{
-			GroupID:             0x01,
-			ClusterID:           0x02,
-			SourceAddress:       0x1122334455667788,
-			SourceEndpoint:      3,
-			DestinationEndpoint: 4,
-			Broadcast:           true,
-			Secure:              true,
-			LinkQuality:         55,
-			Sequence:            63,
-			Data:                []byte{0x01, 0x02},
+			GroupID:              0x01,
+			ClusterID:            0x02,
+			SourceNetworkAddress: 0x1000,
+			SourceIEEEAddress:    0x1122334455667788,
+			SourceEndpoint:       3,
+			DestinationEndpoint:  4,
+			Broadcast:            true,
+			Secure:               true,
+			LinkQuality:          55,
+			Sequence:             63,
+			Data:                 []byte{0x01, 0x02},
 		}
 
 		assert.Equal(t, expectedMsg, incommingMsg)
@@ -89,7 +90,7 @@ func Test_IncomingMessage(t *testing.T) {
 			SecurityUse:         0x0b,
 			TimeStamp:           0x10111213,
 			Sequence:            0x0d,
-			Data:                []byte { 0x00, 0x01, 0x02 },
+			Data:                []byte{0x00, 0x01, 0x02},
 		}
 
 		data, err := bytecodec.Marshall(req)
