@@ -5,6 +5,6 @@ go 1.13
 require (
 	github.com/shimmeringbee/bytecodec v0.0.0-20191116111328-f873abddc0ca
 	github.com/shimmeringbee/unpi v0.0.0-20200208214536-ae03ffed80df
-	github.com/shimmeringbee/zigbee v0.0.0-20200120203528-41c732360d3b
+	github.com/shimmeringbee/zigbee v0.0.0-20200209141444-4751de36c63a
 	github.com/stretchr/testify v1.4.0
 )
