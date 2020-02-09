@@ -1,6 +1,28 @@
 package zstack
 
-import "github.com/shimmeringbee/zigbee"
+import (
+	"context"
+	"github.com/shimmeringbee/zigbee"
+)
+
+func (z *ZStack) BindToNode(ctx context.Context, networkAddress zigbee.NetworkAddress, sourceAddress zigbee.IEEEAddress, sourceEndpoint byte, destinationAddress zigbee.IEEEAddress, destinationEndpoint byte, cluster zigbee.ZCLClusterID) error {
+	request := ZdoBindReq{
+		TargetAddress:          networkAddress,
+		SourceAddress:          sourceAddress,
+		SourceEndpoint:         sourceEndpoint,
+		ClusterID:              cluster,
+		DestinationAddressMode: 0x03,
+		DestinationAddress:     uint64(destinationAddress),
+		DestinationEndpoint:    destinationEndpoint,
+	}
+
+	_, err := z.nodeRequest(ctx, &request, &ZdoBindReqReply{}, &ZdoBindRsp{}, func(i interface{}) bool {
+		msg := i.(*ZdoBindRsp)
+		return msg.SourceAddress == networkAddress
+	})
+
+	return err
+}
 
 type ZdoBindReq struct {
 	TargetAddress          zigbee.NetworkAddress

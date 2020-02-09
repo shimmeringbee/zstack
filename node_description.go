@@ -25,7 +25,8 @@ func (z *ZStack) QueryNodeDescription(ctx context.Context, networkAddress zigbee
 		}, nil
 	} else {
 		return zigbee.NodeDescription{}, err
-	}}
+	}
+}
 
 type ZdoNodeDescReq struct {
 	DestinationAddress zigbee.NetworkAddress

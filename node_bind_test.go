@@ -1,11 +1,59 @@
 package zstack
 
 import (
+	"context"
 	"github.com/shimmeringbee/bytecodec"
+	. "github.com/shimmeringbee/unpi"
+	unpiTest "github.com/shimmeringbee/unpi/testing"
 	"github.com/shimmeringbee/zigbee"
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"time"
 )
+
+func Test_BindToNode(t *testing.T) {
+	t.Run("returns an success on query, response for requested network address is received", func(t *testing.T) {
+		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+		defer cancel()
+
+		unpiMock := unpiTest.NewMockAdapter()
+		zstack := New(unpiMock)
+		defer unpiMock.Stop()
+
+		call := unpiMock.On(SREQ, ZDO, ZdoBindReqReplyID).Return(Frame{
+			MessageType: SRSP,
+			Subsystem:   ZDO,
+			CommandID:   ZdoBindReqReplyID,
+			Payload:     []byte{0x00},
+		})
+
+		go func() {
+			time.Sleep(10 * time.Millisecond)
+			unpiMock.InjectOutgoing(Frame{
+				MessageType: AREQ,
+				Subsystem:   ZDO,
+				CommandID:   ZdoBindRspID,
+				Payload:     []byte{0x00, 0x40, 0x00},
+			})
+		}()
+
+		err := zstack.BindToNode(ctx, zigbee.NetworkAddress(0x4000), zigbee.IEEEAddress(1), 2, zigbee.IEEEAddress(3), 4, 5)
+		assert.NoError(t, err)
+
+		bindReq := ZdoBindReq{}
+		bytecodec.Unmarshall(call.CapturedCalls[0].Frame.Payload, &bindReq)
+
+		assert.Equal(t, zigbee.NetworkAddress(0x4000), bindReq.TargetAddress)
+		assert.Equal(t, zigbee.IEEEAddress(1), bindReq.SourceAddress)
+		assert.Equal(t, uint8(2), bindReq.SourceEndpoint)
+		assert.Equal(t, uint64(3), bindReq.DestinationAddress)
+		assert.Equal(t, uint8(4), bindReq.DestinationEndpoint)
+		assert.Equal(t, zigbee.ZCLClusterID(0x5), bindReq.ClusterID)
+		assert.Equal(t, uint8(0x03), bindReq.DestinationAddressMode)
+
+		unpiMock.AssertCalls(t)
+	})
+}
 
 func Test_BindMessages(t *testing.T) {
 	t.Run("verify ZdoBindReq marshals", func(t *testing.T) {
@@ -48,8 +96,8 @@ func Test_BindMessages(t *testing.T) {
 
 	t.Run("verify ZdoBindRsp marshals", func(t *testing.T) {
 		req := ZdoBindRsp{
-			SourceAddress:     zigbee.NetworkAddress(0x2000),
-			Status:            1,
+			SourceAddress: zigbee.NetworkAddress(0x2000),
+			Status:        1,
 		}
 
 		data, err := bytecodec.Marshall(req)
