@@ -17,6 +17,16 @@ func NewDeviceTable() *DeviceTable {
 	}
 }
 
+func (t *DeviceTable) GetAllDevices() []Device {
+	var devices []Device
+
+	for _, device := range t.ieeeToDevice {
+		devices = append(devices, *device)
+	}
+
+	return devices
+}
+
 func (t *DeviceTable) GetByIEEE(ieeeAddress zigbee.IEEEAddress) (Device, bool) {
 	device, found := t.ieeeToDevice[ieeeAddress]
 

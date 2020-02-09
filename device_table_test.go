@@ -105,6 +105,15 @@ func TestDeviceTable(t *testing.T) {
 
 		assert.Equal(t, zigbee.EndDevice, d.LogicalType)
 	})
+
+	t.Run("returns all devices when queried", func(t *testing.T) {
+		dt := NewDeviceTable()
+
+		dt.AddOrUpdate(ieee, network)
+
+		devices := dt.GetAllDevices()
+		assert.Equal(t, 1, len(devices))
+	})
 }
 
 func TestDeviceUpdate(t *testing.T) {
