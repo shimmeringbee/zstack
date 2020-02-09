@@ -25,9 +25,9 @@ supports the CC253X series of Zigbee sniffers flashed with the
 More information about Z-Stack is available from [Texas Instruments](https://www.ti.com/tool/Z-STACK) directly or from
 [Z-Stack Developer's Guide](https://usermanual.wiki/Pdf/ZStack20Developers20Guide.1049398016/view).
 
-[Another implementation](https://github.com/dyrkin/znp-go/) of a Z-Stack compatible ZNP exists for Golang, however it
-holds [no licence and communication attempts](https://github.com/dyrkin/zigbee-steward/issues/1) with the author have
-failed. This is a complete reimplementation of the library.
+[Another implementation](https://github.com/dyrkin/znp-go/) of a Z-Stack compatible ZNP exists for Golang, it did [hold no license for a period](https://github.com/dyrkin/zigbee-steward/issues/1)
+and the author could not be contacted. This has been rectified, so it may be of interest you. This is a complete
+reimplementation of the library, however it is likely there will be strong coincidences due to Golang standards.
 
 ## Install
 
