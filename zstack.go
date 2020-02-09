@@ -37,6 +37,8 @@ type ZStack struct {
 
 	devices          map[zigbee.IEEEAddress]*LegacyDevice
 	devicesByNetAddr map[zigbee.NetworkAddress]zigbee.IEEEAddress
+
+	deviceTable *DeviceTable
 }
 
 type JoinState uint8
@@ -76,6 +78,7 @@ func New(uart io.ReadWriter) *ZStack {
 		networkManagerIncoming: make(chan interface{}, DefaultInflightEvents),
 		devices:                map[zigbee.IEEEAddress]*LegacyDevice{},
 		devicesByNetAddr:       map[zigbee.NetworkAddress]zigbee.IEEEAddress{},
+		deviceTable:            NewDeviceTable(),
 	}
 }
 
