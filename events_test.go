@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func TestZStack__ReadEvent(t *testing.T) {
+func Test_ReadEvent(t *testing.T) {
 	t.Run("errors if context times out", func(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
 		defer cancel()

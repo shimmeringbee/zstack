@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-func TestZStack_QueryNodeEndpoints(t *testing.T) {
+func Test_QueryNodeEndpoints(t *testing.T) {
 	t.Run("returns an error if the query fails", func(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 		defer cancel()

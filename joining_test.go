@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func TestZStack_PermitJoin(t *testing.T) {
+func Test_PermitJoin(t *testing.T) {
 	t.Run("permit join for all routers sends message to all routers permitting joining", func(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 		defer cancel()
@@ -82,7 +82,7 @@ func TestZStack_PermitJoin(t *testing.T) {
 	})
 }
 
-func TestZStack_DenyJoin(t *testing.T) {
+func Test_DenyJoin(t *testing.T) {
 	t.Run("denying join sends message to all routers disabling joining", func(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 		defer cancel()

@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-func TestZStack_RegisterAdapterEndpoint(t *testing.T) {
+func Test_RegisterAdapterEndpoint(t *testing.T) {
 	t.Run("registers the endpoint", func(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 		defer cancel()

@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-func TestZStack_Initialise(t *testing.T) {
+func Test_Initialise(t *testing.T) {
 	t.Run("test initialisation process", func(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 		defer cancel()
@@ -121,7 +121,7 @@ func TestZStack_Initialise(t *testing.T) {
 	})
 }
 
-func TestZStack_startZigbeeStack(t *testing.T) {
+func Test_startZigbeeStack(t *testing.T) {
 	t.Run("starts zigbee stack and waits for confirmation", func(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 		defer cancel()

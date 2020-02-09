@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-func TestZStack_writeNVRAM(t *testing.T) {
+func Test_writeNVRAM(t *testing.T) {
 	t.Run("verifies that a request response is made to unpi", func(t *testing.T) {
 		mrr := new(MockRequestResponder)
 
@@ -94,7 +94,7 @@ func (m *FailingMockRequestResponse) RequestResponse(ctx context.Context, req in
 	return nil
 }
 
-func TestZStack_NVRAMStructs(t *testing.T) {
+func Test_NVRAMStructs(t *testing.T) {
 	t.Run("ZCDNVStartUpOption", func(t *testing.T) {
 		s := ZCDNVStartUpOption{
 			StartOption: 3,

@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func TestZStack_GetAdapterIEEEAddress(t *testing.T) {
+func Test_GetAdapterIEEEAddress(t *testing.T) {
 	t.Run("gets the IEEE address", func(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 		defer cancel()
@@ -36,7 +36,7 @@ func TestZStack_GetAdapterIEEEAddress(t *testing.T) {
 	})
 }
 
-func TestZStack_GetAdapterNetworkAddress(t *testing.T) {
+func Test_GetAdapterNetworkAddress(t *testing.T) {
 	t.Run("gets the network address", func(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 		defer cancel()

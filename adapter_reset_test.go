@@ -46,7 +46,7 @@ func (m *MockRequestResponder) RequestResponse(ctx context.Context, req interfac
 	return args.Error(0)
 }
 
-func TestZStack_resetAdapter(t *testing.T) {
+func Test_resetAdapter(t *testing.T) {
 	t.Run("verifies that a request response is made to unpi", func(t *testing.T) {
 		mrr := new(MockRequestResponder)
 
