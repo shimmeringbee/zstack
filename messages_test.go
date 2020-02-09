@@ -415,4 +415,88 @@ func Test_registerMessages(t *testing.T) {
 		assert.True(t, found)
 		assert.Equal(t, reflect.TypeOf(ZdoNodeDescRsp{}), ty)
 	})
+
+	t.Run("ZdoBindReq", func(t *testing.T) {
+		identity, found := ml.GetByObject(&ZdoBindReq{})
+
+		assert.True(t, found)
+		assert.Equal(t, SREQ, identity.MessageType)
+		assert.Equal(t, ZDO, identity.Subsystem)
+		assert.Equal(t, uint8(0x21), identity.CommandID)
+
+		ty, found := ml.GetByIdentifier(SREQ, ZDO, 0x21)
+
+		assert.True(t, found)
+		assert.Equal(t, reflect.TypeOf(ZdoBindReq{}), ty)
+	})
+
+	t.Run("ZdoBindReqReply", func(t *testing.T) {
+		identity, found := ml.GetByObject(&ZdoBindReqReply{})
+
+		assert.True(t, found)
+		assert.Equal(t, SRSP, identity.MessageType)
+		assert.Equal(t, ZDO, identity.Subsystem)
+		assert.Equal(t, uint8(0x21), identity.CommandID)
+
+		ty, found := ml.GetByIdentifier(SRSP, ZDO, 0x21)
+
+		assert.True(t, found)
+		assert.Equal(t, reflect.TypeOf(ZdoBindReqReply{}), ty)
+	})
+
+	t.Run("ZdoBindRsp", func(t *testing.T) {
+		identity, found := ml.GetByObject(&ZdoBindRsp{})
+
+		assert.True(t, found)
+		assert.Equal(t, AREQ, identity.MessageType)
+		assert.Equal(t, ZDO, identity.Subsystem)
+		assert.Equal(t, uint8(0xa1), identity.CommandID)
+
+		ty, found := ml.GetByIdentifier(AREQ, ZDO, 0xa1)
+
+		assert.True(t, found)
+		assert.Equal(t, reflect.TypeOf(ZdoBindRsp{}), ty)
+	})
+
+	t.Run("ZdoUnbindReq", func(t *testing.T) {
+		identity, found := ml.GetByObject(&ZdoUnbindReq{})
+
+		assert.True(t, found)
+		assert.Equal(t, SREQ, identity.MessageType)
+		assert.Equal(t, ZDO, identity.Subsystem)
+		assert.Equal(t, uint8(0x22), identity.CommandID)
+
+		ty, found := ml.GetByIdentifier(SREQ, ZDO, 0x22)
+
+		assert.True(t, found)
+		assert.Equal(t, reflect.TypeOf(ZdoUnbindReq{}), ty)
+	})
+
+	t.Run("ZdoUnbindReqReply", func(t *testing.T) {
+		identity, found := ml.GetByObject(&ZdoUnbindReqReply{})
+
+		assert.True(t, found)
+		assert.Equal(t, SRSP, identity.MessageType)
+		assert.Equal(t, ZDO, identity.Subsystem)
+		assert.Equal(t, uint8(0x22), identity.CommandID)
+
+		ty, found := ml.GetByIdentifier(SRSP, ZDO, 0x22)
+
+		assert.True(t, found)
+		assert.Equal(t, reflect.TypeOf(ZdoUnbindReqReply{}), ty)
+	})
+
+	t.Run("ZdoUnbindRsp", func(t *testing.T) {
+		identity, found := ml.GetByObject(&ZdoUnbindRsp{})
+
+		assert.True(t, found)
+		assert.Equal(t, AREQ, identity.MessageType)
+		assert.Equal(t, ZDO, identity.Subsystem)
+		assert.Equal(t, uint8(0xa2), identity.CommandID)
+
+		ty, found := ml.GetByIdentifier(AREQ, ZDO, 0xa2)
+
+		assert.True(t, found)
+		assert.Equal(t, reflect.TypeOf(ZdoUnbindRsp{}), ty)
+	})
 }
