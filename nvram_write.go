@@ -78,16 +78,8 @@ type ZCDNVStartUpOption struct {
 const ZCDNVLogicalTypeID uint16 = 0x0087
 
 type ZCDNVLogicalType struct {
-	LogicalType LogicalType
+	LogicalType zigbee.LogicalType
 }
-
-type LogicalType uint8
-
-const (
-	Coordinator LogicalType = 0x00
-	Router      LogicalType = 0x01
-	EndDevice   LogicalType = 0x02
-)
 
 const ZCDNVSecurityModeID uint16 = 0x0064
 

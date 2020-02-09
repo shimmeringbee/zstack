@@ -5,12 +5,12 @@ import (
 	"time"
 )
 
-func (z *ZStack) addOrUpdateDevice(ieee zigbee.IEEEAddress, facts ...DeviceFact) (*Device, bool) {
+func (z *ZStack) addOrUpdateDevice(ieee zigbee.IEEEAddress, facts ...DeviceFact) (*LegacyDevice, bool) {
 	_, present := z.devices[ieee]
 	newDevice := false
 
 	if !present {
-		z.devices[ieee] = &Device{
+		z.devices[ieee] = &LegacyDevice{
 			IEEEAddress: ieee,
 			Role:        RoleUnknown,
 			Neighbours:  map[zigbee.IEEEAddress]*DeviceNeighbour{},
@@ -26,7 +26,7 @@ func (z *ZStack) addOrUpdateDevice(ieee zigbee.IEEEAddress, facts ...DeviceFact)
 	return z.devices[ieee], newDevice
 }
 
-func (z *ZStack) getDevice(netaddr zigbee.NetworkAddress) (*Device, bool) {
+func (z *ZStack) getDevice(netaddr zigbee.NetworkAddress) (*LegacyDevice, bool) {
 	ieee, found := z.devicesByNetAddr[netaddr]
 
 	if found {
@@ -37,10 +37,10 @@ func (z *ZStack) getDevice(netaddr zigbee.NetworkAddress) (*Device, bool) {
 	return nil, found
 }
 
-type DeviceFact func(*Device)
+type DeviceFact func(*LegacyDevice)
 
 func (z *ZStack) Role(role DeviceRole) DeviceFact {
-	return func(device *Device) {
+	return func(device *LegacyDevice) {
 		if device.Role != role && role == RoleRouter {
 			go z.pollDeviceForNetworkStatus(*device)
 		}
@@ -50,7 +50,7 @@ func (z *ZStack) Role(role DeviceRole) DeviceFact {
 }
 
 func (z *ZStack) NetAddr(networkAddress zigbee.NetworkAddress) DeviceFact {
-	return func(device *Device) {
+	return func(device *LegacyDevice) {
 		device.NetworkAddress = networkAddress
 		z.devicesByNetAddr[networkAddress] = device.IEEEAddress
 	}
@@ -78,7 +78,7 @@ const (
 	RoleUnknown     DeviceRole = 0xff
 )
 
-type Device struct {
+type LegacyDevice struct {
 	NetworkAddress zigbee.NetworkAddress
 	IEEEAddress    zigbee.IEEEAddress
 	Role           DeviceRole

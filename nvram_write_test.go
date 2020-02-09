@@ -26,7 +26,7 @@ func Test_writeNVRAM(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
 		defer cancel()
 
-		err := z.writeNVRAM(ctx, ZCDNVLogicalType{LogicalType: EndDevice})
+		err := z.writeNVRAM(ctx, ZCDNVLogicalType{LogicalType: zigbee.EndDevice})
 
 		mrr.AssertExpectations(t)
 		assert.NoError(t, err)
@@ -40,7 +40,7 @@ func Test_writeNVRAM(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
 		defer cancel()
 
-		err := z.writeNVRAM(ctx, ZCDNVLogicalType{LogicalType: EndDevice})
+		err := z.writeNVRAM(ctx, ZCDNVLogicalType{LogicalType: zigbee.EndDevice})
 
 		assert.Error(t, err)
 	})
@@ -59,7 +59,7 @@ func Test_writeNVRAM(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
 		defer cancel()
 
-		err := z.writeNVRAM(ctx, ZCDNVLogicalType{LogicalType: EndDevice})
+		err := z.writeNVRAM(ctx, ZCDNVLogicalType{LogicalType: zigbee.EndDevice})
 
 		mrr.AssertExpectations(t)
 		assert.Error(t, err)
@@ -110,7 +110,7 @@ func Test_NVRAMStructs(t *testing.T) {
 
 	t.Run("ZCDNVLogicalType", func(t *testing.T) {
 		s := ZCDNVLogicalType{
-			LogicalType: Router,
+			LogicalType: zigbee.Router,
 		}
 
 		actualBytes, err := bytecodec.Marshall(s)

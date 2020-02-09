@@ -24,7 +24,7 @@ func (z *ZStack) Initialise(ctx context.Context, nc zigbee.NetworkConfiguration)
 			return z.resetAdapter(invokeCtx, Soft)
 		},
 		func(invokeCtx context.Context) error {
-			return z.writeNVRAM(invokeCtx, ZCDNVLogicalType{LogicalType: Coordinator})
+			return z.writeNVRAM(invokeCtx, ZCDNVLogicalType{LogicalType: zigbee.Coordinator})
 		},
 		func(invokeCtx context.Context) error {
 			return z.resetAdapter(invokeCtx, Soft)

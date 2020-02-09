@@ -25,8 +25,8 @@ func Test_NetworkManager(t *testing.T) {
 			Payload:     []byte{0x00},
 		}).Times(2)
 
-		zstack.devices[zigbee.IEEEAddress(1)] = &Device{NetworkAddress: 1, IEEEAddress: 1, Role: RoleRouter}
-		zstack.devices[zigbee.IEEEAddress(2)] = &Device{NetworkAddress: 2, IEEEAddress: 2, Role: RoleUnknown}
+		zstack.devices[zigbee.IEEEAddress(1)] = &LegacyDevice{NetworkAddress: 1, IEEEAddress: 1, Role: RoleRouter}
+		zstack.devices[zigbee.IEEEAddress(2)] = &LegacyDevice{NetworkAddress: 2, IEEEAddress: 2, Role: RoleUnknown}
 
 		zstack.startNetworkManager()
 		defer zstack.stopNetworkManager()
@@ -155,10 +155,10 @@ func Test_NetworkManager(t *testing.T) {
 			IEEEAddress:   zigbee.IEEEAddress(0x0102030405060708),
 		}
 
-		zstack.devices[zigbee.IEEEAddress(0)] = &Device{Neighbours: map[zigbee.IEEEAddress]*DeviceNeighbour{}}
+		zstack.devices[zigbee.IEEEAddress(0)] = &LegacyDevice{Neighbours: map[zigbee.IEEEAddress]*DeviceNeighbour{}}
 		zstack.devices[zigbee.IEEEAddress(0)].Neighbours[announce.IEEEAddress] = &DeviceNeighbour{LQI: 50}
 
-		zstack.devices[announce.IEEEAddress] = &Device{
+		zstack.devices[announce.IEEEAddress] = &LegacyDevice{
 			NetworkAddress: 0x2000,
 			IEEEAddress:    announce.IEEEAddress,
 			Role:           RoleUnknown,

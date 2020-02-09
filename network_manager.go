@@ -80,12 +80,12 @@ func (z *ZStack) pollRoutersForNetworkStatus() {
 	}
 }
 
-func (z *ZStack) pollDeviceForNetworkStatus(device Device) {
+func (z *ZStack) pollDeviceForNetworkStatus(device LegacyDevice) {
 	log.Printf("polling %v (%d) for network status\n", device.IEEEAddress, device.NetworkAddress)
 	z.requestLQITable(device)
 }
 
-func (z *ZStack) requestLQITable(device Device) {
+func (z *ZStack) requestLQITable(device LegacyDevice) {
 	ctx, cancel := context.WithTimeout(context.Background(), DefaultZStackTimeout)
 	defer cancel()
 
@@ -126,19 +126,6 @@ func (z *ZStack) processLQITable(lqi ZdoMGMTLQIRsp) {
 		}
 
 		z.addOrUpdateDevice(neighbour.IEEEAddress, z.NetAddr(neighbour.NetworkAddress), z.Role(role))
-
-		if sourceFound {
-			dn, found := sourceDevice.Neighbours[neighbour.IEEEAddress]
-
-			if !found {
-				dn = &DeviceNeighbour{}
-				sourceDevice.Neighbours[neighbour.IEEEAddress] = dn
-			}
-
-			dn.LQI = neighbour.LQI
-			dn.Relationship = DeviceRelationship((neighbour.Status & 0x70) >> 4)
-			dn.LastObserved = currentTime
-		}
 	}
 
 	if sourceFound {
