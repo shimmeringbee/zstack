@@ -9,8 +9,7 @@ import (
 	"time"
 )
 
-
-func Test_NodeRequest(t *testing.T)  {
+func Test_NodeRequest(t *testing.T) {
 	t.Run("returns an error if the response type does not support Successor", func(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
 		defer cancel()
@@ -19,7 +18,7 @@ func Test_NodeRequest(t *testing.T)  {
 		zstack := New(unpiMock)
 		defer unpiMock.Stop()
 
-		type NotSuccessful struct {}
+		type NotSuccessful struct{}
 
 		resp, err := zstack.nodeRequest(ctx, &NotSuccessful{}, &NotSuccessful{}, &NotSuccessful{}, AnyResponse)
 
@@ -77,7 +76,7 @@ func Test_NodeRequest(t *testing.T)  {
 			})
 		}()
 
-		resp, err := zstack.nodeRequest(ctx, &ZdoActiveEpReq{DestinationAddress:0x4000, OfInterestAddress:0x4000}, &ZdoActiveEpReqReply{}, &ZdoActiveEpRsp{}, AnyResponse)
+		resp, err := zstack.nodeRequest(ctx, &ZdoActiveEpReq{DestinationAddress: 0x4000, OfInterestAddress: 0x4000}, &ZdoActiveEpReqReply{}, &ZdoActiveEpRsp{}, AnyResponse)
 		castResp, ok := resp.(*ZdoActiveEpRsp)
 
 		assert.NoError(t, err)
@@ -119,7 +118,7 @@ func Test_NodeRequest(t *testing.T)  {
 			})
 		}()
 
-		resp, err := zstack.nodeRequest(ctx, &ZdoActiveEpReq{DestinationAddress:0x4000, OfInterestAddress:0x4000}, &ZdoActiveEpReqReply{}, &ZdoActiveEpRsp{}, func(i interface{}) bool {
+		resp, err := zstack.nodeRequest(ctx, &ZdoActiveEpReq{DestinationAddress: 0x4000, OfInterestAddress: 0x4000}, &ZdoActiveEpReqReply{}, &ZdoActiveEpRsp{}, func(i interface{}) bool {
 			response := i.(*ZdoActiveEpRsp)
 			return response.OfInterestAddress == 0x4000
 		})
@@ -163,7 +162,7 @@ func Test_NodeRequest(t *testing.T)  {
 			})
 		}()
 
-		resp, err := zstack.nodeRequest(ctx, &ZdoActiveEpReq{DestinationAddress:0x4000, OfInterestAddress:0x4000}, &ZdoActiveEpReqReply{}, &ZdoActiveEpRsp{}, func(i interface{}) bool {
+		resp, err := zstack.nodeRequest(ctx, &ZdoActiveEpReq{DestinationAddress: 0x4000, OfInterestAddress: 0x4000}, &ZdoActiveEpReqReply{}, &ZdoActiveEpRsp{}, func(i interface{}) bool {
 			return i.(*ZdoActiveEpRsp).OfInterestAddress == 0x4000
 		})
 		castResp, ok := resp.(*ZdoActiveEpRsp)
@@ -200,7 +199,7 @@ func Test_NodeRequest(t *testing.T)  {
 			})
 		}()
 
-		resp, err := zstack.nodeRequest(ctx, &ZdoActiveEpReq{DestinationAddress:0x4000, OfInterestAddress:0x4000}, &ZdoActiveEpReqReply{}, &ZdoActiveEpRsp{}, AnyResponse)
+		resp, err := zstack.nodeRequest(ctx, &ZdoActiveEpReq{DestinationAddress: 0x4000, OfInterestAddress: 0x4000}, &ZdoActiveEpReqReply{}, &ZdoActiveEpRsp{}, AnyResponse)
 		castResp, ok := resp.(*ZdoActiveEpRsp)
 
 		assert.Error(t, err)

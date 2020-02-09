@@ -9,7 +9,7 @@ func (z *ZStack) QueryNodeEndpointDescription(ctx context.Context, networkAddres
 	request := ZdoSimpleDescReq{
 		DestinationAddress: networkAddress,
 		OfInterestAddress:  networkAddress,
-		Endpoint: endpoint,
+		Endpoint:           endpoint,
 	}
 
 	resp, err := z.nodeRequest(ctx, &request, &ZdoSimpleDescReqReply{}, &ZdoSimpleDescRsp{}, func(i interface{}) bool {

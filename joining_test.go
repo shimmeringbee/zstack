@@ -104,7 +104,6 @@ func Test_DenyJoin(t *testing.T) {
 
 		unpiMock.AssertCalls(t)
 
-
 		assert.Equal(t, []byte{0xfc, 0xff, 0x00}, c.CapturedCalls[0].Frame.Payload)
 		assert.Equal(t, Off, zstack.NetworkProperties.JoinState)
 	})

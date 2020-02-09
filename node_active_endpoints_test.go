@@ -12,7 +12,7 @@ import (
 )
 
 func Test_QueryNodeEndpoints(t *testing.T) {
-		t.Run("returns an success on query, response for requested network address is received", func(t *testing.T) {
+	t.Run("returns an success on query, response for requested network address is received", func(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
 		defer cancel()
 
@@ -70,12 +70,12 @@ func Test_ActiveEndpointMessages(t *testing.T) {
 	})
 
 	t.Run("generic ZdoActiveEpReqReply returns true if success", func(t *testing.T) {
-		g := ZdoActiveEpReqReply{Status:ZSuccess}
+		g := ZdoActiveEpReqReply{Status: ZSuccess}
 		assert.True(t, g.WasSuccessful())
 	})
 
 	t.Run("generic ZdoActiveEpReqReply returns false if not success", func(t *testing.T) {
-		g := ZdoActiveEpReqReply{Status:ZFailure}
+		g := ZdoActiveEpReqReply{Status: ZFailure}
 		assert.False(t, g.WasSuccessful())
 	})
 
@@ -94,12 +94,12 @@ func Test_ActiveEndpointMessages(t *testing.T) {
 	})
 
 	t.Run("generic ZdoActiveEpRsp returns true if success", func(t *testing.T) {
-		g := ZdoActiveEpRsp{Status:ZSuccess}
+		g := ZdoActiveEpRsp{Status: ZSuccess}
 		assert.True(t, g.WasSuccessful())
 	})
 
 	t.Run("generic ZdoActiveEpRsp returns false if not success", func(t *testing.T) {
-		g := ZdoActiveEpRsp{Status:ZFailure}
+		g := ZdoActiveEpRsp{Status: ZFailure}
 		assert.False(t, g.WasSuccessful())
 	})
 }

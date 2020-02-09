@@ -155,8 +155,8 @@ func Test_NetworkManager(t *testing.T) {
 			IEEEAddress:   zigbee.IEEEAddress(0x0102030405060708),
 		}
 
-		zstack.devices[zigbee.IEEEAddress(0)] = &Device{ Neighbours: map[zigbee.IEEEAddress]*DeviceNeighbour{}}
-		zstack.devices[zigbee.IEEEAddress(0)].Neighbours[announce.IEEEAddress] = &DeviceNeighbour{LQI:50}
+		zstack.devices[zigbee.IEEEAddress(0)] = &Device{Neighbours: map[zigbee.IEEEAddress]*DeviceNeighbour{}}
+		zstack.devices[zigbee.IEEEAddress(0)].Neighbours[announce.IEEEAddress] = &DeviceNeighbour{LQI: 50}
 
 		zstack.devices[announce.IEEEAddress] = &Device{
 			NetworkAddress: 0x2000,
@@ -196,7 +196,7 @@ func Test_NetworkManager(t *testing.T) {
 		_, found = zstack.devices[zigbee.IEEEAddress(0)].Neighbours[deviceLeave.IEEEAddress]
 		assert.False(t, found)
 	})
-	
+
 	t.Run("a new router will be queried for network state", func(t *testing.T) {
 		unpiMock := unpiTest.NewMockAdapter()
 		zstack := New(unpiMock)
@@ -266,7 +266,7 @@ func Test_NetworkManager(t *testing.T) {
 			Status:                0,
 			NeighbourTableEntries: 1,
 			StartIndex:            0,
-			Neighbors:             []ZdoMGMTLQINeighbour{
+			Neighbors: []ZdoMGMTLQINeighbour{
 				{
 					ExtendedPANID:  zstack.NetworkProperties.ExtendedPANID,
 					IEEEAddress:    zigbee.IEEEAddress(0x1000),
@@ -329,7 +329,7 @@ func Test_NetworkManager(t *testing.T) {
 			Status:                0,
 			NeighbourTableEntries: 1,
 			StartIndex:            0,
-			Neighbors:             []ZdoMGMTLQINeighbour{
+			Neighbors: []ZdoMGMTLQINeighbour{
 				{
 					ExtendedPANID:  0xfffffff,
 					IEEEAddress:    zigbee.IEEEAddress(0x2000),
@@ -382,7 +382,7 @@ func Test_NetworkManager(t *testing.T) {
 			Status:                0,
 			NeighbourTableEntries: 1,
 			StartIndex:            0,
-			Neighbors:             []ZdoMGMTLQINeighbour{
+			Neighbors: []ZdoMGMTLQINeighbour{
 				{
 					ExtendedPANID:  zstack.NetworkProperties.ExtendedPANID,
 					IEEEAddress:    zigbee.IEEEAddress(0),

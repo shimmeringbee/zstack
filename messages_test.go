@@ -10,12 +10,12 @@ import (
 
 func Test_GenericZStackStatus(t *testing.T) {
 	t.Run("generic zstack returns true if success", func(t *testing.T) {
-		g := GenericZStackStatus{Status:ZSuccess}
+		g := GenericZStackStatus{Status: ZSuccess}
 		assert.True(t, g.WasSuccessful())
 	})
 
 	t.Run("generic zstack returns false if not success", func(t *testing.T) {
-		g := GenericZStackStatus{Status:ZFailure}
+		g := GenericZStackStatus{Status: ZFailure}
 		assert.False(t, g.WasSuccessful())
 	})
 }

@@ -78,12 +78,12 @@ func Test_SimpleDescriptionMessages(t *testing.T) {
 	})
 
 	t.Run("generic ZdoSimpleDescReqReply returns true if success", func(t *testing.T) {
-		g := ZdoSimpleDescReqReply{Status:ZSuccess}
+		g := ZdoSimpleDescReqReply{Status: ZSuccess}
 		assert.True(t, g.WasSuccessful())
 	})
 
 	t.Run("generic ZdoSimpleDescReqReply returns false if not success", func(t *testing.T) {
-		g := ZdoSimpleDescReqReply{Status:ZFailure}
+		g := ZdoSimpleDescReqReply{Status: ZFailure}
 		assert.False(t, g.WasSuccessful())
 	})
 
@@ -108,12 +108,12 @@ func Test_SimpleDescriptionMessages(t *testing.T) {
 	})
 
 	t.Run("generic ZdoSimpleDescRsp returns true if success", func(t *testing.T) {
-		g := ZdoSimpleDescRsp{Status:ZSuccess}
+		g := ZdoSimpleDescRsp{Status: ZSuccess}
 		assert.True(t, g.WasSuccessful())
 	})
 
 	t.Run("generic ZdoSimpleDescRsp returns false if not success", func(t *testing.T) {
-		g := ZdoSimpleDescRsp{Status:ZFailure}
+		g := ZdoSimpleDescRsp{Status: ZFailure}
 		assert.False(t, g.WasSuccessful())
 	})
 }

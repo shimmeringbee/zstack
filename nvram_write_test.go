@@ -227,7 +227,7 @@ func Test_NVRAMStructs(t *testing.T) {
 
 	t.Run("ZCDNVTCLKTableStart", func(t *testing.T) {
 		s := ZCDNVTCLKTableStart{
-			Address:       zigbee.IEEEAddress(0x0807060504030201),
+			Address:        zigbee.IEEEAddress(0x0807060504030201),
 			NetworkKey:     [16]byte{0x00, 0x01, 0x02, 0x03, 0x00, 0x01, 0x02, 0x03, 0x00, 0x01, 0x02, 0x03, 0x00, 0x01, 0x02, 0x03},
 			TXFrameCounter: 123456,
 			RXFrameCounter: 654321,
