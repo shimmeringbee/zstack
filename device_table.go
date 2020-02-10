@@ -57,6 +57,7 @@ func (t *DeviceTable) AddOrUpdate(ieeeAddress zigbee.IEEEAddress, networkAddress
 		t.ieeeToDevice[ieeeAddress] = &Device{
 			IEEEAddress:    ieeeAddress,
 			NetworkAddress: networkAddress,
+			LogicalType:    zigbee.Unknown,
 		}
 	}
 

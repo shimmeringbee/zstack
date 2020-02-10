@@ -21,6 +21,7 @@ func TestDeviceTable(t *testing.T) {
 		assert.True(t, found)
 		assert.Equal(t, ieee, device.IEEEAddress)
 		assert.Equal(t, network, device.NetworkAddress)
+		assert.Equal(t, zigbee.Unknown, device.LogicalType)
 	})
 
 	t.Run("an added device with updates can be retrieved and has updated information", func(t *testing.T) {
