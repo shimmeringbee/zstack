@@ -1,6 +1,30 @@
 package zstack
 
-import "github.com/shimmeringbee/zigbee"
+import (
+	"context"
+	"github.com/shimmeringbee/zigbee"
+)
+
+func (z *ZStack) QueryNodeIEEEAddress(ctx context.Context, address zigbee.NetworkAddress) (zigbee.IEEEAddress, error) {
+	request := ZdoIEEEAddrReq{
+		NetworkAddress: address,
+		ReqType:        0x00,
+		StartIndex:     0x00,
+	}
+
+	resp, err := z.nodeRequest(ctx, &request, &ZdoIEEEAddrReqReply{}, &ZdoIEEEAddrRsp{}, func(i interface{}) bool {
+		msg := i.(*ZdoIEEEAddrRsp)
+		return msg.NetworkAddress == address
+	})
+
+	castResp, ok := resp.(*ZdoIEEEAddrRsp)
+
+	if ok {
+		return castResp.IEEEAddress, nil
+	} else {
+		return zigbee.EmptyIEEEAddress, err
+	}
+}
 
 type ZdoIEEEAddrReq struct {
 	NetworkAddress zigbee.NetworkAddress

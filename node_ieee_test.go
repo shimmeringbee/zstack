@@ -1,11 +1,56 @@
 package zstack
 
 import (
+	"context"
 	"github.com/shimmeringbee/bytecodec"
+	. "github.com/shimmeringbee/unpi"
+	unpiTest "github.com/shimmeringbee/unpi/testing"
 	"github.com/shimmeringbee/zigbee"
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"time"
 )
+
+func Test_QueryNodeIEEEAddress(t *testing.T) {
+	t.Run("returns an success on query, response for requested network address is received", func(t *testing.T) {
+		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+		defer cancel()
+
+		unpiMock := unpiTest.NewMockAdapter()
+		zstack := New(unpiMock)
+		defer unpiMock.Stop()
+
+		call := unpiMock.On(SREQ, ZDO, ZdoIEEEAddrReqID).Return(Frame{
+			MessageType: SRSP,
+			Subsystem:   ZDO,
+			CommandID:   ZdoIEEEAddrReqReplyID,
+			Payload:     []byte{0x00},
+		})
+
+		go func() {
+			time.Sleep(10 * time.Millisecond)
+			unpiMock.InjectOutgoing(Frame{
+				MessageType: AREQ,
+				Subsystem:   ZDO,
+				CommandID:   ZdoIEEEAddrRspID,
+				Payload:     []byte{0x00, 0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11, 0x00, 0x40, 0x00, 0x00},
+			})
+		}()
+
+		ieee, err := zstack.QueryNodeIEEEAddress(ctx, zigbee.NetworkAddress(0x4000))
+		assert.NoError(t, err)
+		assert.Equal(t, zigbee.IEEEAddress(0x1122334455667788), ieee)
+
+		addressReq := ZdoIEEEAddrReq{}
+		bytecodec.Unmarshall(call.CapturedCalls[0].Frame.Payload, &addressReq)
+
+		assert.Equal(t, zigbee.NetworkAddress(0x4000), addressReq.NetworkAddress)
+		assert.Equal(t, uint8(0), addressReq.ReqType)
+		assert.Equal(t, uint8(0), addressReq.StartIndex)
+
+		unpiMock.AssertCalls(t)
+	})
+}
 
 func Test_IEEEMessages(t *testing.T) {
 	t.Run("verify ZdoIEEEAddrReq marshals", func(t *testing.T) {
