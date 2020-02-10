@@ -20,7 +20,7 @@ func Test_ReceiveMessage(t *testing.T) {
 		zstack := New(unpiMock)
 		defer unpiMock.Stop()
 
-		zstack.devicesByNetAddr[0x1000] = 0x1122334455667788
+		zstack.deviceTable.AddOrUpdate(zigbee.IEEEAddress(0x1122334455667788), zigbee.NetworkAddress(0x1000))
 
 		zstack.startMessageReceiver()
 

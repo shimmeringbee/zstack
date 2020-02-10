@@ -35,9 +35,6 @@ type ZStack struct {
 
 	messageReceiverStop func()
 
-	devices          map[zigbee.IEEEAddress]*LegacyDevice
-	devicesByNetAddr map[zigbee.NetworkAddress]zigbee.IEEEAddress
-
 	deviceTable *DeviceTable
 }
 
@@ -76,8 +73,6 @@ func New(uart io.ReadWriter) *ZStack {
 		events:                 make(chan interface{}, DefaultInflightEvents),
 		networkManagerStop:     make(chan bool, 1),
 		networkManagerIncoming: make(chan interface{}, DefaultInflightEvents),
-		devices:                map[zigbee.IEEEAddress]*LegacyDevice{},
-		devicesByNetAddr:       map[zigbee.NetworkAddress]zigbee.IEEEAddress{},
 		deviceTable:            NewDeviceTable(),
 	}
 }

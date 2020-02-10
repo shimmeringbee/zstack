@@ -1,17 +1,25 @@
 package zstack
 
-import "github.com/shimmeringbee/zigbee"
+import (
+	"github.com/shimmeringbee/zigbee"
+	"log"
+)
 
 func (z *ZStack) startMessageReceiver() {
 	_, z.messageReceiverStop = z.subscriber.Subscribe(&AfIncomingMsg{}, func(v interface{}) {
 		msg := v.(*AfIncomingMsg)
 
-		ieeeAddress := z.devicesByNetAddr[msg.SourceAddress]
+		device, found := z.deviceTable.GetByNetwork(msg.SourceAddress)
+
+		if !found {
+			log.Printf("could not resolve IEEE address while receiving message: network address = %d", msg.SourceAddress)
+			return
+		}
 
 		z.sendEvent(zigbee.DeviceIncomingMessageEvent{
 			GroupID:              msg.GroupID,
 			ClusterID:            msg.ClusterID,
-			SourceIEEEAddress:    ieeeAddress,
+			SourceIEEEAddress:    device.IEEEAddress,
 			SourceNetworkAddress: msg.SourceAddress,
 			SourceEndpoint:       msg.SourceEndpoint,
 			DestinationEndpoint:  msg.DestinationEndpoint,

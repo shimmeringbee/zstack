@@ -20,7 +20,7 @@ func (z *ZStack) stopNetworkManager() {
 }
 
 func (z *ZStack) networkManager() {
-	z.addOrUpdateDevice(z.NetworkProperties.IEEEAddress, z.NetAddr(z.NetworkProperties.NetworkAddress), z.Role(RoleCoordinator))
+	z.deviceTable.AddOrUpdate(z.NetworkProperties.IEEEAddress, z.NetworkProperties.NetworkAddress, LogicalType(zigbee.Coordinator))
 
 	immediateStart := make(chan bool, 1)
 	defer close(immediateStart)
@@ -48,19 +48,19 @@ func (z *ZStack) networkManager() {
 			case ZdoMGMTLQIRsp:
 				z.processLQITable(e)
 			case ZdoEndDeviceAnnceInd:
-				role := RoleEndDevice
+				logicalType := zigbee.EndDevice
 
 				if e.Capabilities&0x02 == 0x02 {
-					role = RoleRouter
+					logicalType = zigbee.Router
 				}
 
-				z.addOrUpdateDevice(e.IEEEAddress, z.NetAddr(e.NetworkAddress), z.Role(role))
+				z.deviceTable.AddOrUpdate(e.IEEEAddress, e.NetworkAddress, LogicalType(logicalType))
 				z.sendEvent(zigbee.DeviceJoinEvent{
 					NetworkAddress: e.NetworkAddress,
 					IEEEAddress:    e.IEEEAddress,
 				})
 			case ZdoLeaveInd:
-				z.removeDevice(e.IEEEAddress)
+				z.deviceTable.Remove(e.IEEEAddress)
 				z.sendEvent(zigbee.DeviceLeaveEvent{
 					NetworkAddress: e.SourceAddress,
 					IEEEAddress:    e.IEEEAddress,
@@ -73,19 +73,19 @@ func (z *ZStack) networkManager() {
 }
 
 func (z *ZStack) pollRoutersForNetworkStatus() {
-	for _, device := range z.devices {
-		if device.Role == RoleCoordinator || device.Role == RoleRouter {
-			go z.pollDeviceForNetworkStatus(*device)
+	for _, device := range z.deviceTable.GetAllDevices() {
+		if device.LogicalType == zigbee.Coordinator || device.LogicalType == zigbee.Router {
+			go z.pollDeviceForNetworkStatus(device)
 		}
 	}
 }
 
-func (z *ZStack) pollDeviceForNetworkStatus(device LegacyDevice) {
+func (z *ZStack) pollDeviceForNetworkStatus(device Device) {
 	log.Printf("polling %v (%d) for network status\n", device.IEEEAddress, device.NetworkAddress)
 	z.requestLQITable(device)
 }
 
-func (z *ZStack) requestLQITable(device LegacyDevice) {
+func (z *ZStack) requestLQITable(device Device) {
 	ctx, cancel := context.WithTimeout(context.Background(), DefaultZStackTimeout)
 	defer cancel()
 
@@ -105,40 +105,19 @@ func (z *ZStack) processLQITable(lqi ZdoMGMTLQIRsp) {
 		return
 	}
 
-	currentTime := time.Now()
-
-	sourceDevice, sourceFound := z.getDevice(lqi.SourceAddress)
-
 	for _, neighbour := range lqi.Neighbors {
-		if neighbour.ExtendedPANID != z.NetworkProperties.ExtendedPANID || neighbour.IEEEAddress == zigbee.EmptyIEEEAddress {
+		if neighbour.ExtendedPANID != z.NetworkProperties.ExtendedPANID ||
+			neighbour.IEEEAddress == zigbee.EmptyIEEEAddress {
 			continue
 		}
 
-		role := RoleUnknown
+		logicalType := zigbee.LogicalType(neighbour.Status & 0x03)
+		relationship := zigbee.Relationship((neighbour.Status >> 4) & 0x07)
 
-		switch neighbour.Status & 0x03 {
-		case 0x00:
-			role = RoleCoordinator
-		case 0x01:
-			role = RoleRouter
-		case 0x02:
-			role = RoleEndDevice
-		}
+		z.deviceTable.AddOrUpdate(neighbour.IEEEAddress, neighbour.NetworkAddress, LogicalType(logicalType))
 
-		z.addOrUpdateDevice(neighbour.IEEEAddress, z.NetAddr(neighbour.NetworkAddress), z.Role(role))
-	}
-
-	if sourceFound {
-		var oldNeighbours []zigbee.IEEEAddress
-
-		for ieee, neighbour := range sourceDevice.Neighbours {
-			if neighbour.LastObserved.Before(currentTime) {
-				oldNeighbours = append(oldNeighbours, ieee)
-			}
-		}
-
-		for _, ieee := range oldNeighbours {
-			delete(sourceDevice.Neighbours, ieee)
+		if relationship == zigbee.RelationshipChild {
+			z.deviceTable.Update(neighbour.IEEEAddress, LQI(neighbour.LQI), Depth(neighbour.Depth))
 		}
 	}
 }
