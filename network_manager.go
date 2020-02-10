@@ -59,6 +59,11 @@ func (z *ZStack) networkManager() {
 					NetworkAddress: e.NetworkAddress,
 					IEEEAddress:    e.IEEEAddress,
 				})
+
+				if logicalType == zigbee.Router {
+					device, _ := z.deviceTable.GetByIEEE(e.IEEEAddress)
+					go z.pollDeviceForNetworkStatus(device)
+				}
 			case ZdoLeaveInd:
 				z.deviceTable.Remove(e.IEEEAddress)
 				z.sendEvent(zigbee.DeviceLeaveEvent{

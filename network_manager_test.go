@@ -209,7 +209,7 @@ func Test_NetworkManager(t *testing.T) {
 			Payload:     data,
 		})
 
-		time.Sleep(10 * time.Millisecond)
+		time.Sleep(20 * time.Millisecond)
 
 		assert.Equal(t, 2, len(c.CapturedCalls))
 
@@ -273,8 +273,8 @@ func Test_NetworkManager(t *testing.T) {
 
 		assert.Equal(t, zigbee.NetworkAddress(0x2000), device.NetworkAddress)
 		assert.Equal(t, zigbee.Router, device.LogicalType)
-		assert.Equal(t, 67, device.LQI)
-		assert.Equal(t, 1, device.Depth)
+		assert.Equal(t, uint8(0x43), device.LQI)
+		assert.Equal(t, uint8(0x01), device.Depth)
 	})
 
 	t.Run("devices in LQI query are not added if Ext PANID does not match", func(t *testing.T) {

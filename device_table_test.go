@@ -125,14 +125,6 @@ func TestDeviceUpdate(t *testing.T) {
 		assert.Equal(t, zigbee.EndDevice, device.LogicalType)
 	})
 
-	t.Run("LogicalType does not update the logical type of device if it is unknown", func(t *testing.T) {
-		device := &Device{LogicalType:zigbee.Router}
-
-		LogicalType(zigbee.Unknown)(device)
-
-		assert.Equal(t, zigbee.Router, device.LogicalType)
-	})
-
 	t.Run("LQI updates the lqi of device", func(t *testing.T) {
 		device := &Device{}
 

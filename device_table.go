@@ -87,10 +87,6 @@ type DeviceUpdate func(device *Device)
 
 func LogicalType(logicalType zigbee.LogicalType) DeviceUpdate {
 	return func(device *Device) {
-		if logicalType > zigbee.EndDevice {
-			return
-		}
-
 		device.LogicalType = logicalType
 	}
 }
