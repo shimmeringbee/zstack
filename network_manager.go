@@ -35,6 +35,9 @@ func (z *ZStack) networkManager() {
 	_, cancel = z.subscriber.Subscribe(&ZdoLeaveInd{}, z.receiveLeaveAnnouncement)
 	defer cancel()
 
+	_, cancel = z.subscriber.Subscribe(&ZdoIEEEAddrRsp{}, z.receiveIEEEAddrRsp)
+	defer cancel()
+
 	for {
 		select {
 		case <-immediateStart:
@@ -70,6 +73,10 @@ func (z *ZStack) networkManager() {
 					NetworkAddress: e.SourceAddress,
 					IEEEAddress:    e.IEEEAddress,
 				})
+			case ZdoIEEEAddrRsp:
+				if e.WasSuccessful() {
+					z.deviceTable.AddOrUpdate(e.IEEEAddress, e.NetworkAddress)
+				}
 			default:
 				fmt.Printf("received unknown %+v", reflect.TypeOf(ue))
 			}
@@ -139,6 +146,11 @@ func (z *ZStack) receiveEndDeviceAnnouncement(v interface{}) {
 
 func (z *ZStack) receiveLeaveAnnouncement(v interface{}) {
 	msg := v.(*ZdoLeaveInd)
+	z.networkManagerIncoming <- *msg
+}
+
+func (z *ZStack) receiveIEEEAddrRsp(v interface{}) {
+	msg := v.(*ZdoIEEEAddrRsp)
 	z.networkManagerIncoming <- *msg
 }
 
