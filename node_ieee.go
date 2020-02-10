@@ -5,6 +5,16 @@ import (
 	"github.com/shimmeringbee/zigbee"
 )
 
+func (z *ZStack) ResolveNodeIEEEAddress(ctx context.Context, address zigbee.NetworkAddress) (zigbee.IEEEAddress, error) {
+	device, found := z.deviceTable.GetByNetwork(address)
+
+	if found {
+		return device.IEEEAddress, nil
+	}
+
+	return z.QueryNodeIEEEAddress(ctx, address)
+}
+
 func (z *ZStack) QueryNodeIEEEAddress(ctx context.Context, address zigbee.NetworkAddress) (zigbee.IEEEAddress, error) {
 	request := ZdoIEEEAddrReq{
 		NetworkAddress: address,
