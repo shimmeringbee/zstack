@@ -35,7 +35,8 @@ type ZStack struct {
 
 	messageReceiverStop func()
 
-	deviceTable *DeviceTable
+	deviceTable        *DeviceTable
+	transactionIdStore chan uint8
 }
 
 type JoinState uint8
@@ -60,12 +61,19 @@ const DefaultZStackTimeout = 5 * time.Second
 const DefaultResolveIEEETimeout = 100 * time.Millisecond
 const DefaultZStackRetries = 3
 const DefaultInflightEvents = 50
+const DefaultInflightTransactions = 20
 
 func New(uart io.ReadWriter) *ZStack {
 	ml := library.NewLibrary()
 	registerMessages(ml)
 
 	znp := broker.NewBroker(uart, uart, ml)
+
+	transactionIDs := make(chan uint8, DefaultInflightTransactions)
+
+	for i := 0; i < DefaultInflightTransactions; i++ {
+		transactionIDs <- uint8(i)
+	}
 
 	return &ZStack{
 		requestResponder:       znp,
@@ -75,6 +83,7 @@ func New(uart io.ReadWriter) *ZStack {
 		networkManagerStop:     make(chan bool, 1),
 		networkManagerIncoming: make(chan interface{}, DefaultInflightEvents),
 		deviceTable:            NewDeviceTable(),
+		transactionIdStore:     transactionIDs,
 	}
 }
 
