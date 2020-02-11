@@ -17,6 +17,7 @@ func Test_ReceiveMessage(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
+		defer unpiMock.AssertCalls(t)
 		zstack := New(unpiMock)
 		defer unpiMock.Stop()
 
@@ -72,8 +73,6 @@ func Test_ReceiveMessage(t *testing.T) {
 		}
 
 		assert.Equal(t, expectedMsg, incommingMsg)
-
-		unpiMock.AssertCalls(t)
 	})
 }
 

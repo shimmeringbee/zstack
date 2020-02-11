@@ -2,11 +2,45 @@ package zstack
 
 import (
 	"context"
+	"errors"
 	"github.com/shimmeringbee/zigbee"
 )
 
+const DefaultRadius uint8 = 0x20
+
 func (z *ZStack) SendNodeMessage(ctx context.Context, destinationAddress zigbee.IEEEAddress, sourceEndpoint byte, destinationEndpoint byte, cluster zigbee.ZCLClusterID, data []byte) error {
-	return nil
+	var transactionId uint8
+
+	select {
+	case transactionId = <-z.transactionIdStore:
+		defer func() { z.transactionIdStore <- transactionId }()
+	case <-ctx.Done():
+		return errors.New("context expired while obtaining a free transaction ID")
+	}
+
+	device, found := z.deviceTable.GetByIEEE(destinationAddress)
+
+	if !found {
+		return errors.New("could not find network address for IEEE address provided")
+	}
+
+	request := AfDataRequest{
+		DestinationAddress:  device.NetworkAddress,
+		DestinationEndpoint: destinationEndpoint,
+		SourceEndpoint:      sourceEndpoint,
+		ClusterID:           cluster,
+		TransactionID:       transactionId,
+		Options:             0x10, //AF_ACK_REQUEST
+		Radius:              DefaultRadius,
+		Data:                data,
+	}
+
+	_, err := z.nodeRequest(ctx, &request, &AfDataRequestReply{}, &AfDataConfirm{}, func(i interface{}) bool {
+		msg := i.(*AfDataConfirm)
+		return msg.TransactionID == transactionId && msg.Endpoint == destinationEndpoint
+	})
+
+	return err
 }
 
 type AfDataRequest struct {

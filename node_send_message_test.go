@@ -1,10 +1,54 @@
 package zstack
 
 import (
+	"context"
 	"github.com/shimmeringbee/bytecodec"
+	. "github.com/shimmeringbee/unpi"
+	unpiTest "github.com/shimmeringbee/unpi/testing"
+	"github.com/shimmeringbee/zigbee"
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"time"
 )
+
+func Test_SendNodeMessage(t *testing.T) {
+	t.Run("messages which are received with a known network to ieee mapping are sent to event stream", func(t *testing.T) {
+		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+		defer cancel()
+
+		unpiMock := unpiTest.NewMockAdapter()
+		defer unpiMock.AssertCalls(t)
+		zstack := New(unpiMock)
+		defer unpiMock.Stop()
+
+		zstack.deviceTable.AddOrUpdate(zigbee.IEEEAddress(0x1122334455667788), zigbee.NetworkAddress(0x1000))
+
+		c := unpiMock.On(SREQ, AF, AfDataRequestID).Return(Frame{
+			MessageType: SRSP,
+			Subsystem:   AF,
+			CommandID:   AfDataRequestReplyID,
+			Payload:     []byte{0x00},
+		})
+
+		go func() {
+			time.Sleep(10 * time.Millisecond)
+
+			unpiMock.InjectOutgoing(Frame{
+				MessageType: AREQ,
+				Subsystem:   AF,
+				CommandID:   AfDataConfirmID,
+				Payload:     []byte{0x00, 0x04, 0x00},
+			})
+		}()
+
+		err := zstack.SendNodeMessage(ctx, zigbee.IEEEAddress(0x1122334455667788), 0x03, 0x04, 0x2000, []byte{0x0a, 0x0b})
+		assert.NoError(t, err)
+
+		sentFrame := c.CapturedCalls[0].Frame
+
+		assert.Equal(t, []byte{ 0x00, 0x10, 0x04, 0x03, 0x00, 0x20, 0x00, 0x10, 0x20, 0x02, 0x0a, 0x0b}, sentFrame.Payload)
+	})
+}
 
 func Test_SendMessages(t *testing.T) {
 	t.Run("verify AfDataRequest marshals", func(t *testing.T) {
