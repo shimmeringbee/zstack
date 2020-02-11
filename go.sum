@@ -8,6 +8,8 @@ github.com/shimmeringbee/unpi v0.0.0-20200209134402-cbd0ca48ffea h1:n+VBCXLrKyEv
 github.com/shimmeringbee/unpi v0.0.0-20200209134402-cbd0ca48ffea/go.mod h1:tCd6/CDw4VidtU3wJNxFJG3TH4VDuiQdRZp5AnX+dZc=
 github.com/shimmeringbee/zigbee v0.0.0-20200211182017-3b25f1edbbb3 h1:7zeMZEzGAJIymlQRcFC968HjUF+H4SRMt0f34dQZ1to=
 github.com/shimmeringbee/zigbee v0.0.0-20200211182017-3b25f1edbbb3/go.mod h1:WVZ5totAgMhUc1ubHym27LsKRnXv1MAiGyaDEs4dzak=
+github.com/shimmeringbee/zigbee v0.0.0-20200211203343-845c277a2f38 h1:/tSS+6FeH71Zyugk6oF43hyQF9lbjCmjjkRxJUpfHvo=
+github.com/shimmeringbee/zigbee v0.0.0-20200211203343-845c277a2f38/go.mod h1:WVZ5totAgMhUc1ubHym27LsKRnXv1MAiGyaDEs4dzak=
 github.com/shimmeringbee/zigbee v0.0.0-20200211203343-f3e002996bf0 h1:zyzFDsFu8lh/0iev2dCLoogTC5R/s3CKvLnX1QREZnY=
 github.com/shimmeringbee/zigbee v0.0.0-20200211203343-f3e002996bf0/go.mod h1:WVZ5totAgMhUc1ubHym27LsKRnXv1MAiGyaDEs4dzak=
 github.com/stretchr/objx v0.1.0 h1:4G4v2dO3VZwixGIRoQ5Lfboy6nUhCyYzaqnIAPPhYs4=

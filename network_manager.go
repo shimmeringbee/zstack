@@ -41,6 +41,8 @@ func (z *ZStack) networkManager() {
 	_, cancel = z.subscriber.Subscribe(&ZdoNWKAddrRsp{}, z.receiveNWKAddrRsp)
 	defer cancel()
 
+	z.deviceTable.RegisterCallback(z.deviceTableUpdate)
+
 	for {
 		select {
 		case <-immediateStart:
@@ -168,6 +170,12 @@ func (z *ZStack) receiveIEEEAddrRsp(v interface{}) {
 func (z *ZStack) receiveNWKAddrRsp(v interface{}) {
 	msg := v.(*ZdoNWKAddrRsp)
 	z.networkManagerIncoming <- *msg
+}
+
+func (z *ZStack) deviceTableUpdate(device zigbee.Device) {
+	z.sendEvent(zigbee.DeviceUpdateEvent{
+		Device: device,
+	})
 }
 
 type ZdoMGMTLQIReq struct {

@@ -449,7 +449,40 @@ func Test_NetworkManager(t *testing.T) {
 		assert.False(t, found)
 	})
 
-	t.Run("updates to the device table result is a device update event being sent", func(t *testing.T) {
+	t.Run("updates to the device table sends a device update event", func(t *testing.T) {
+		ctx, cancel := context.WithTimeout(context.Background(), 50 * time.Millisecond)
+		defer cancel()
 
+		unpiMock := unpiTest.NewMockAdapter()
+		zstack := New(unpiMock)
+		defer unpiMock.Stop()
+		defer unpiMock.AssertCalls(t)
+
+		unpiMock.On(SREQ, ZDO, ZdoMGMTLQIReqID).Return(Frame{
+			MessageType: SRSP,
+			Subsystem:   ZDO,
+			CommandID:   ZdoMGMTLQIReqReplyID,
+			Payload:     []byte{0x00},
+		}).UnlimitedTimes()
+
+		zstack.startNetworkManager()
+		defer zstack.stopNetworkManager()
+
+		time.Sleep(10 * time.Millisecond)
+
+		go func() {
+			time.Sleep(10 * time.Millisecond)
+			zstack.deviceTable.AddOrUpdate(zigbee.IEEEAddress(0x01), zigbee.NetworkAddress(0x02))
+		}()
+
+		event, err := zstack.ReadEvent(ctx)
+		assert.NoError(t, err)
+
+		deviceUpdateEvent, ok := event.(zigbee.DeviceUpdateEvent)
+
+		assert.True(t, ok)
+
+		assert.Equal(t, zigbee.IEEEAddress(0x01), deviceUpdateEvent.Device.IEEEAddress)
+		assert.Equal(t, zigbee.NetworkAddress(0x02), deviceUpdateEvent.Device.NetworkAddress)
 	})
 }
