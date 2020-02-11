@@ -37,7 +37,9 @@ func Test_UnbindToNode(t *testing.T) {
 			})
 		}()
 
-		err := zstack.UnbindToNode(ctx, zigbee.NetworkAddress(0x4000), zigbee.IEEEAddress(1), 2, zigbee.IEEEAddress(3), 4, 5)
+		zstack.deviceTable.AddOrUpdate(zigbee.IEEEAddress(1), zigbee.NetworkAddress(0x4000))
+
+		err := zstack.UnbindNodeFromController(ctx, zigbee.IEEEAddress(1), 2, 4, 5)
 		assert.NoError(t, err)
 
 		UnbindReq := ZdoUnbindReq{}
@@ -46,10 +48,10 @@ func Test_UnbindToNode(t *testing.T) {
 		assert.Equal(t, zigbee.NetworkAddress(0x4000), UnbindReq.TargetAddress)
 		assert.Equal(t, zigbee.IEEEAddress(1), UnbindReq.SourceAddress)
 		assert.Equal(t, uint8(2), UnbindReq.SourceEndpoint)
-		assert.Equal(t, uint64(3), UnbindReq.DestinationAddress)
+		assert.Equal(t, uint64(0), UnbindReq.DestinationAddress)
 		assert.Equal(t, uint8(4), UnbindReq.DestinationEndpoint)
 		assert.Equal(t, zigbee.ZCLClusterID(0x5), UnbindReq.ClusterID)
-		assert.Equal(t, uint8(0x03), UnbindReq.DestinationAddressMode)
+		assert.Equal(t, uint8(0x02), UnbindReq.DestinationAddressMode)
 
 		unpiMock.AssertCalls(t)
 	})

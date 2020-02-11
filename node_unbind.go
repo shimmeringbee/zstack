@@ -5,18 +5,24 @@ import (
 	"github.com/shimmeringbee/zigbee"
 )
 
-func (z *ZStack) UnbindToNode(ctx context.Context, networkAddress zigbee.NetworkAddress, sourceAddress zigbee.IEEEAddress, sourceEndpoint byte, destinationAddress zigbee.IEEEAddress, destinationEndpoint byte, cluster zigbee.ZCLClusterID) error {
+func (z *ZStack) UnbindNodeFromController(ctx context.Context, nodeAddress zigbee.IEEEAddress, sourceEndpoint byte, destinationEndpoint byte, cluster zigbee.ZCLClusterID) error {
+	networkAddress, err := z.ResolveNodeNWKAddress(ctx, nodeAddress)
+
+	if err != nil {
+		return nil
+	}
+
 	request := ZdoUnbindReq{
 		TargetAddress:          networkAddress,
-		SourceAddress:          sourceAddress,
+		SourceAddress:          nodeAddress,
 		SourceEndpoint:         sourceEndpoint,
 		ClusterID:              cluster,
-		DestinationAddressMode: 0x03,
-		DestinationAddress:     uint64(destinationAddress),
+		DestinationAddressMode: 0x02, // Network Address (16 bits)
+		DestinationAddress:     uint64(0),
 		DestinationEndpoint:    destinationEndpoint,
 	}
 
-	_, err := z.nodeRequest(ctx, &request, &ZdoUnbindReqReply{}, &ZdoUnbindRsp{}, func(i interface{}) bool {
+	_, err = z.nodeRequest(ctx, &request, &ZdoUnbindReqReply{}, &ZdoUnbindRsp{}, func(i interface{}) bool {
 		msg := i.(*ZdoUnbindRsp)
 		return msg.SourceAddress == networkAddress
 	})
