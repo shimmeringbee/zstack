@@ -9,6 +9,12 @@ import (
 const DefaultRadius uint8 = 0x20
 
 func (z *ZStack) SendNodeMessage(ctx context.Context, destinationAddress zigbee.IEEEAddress, sourceEndpoint byte, destinationEndpoint byte, cluster zigbee.ZCLClusterID, data []byte) error {
+	network, err := z.ResolveNodeNWKAddress(ctx, destinationAddress)
+
+	if err != nil {
+		return err
+	}
+
 	var transactionId uint8
 
 	select {
@@ -18,14 +24,8 @@ func (z *ZStack) SendNodeMessage(ctx context.Context, destinationAddress zigbee.
 		return errors.New("context expired while obtaining a free transaction ID")
 	}
 
-	device, found := z.deviceTable.GetByIEEE(destinationAddress)
-
-	if !found {
-		return errors.New("could not find network address for IEEE address provided")
-	}
-
 	request := AfDataRequest{
-		DestinationAddress:  device.NetworkAddress,
+		DestinationAddress:  network,
 		DestinationEndpoint: destinationEndpoint,
 		SourceEndpoint:      sourceEndpoint,
 		ClusterID:           cluster,
@@ -35,7 +35,7 @@ func (z *ZStack) SendNodeMessage(ctx context.Context, destinationAddress zigbee.
 		Data:                data,
 	}
 
-	_, err := z.nodeRequest(ctx, &request, &AfDataRequestReply{}, &AfDataConfirm{}, func(i interface{}) bool {
+	_, err = z.nodeRequest(ctx, &request, &AfDataRequestReply{}, &AfDataConfirm{}, func(i interface{}) bool {
 		msg := i.(*AfDataConfirm)
 		return msg.TransactionID == transactionId && msg.Endpoint == destinationEndpoint
 	})
