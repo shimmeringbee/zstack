@@ -61,9 +61,10 @@ func (z *ZStack) networkManager() {
 				}
 
 				z.deviceTable.AddOrUpdate(e.IEEEAddress, e.NetworkAddress, LogicalType(logicalType), UpdateDiscovered, UpdateReceived)
+				device, _ := z.deviceTable.GetByIEEE(e.IEEEAddress)
+
 				z.sendEvent(zigbee.DeviceJoinEvent{
-					NetworkAddress: e.NetworkAddress,
-					IEEEAddress:    e.IEEEAddress,
+					Device: device,
 				})
 
 				if logicalType == zigbee.Router {
@@ -71,11 +72,14 @@ func (z *ZStack) networkManager() {
 					go z.pollDeviceForNetworkStatus(device)
 				}
 			case ZdoLeaveInd:
+				device, found := z.deviceTable.GetByIEEE(e.IEEEAddress)
 				z.deviceTable.Remove(e.IEEEAddress)
-				z.sendEvent(zigbee.DeviceLeaveEvent{
-					NetworkAddress: e.SourceAddress,
-					IEEEAddress:    e.IEEEAddress,
-				})
+
+				if found {
+					z.sendEvent(zigbee.DeviceLeaveEvent{
+						Device: device,
+					})
+				}
 			case ZdoIEEEAddrRsp:
 				if e.WasSuccessful() {
 					z.deviceTable.AddOrUpdate(e.IEEEAddress, e.NetworkAddress, UpdateDiscovered)
@@ -99,12 +103,12 @@ func (z *ZStack) pollRoutersForNetworkStatus() {
 	}
 }
 
-func (z *ZStack) pollDeviceForNetworkStatus(device Device) {
+func (z *ZStack) pollDeviceForNetworkStatus(device zigbee.Device) {
 	log.Printf("polling %v (%d) for network status\n", device.IEEEAddress, device.NetworkAddress)
 	z.requestLQITable(device)
 }
 
-func (z *ZStack) requestLQITable(device Device) {
+func (z *ZStack) requestLQITable(device zigbee.Device) {
 	ctx, cancel := context.WithTimeout(context.Background(), DefaultZStackTimeout)
 	defer cancel()
 

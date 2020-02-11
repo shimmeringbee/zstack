@@ -6,25 +6,25 @@ import (
 )
 
 type DeviceTable struct {
-	callbacks     []func(Device)
-	ieeeToDevice  map[zigbee.IEEEAddress]*Device
+	callbacks     []func(zigbee.Device)
+	ieeeToDevice  map[zigbee.IEEEAddress]*zigbee.Device
 	networkToIEEE map[zigbee.NetworkAddress]zigbee.IEEEAddress
 }
 
 func NewDeviceTable() *DeviceTable {
 	return &DeviceTable{
-		callbacks:     []func(Device){},
-		ieeeToDevice:  make(map[zigbee.IEEEAddress]*Device),
+		callbacks:     []func(zigbee.Device){},
+		ieeeToDevice:  make(map[zigbee.IEEEAddress]*zigbee.Device),
 		networkToIEEE: make(map[zigbee.NetworkAddress]zigbee.IEEEAddress),
 	}
 }
 
-func (t *DeviceTable) RegisterCallback(cb func(Device)) {
+func (t *DeviceTable) RegisterCallback(cb func(zigbee.Device)) {
 	t.callbacks = append(t.callbacks, cb)
 }
 
-func (t *DeviceTable) GetAllDevices() []Device {
-	var devices []Device
+func (t *DeviceTable) GetAllDevices() []zigbee.Device {
+	var devices []zigbee.Device
 
 	for _, device := range t.ieeeToDevice {
 		devices = append(devices, *device)
@@ -33,21 +33,21 @@ func (t *DeviceTable) GetAllDevices() []Device {
 	return devices
 }
 
-func (t *DeviceTable) GetByIEEE(ieeeAddress zigbee.IEEEAddress) (Device, bool) {
+func (t *DeviceTable) GetByIEEE(ieeeAddress zigbee.IEEEAddress) (zigbee.Device, bool) {
 	device, found := t.ieeeToDevice[ieeeAddress]
 
 	if found {
 		return *device, found
 	} else {
-		return Device{}, false
+		return zigbee.Device{}, false
 	}
 }
 
-func (t *DeviceTable) GetByNetwork(networkAddress zigbee.NetworkAddress) (Device, bool) {
+func (t *DeviceTable) GetByNetwork(networkAddress zigbee.NetworkAddress) (zigbee.Device, bool) {
 	ieee, found := t.networkToIEEE[networkAddress]
 
 	if !found {
-		return Device{}, false
+		return zigbee.Device{}, false
 	} else {
 		return t.GetByIEEE(ieee)
 	}
@@ -62,7 +62,7 @@ func (t *DeviceTable) AddOrUpdate(ieeeAddress zigbee.IEEEAddress, networkAddress
 			device.NetworkAddress = networkAddress
 		}
 	} else {
-		t.ieeeToDevice[ieeeAddress] = &Device{
+		t.ieeeToDevice[ieeeAddress] = &zigbee.Device{
 			IEEEAddress:    ieeeAddress,
 			NetworkAddress: networkAddress,
 			LogicalType:    zigbee.Unknown,
@@ -96,40 +96,30 @@ func (t *DeviceTable) Remove(ieeeAddress zigbee.IEEEAddress) {
 	}
 }
 
-type DeviceUpdate func(device *Device)
+type DeviceUpdate func(device *zigbee.Device)
 
 func LogicalType(logicalType zigbee.LogicalType) DeviceUpdate {
-	return func(device *Device) {
+	return func(device *zigbee.Device) {
 		device.LogicalType = logicalType
 	}
 }
 
 func LQI(lqi uint8) DeviceUpdate {
-	return func(device *Device) {
+	return func(device *zigbee.Device) {
 		device.LQI = lqi
 	}
 }
 
 func Depth(depth uint8) DeviceUpdate {
-	return func(device *Device) {
+	return func(device *zigbee.Device) {
 		device.Depth = depth
 	}
 }
 
-func UpdateReceived(device *Device) {
+func UpdateReceived(device *zigbee.Device) {
 	device.LastReceived = time.Now()
 }
 
-func UpdateDiscovered(device *Device) {
+func UpdateDiscovered(device *zigbee.Device) {
 	device.LastDiscovered = time.Now()
-}
-
-type Device struct {
-	IEEEAddress    zigbee.IEEEAddress
-	NetworkAddress zigbee.NetworkAddress
-	LogicalType    zigbee.LogicalType
-	LQI            uint8
-	Depth          uint8
-	LastDiscovered time.Time
-	LastReceived   time.Time
 }

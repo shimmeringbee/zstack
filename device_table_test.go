@@ -120,7 +120,7 @@ func TestDeviceTable(t *testing.T) {
 		callbackCalled := false
 
 		dt := NewDeviceTable()
-		dt.RegisterCallback(func(device Device) {
+		dt.RegisterCallback(func(device zigbee.Device) {
 			callbackCalled = true
 		})
 
@@ -136,7 +136,7 @@ func TestDeviceTable(t *testing.T) {
 
 		dt.AddOrUpdate(zigbee.IEEEAddress(0x00), zigbee.NetworkAddress(0x00))
 
-		dt.RegisterCallback(func(device Device) {
+		dt.RegisterCallback(func(device zigbee.Device) {
 			callbackCalled = true
 		})
 
@@ -148,7 +148,7 @@ func TestDeviceTable(t *testing.T) {
 
 func TestDeviceUpdate(t *testing.T) {
 	t.Run("LogicalType updates the logical type of device", func(t *testing.T) {
-		device := &Device{}
+		device := &zigbee.Device{}
 
 		LogicalType(zigbee.EndDevice)(device)
 
@@ -156,7 +156,7 @@ func TestDeviceUpdate(t *testing.T) {
 	})
 
 	t.Run("LQI updates the lqi of device", func(t *testing.T) {
-		device := &Device{}
+		device := &zigbee.Device{}
 
 		LQI(48)(device)
 
@@ -164,7 +164,7 @@ func TestDeviceUpdate(t *testing.T) {
 	})
 
 	t.Run("Depth updates the depth of device", func(t *testing.T) {
-		device := &Device{}
+		device := &zigbee.Device{}
 
 		Depth(3)(device)
 
@@ -172,7 +172,7 @@ func TestDeviceUpdate(t *testing.T) {
 	})
 
 	t.Run("UpdateReceived updates the last received time of device", func(t *testing.T) {
-		device := &Device{}
+		device := &zigbee.Device{}
 
 		UpdateReceived(device)
 
@@ -180,7 +180,7 @@ func TestDeviceUpdate(t *testing.T) {
 	})
 
 	t.Run("UpdateDiscovered updates the last received time of device", func(t *testing.T) {
-		device := &Device{}
+		device := &zigbee.Device{}
 
 		UpdateDiscovered(device)
 

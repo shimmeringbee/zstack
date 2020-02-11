@@ -448,4 +448,8 @@ func Test_NetworkManager(t *testing.T) {
 		_, found := zstack.deviceTable.GetByIEEE(zigbee.IEEEAddress(0))
 		assert.False(t, found)
 	})
+
+	t.Run("updates to the device table result is a device update event being sent", func(t *testing.T) {
+
+	})
 }

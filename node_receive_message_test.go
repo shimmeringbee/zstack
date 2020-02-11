@@ -59,17 +59,28 @@ func Test_ReceiveMessage(t *testing.T) {
 		assert.True(t, ok)
 
 		expectedMsg := zigbee.DeviceIncomingMessageEvent{
-			GroupID:              0x01,
-			ClusterID:            0x02,
-			SourceNetworkAddress: 0x1000,
-			SourceIEEEAddress:    0x1122334455667788,
-			SourceEndpoint:       3,
-			DestinationEndpoint:  4,
-			Broadcast:            true,
-			Secure:               true,
-			LinkQuality:          55,
-			Sequence:             63,
-			Data:                 []byte{0x01, 0x02},
+			Device: zigbee.Device{
+				IEEEAddress:    0x1122334455667788,
+				NetworkAddress: 0x1000,
+				LogicalType:    0xff,
+				LQI:            0,
+				Depth:          0,
+				LastDiscovered: time.Time{},
+				LastReceived:   time.Time{},
+			},
+			IncomingMessage: zigbee.IncomingMessage{
+				GroupID:              0x01,
+				ClusterID:            0x02,
+				SourceNetworkAddress: 0x1000,
+				SourceIEEEAddress:    0x1122334455667788,
+				SourceEndpoint:       3,
+				DestinationEndpoint:  4,
+				Broadcast:            true,
+				Secure:               true,
+				LinkQuality:          55,
+				Sequence:             63,
+				Data:                 []byte{0x01, 0x02},
+			},
 		}
 
 		assert.Equal(t, expectedMsg, incommingMsg)

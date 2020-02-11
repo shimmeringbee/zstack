@@ -6,12 +6,10 @@ github.com/shimmeringbee/bytecodec v0.0.0-20191116111328-f873abddc0ca h1:YVp0qaN
 github.com/shimmeringbee/bytecodec v0.0.0-20191116111328-f873abddc0ca/go.mod h1:J/gvzi9IgGBHP1cBn++bqJ4tchSbgS10N2lmGMlqD3M=
 github.com/shimmeringbee/unpi v0.0.0-20200209134402-cbd0ca48ffea h1:n+VBCXLrKyEvLsZCh7XXgoDc9ccCzuNXZGLrGg4/nWo=
 github.com/shimmeringbee/unpi v0.0.0-20200209134402-cbd0ca48ffea/go.mod h1:tCd6/CDw4VidtU3wJNxFJG3TH4VDuiQdRZp5AnX+dZc=
-github.com/shimmeringbee/zigbee v0.0.0-20200209215007-636b0d7a9526 h1:9gVD8cXKvA//Kaxr30x6EqPFfYKiJWn2hCYiSSlTNtI=
-github.com/shimmeringbee/zigbee v0.0.0-20200209215007-636b0d7a9526/go.mod h1:WVZ5totAgMhUc1ubHym27LsKRnXv1MAiGyaDEs4dzak=
-github.com/shimmeringbee/zigbee v0.0.0-20200210075258-53f5f1887170 h1:VRAyrpASLoS3EEg4tuLmWkKCv2ijCV2jR9MpO8HFCwc=
-github.com/shimmeringbee/zigbee v0.0.0-20200210075258-53f5f1887170/go.mod h1:WVZ5totAgMhUc1ubHym27LsKRnXv1MAiGyaDEs4dzak=
-github.com/shimmeringbee/zigbee v0.0.0-20200211094127-08ff67a71210 h1:kUpPeATcJcLjUQmCijYF1tq2gZtcroKHSIRdCXDMu0c=
-github.com/shimmeringbee/zigbee v0.0.0-20200211094127-08ff67a71210/go.mod h1:WVZ5totAgMhUc1ubHym27LsKRnXv1MAiGyaDEs4dzak=
+github.com/shimmeringbee/zigbee v0.0.0-20200211182017-3b25f1edbbb3 h1:7zeMZEzGAJIymlQRcFC968HjUF+H4SRMt0f34dQZ1to=
+github.com/shimmeringbee/zigbee v0.0.0-20200211182017-3b25f1edbbb3/go.mod h1:WVZ5totAgMhUc1ubHym27LsKRnXv1MAiGyaDEs4dzak=
+github.com/shimmeringbee/zigbee v0.0.0-20200211203343-f3e002996bf0 h1:zyzFDsFu8lh/0iev2dCLoogTC5R/s3CKvLnX1QREZnY=
+github.com/shimmeringbee/zigbee v0.0.0-20200211203343-f3e002996bf0/go.mod h1:WVZ5totAgMhUc1ubHym27LsKRnXv1MAiGyaDEs4dzak=
 github.com/stretchr/objx v0.1.0 h1:4G4v2dO3VZwixGIRoQ5Lfboy6nUhCyYzaqnIAPPhYs4=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.4.0 h1:2E4SXV/wtOkTonXsotYi4li6zVWxYlZuYNCXe9XRJyk=

@@ -20,18 +20,23 @@ func (z *ZStack) startMessageReceiver() {
 			return
 		}
 
+		device, _ := z.deviceTable.GetByIEEE(ieee)
+
 		z.sendEvent(zigbee.DeviceIncomingMessageEvent{
-			GroupID:              msg.GroupID,
-			ClusterID:            msg.ClusterID,
-			SourceIEEEAddress:    ieee,
-			SourceNetworkAddress: msg.SourceAddress,
-			SourceEndpoint:       msg.SourceEndpoint,
-			DestinationEndpoint:  msg.DestinationEndpoint,
-			Broadcast:            msg.WasBroadcast != 0,
-			Secure:               msg.SecurityUse != 0,
-			LinkQuality:          msg.LinkQuality,
-			Sequence:             msg.Sequence,
-			Data:                 msg.Data,
+			Device: device,
+			IncomingMessage: zigbee.IncomingMessage{
+				GroupID:              msg.GroupID,
+				ClusterID:            msg.ClusterID,
+				SourceIEEEAddress:    ieee,
+				SourceNetworkAddress: msg.SourceAddress,
+				SourceEndpoint:       msg.SourceEndpoint,
+				DestinationEndpoint:  msg.DestinationEndpoint,
+				Broadcast:            msg.WasBroadcast != 0,
+				Secure:               msg.SecurityUse != 0,
+				LinkQuality:          msg.LinkQuality,
+				Sequence:             msg.Sequence,
+				Data:                 msg.Data,
+			},
 		})
 
 		z.deviceTable.Update(ieee, UpdateReceived)
