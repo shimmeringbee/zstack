@@ -10,6 +10,8 @@ github.com/shimmeringbee/zigbee v0.0.0-20200209215007-636b0d7a9526 h1:9gVD8cXKvA
 github.com/shimmeringbee/zigbee v0.0.0-20200209215007-636b0d7a9526/go.mod h1:WVZ5totAgMhUc1ubHym27LsKRnXv1MAiGyaDEs4dzak=
 github.com/shimmeringbee/zigbee v0.0.0-20200210075258-53f5f1887170 h1:VRAyrpASLoS3EEg4tuLmWkKCv2ijCV2jR9MpO8HFCwc=
 github.com/shimmeringbee/zigbee v0.0.0-20200210075258-53f5f1887170/go.mod h1:WVZ5totAgMhUc1ubHym27LsKRnXv1MAiGyaDEs4dzak=
+github.com/shimmeringbee/zigbee v0.0.0-20200211094127-08ff67a71210 h1:kUpPeATcJcLjUQmCijYF1tq2gZtcroKHSIRdCXDMu0c=
+github.com/shimmeringbee/zigbee v0.0.0-20200211094127-08ff67a71210/go.mod h1:WVZ5totAgMhUc1ubHym27LsKRnXv1MAiGyaDEs4dzak=
 github.com/stretchr/objx v0.1.0 h1:4G4v2dO3VZwixGIRoQ5Lfboy6nUhCyYzaqnIAPPhYs4=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.4.0 h1:2E4SXV/wtOkTonXsotYi4li6zVWxYlZuYNCXe9XRJyk=

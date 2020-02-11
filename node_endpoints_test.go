@@ -37,7 +37,9 @@ func Test_QueryNodeEndpoints(t *testing.T) {
 			})
 		}()
 
-		endpoints, err := zstack.QueryNodeEndpoints(ctx, zigbee.NetworkAddress(0x4000))
+		zstack.deviceTable.AddOrUpdate(zigbee.IEEEAddress(0x11223344556677), zigbee.NetworkAddress(0x4000))
+
+		endpoints, err := zstack.QueryNodeEndpoints(ctx, zigbee.IEEEAddress(0x11223344556677))
 		assert.NoError(t, err)
 		assert.Equal(t, []byte{0x01, 0x02, 0x03}, endpoints)
 

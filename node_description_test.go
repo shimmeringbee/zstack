@@ -37,7 +37,9 @@ func Test_QueryNodeDescription(t *testing.T) {
 			})
 		}()
 
-		nodeDescription, err := zstack.QueryNodeDescription(ctx, zigbee.NetworkAddress(0x4000))
+		zstack.deviceTable.AddOrUpdate(zigbee.IEEEAddress(0x11223344556677), zigbee.NetworkAddress(0x4000))
+
+		nodeDescription, err := zstack.QueryNodeDescription(ctx, zigbee.IEEEAddress(0x11223344556677))
 		assert.NoError(t, err)
 		assert.Equal(t, zigbee.NodeDescription{
 			LogicalType:      zigbee.EndDevice,

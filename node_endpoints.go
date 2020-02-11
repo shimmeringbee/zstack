@@ -5,7 +5,13 @@ import (
 	"github.com/shimmeringbee/zigbee"
 )
 
-func (z *ZStack) QueryNodeEndpoints(ctx context.Context, networkAddress zigbee.NetworkAddress) ([]byte, error) {
+func (z *ZStack) QueryNodeEndpoints(ctx context.Context, ieeeAddress zigbee.IEEEAddress) ([]byte, error) {
+	networkAddress, err := z.ResolveNodeNWKAddress(ctx, ieeeAddress)
+
+	if err != nil {
+		return []byte{}, err
+	}
+
 	request := ZdoActiveEpReq{
 		DestinationAddress: networkAddress,
 		OfInterestAddress:  networkAddress,

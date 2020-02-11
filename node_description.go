@@ -5,15 +5,21 @@ import (
 	"github.com/shimmeringbee/zigbee"
 )
 
-func (z *ZStack) QueryNodeDescription(ctx context.Context, networkAddress zigbee.NetworkAddress) (zigbee.NodeDescription, error) {
+func (z *ZStack) QueryNodeDescription(ctx context.Context, ieeeAddress zigbee.IEEEAddress) (zigbee.NodeDescription, error) {
+	nwkAddress, err := z.ResolveNodeNWKAddress(ctx, ieeeAddress)
+
+	if err != nil {
+		return zigbee.NodeDescription{}, err
+	}
+
 	request := ZdoNodeDescReq{
-		DestinationAddress: networkAddress,
-		OfInterestAddress:  networkAddress,
+		DestinationAddress: nwkAddress,
+		OfInterestAddress:  nwkAddress,
 	}
 
 	resp, err := z.nodeRequest(ctx, &request, &ZdoNodeDescReqReply{}, &ZdoNodeDescRsp{}, func(i interface{}) bool {
 		msg := i.(*ZdoNodeDescRsp)
-		return msg.OfInterestAddress == networkAddress
+		return msg.OfInterestAddress == nwkAddress
 	})
 
 	castResp, ok := resp.(*ZdoNodeDescRsp)
