@@ -597,4 +597,46 @@ func Test_registerMessages(t *testing.T) {
 		assert.True(t, found)
 		assert.Equal(t, reflect.TypeOf(AfDataConfirm{}), ty)
 	})
+
+	t.Run("ZdoNWKAddrReq", func(t *testing.T) {
+		identity, found := ml.GetByObject(&ZdoNWKAddrReq{})
+
+		assert.True(t, found)
+		assert.Equal(t, SREQ, identity.MessageType)
+		assert.Equal(t, ZDO, identity.Subsystem)
+		assert.Equal(t, uint8(0x00), identity.CommandID)
+
+		ty, found := ml.GetByIdentifier(SREQ, ZDO, 0x00)
+
+		assert.True(t, found)
+		assert.Equal(t, reflect.TypeOf(ZdoNWKAddrReq{}), ty)
+	})
+
+	t.Run("ZdoNWKAddrReqReply", func(t *testing.T) {
+		identity, found := ml.GetByObject(&ZdoNWKAddrReqReply{})
+
+		assert.True(t, found)
+		assert.Equal(t, SRSP, identity.MessageType)
+		assert.Equal(t, ZDO, identity.Subsystem)
+		assert.Equal(t, uint8(0x00), identity.CommandID)
+
+		ty, found := ml.GetByIdentifier(SRSP, ZDO, 0x00)
+
+		assert.True(t, found)
+		assert.Equal(t, reflect.TypeOf(ZdoNWKAddrReqReply{}), ty)
+	})
+
+	t.Run("ZdoNWKAddrRsp", func(t *testing.T) {
+		identity, found := ml.GetByObject(&ZdoNWKAddrRsp{})
+
+		assert.True(t, found)
+		assert.Equal(t, AREQ, identity.MessageType)
+		assert.Equal(t, ZDO, identity.Subsystem)
+		assert.Equal(t, uint8(0x80), identity.CommandID)
+
+		ty, found := ml.GetByIdentifier(AREQ, ZDO, 0x80)
+
+		assert.True(t, found)
+		assert.Equal(t, reflect.TypeOf(ZdoNWKAddrRsp{}), ty)
+	})
 }

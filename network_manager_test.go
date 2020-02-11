@@ -103,6 +103,40 @@ func Test_NetworkManager(t *testing.T) {
 		assert.Equal(t, zigbee.NetworkAddress(0x4000), device.NetworkAddress)
 	})
 
+	t.Run("a device is added to the device table when an ZdoNWKAddrRsp messages are received", func(t *testing.T) {
+		unpiMock := unpiTest.NewMockAdapter()
+		zstack := New(unpiMock)
+		defer unpiMock.Stop()
+		defer unpiMock.AssertCalls(t)
+
+		zstack.startNetworkManager()
+		defer zstack.stopNetworkManager()
+
+		unpiMock.On(SREQ, ZDO, ZdoMGMTLQIReqID).Return(Frame{
+			MessageType: SRSP,
+			Subsystem:   ZDO,
+			CommandID:   ZdoMGMTLQIReqReplyID,
+			Payload:     []byte{0x00},
+		})
+
+		time.Sleep(10 * time.Millisecond)
+
+		unpiMock.InjectOutgoing(Frame{
+			MessageType: AREQ,
+			Subsystem:   ZDO,
+			CommandID:   ZdoNWKAddrRspID,
+			Payload:     []byte{0x00, 0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11, 0x00, 0x40, 0x00, 0x00},
+		})
+
+		time.Sleep(10 * time.Millisecond)
+
+		device, found := zstack.deviceTable.GetByIEEE(0x1122334455667788)
+
+		assert.True(t, found)
+		assert.Equal(t, zigbee.IEEEAddress(0x1122334455667788), device.IEEEAddress)
+		assert.Equal(t, zigbee.NetworkAddress(0x4000), device.NetworkAddress)
+	})
+
 	t.Run("emits DeviceJoin event when device join announcement received", func(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
 		defer cancel()

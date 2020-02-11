@@ -64,6 +64,10 @@ func registerMessages(l *Library) {
 	l.Add(SREQ, AF, AfDataRequestID, AfDataRequest{})
 	l.Add(SRSP, AF, AfDataRequestReplyID, AfDataRequestReply{})
 	l.Add(AREQ, AF, AfDataConfirmID, AfDataConfirm{})
+
+	l.Add(SREQ, ZDO, ZdoNWKAddrReqID, ZdoNWKAddrReq{})
+	l.Add(SRSP, ZDO, ZdoNWKAddrReqReplyID, ZdoNWKAddrReqReply{})
+	l.Add(AREQ, ZDO, ZdoNWKAddrRspID, ZdoNWKAddrRsp{})
 }
 
 type ZStackStatus uint8

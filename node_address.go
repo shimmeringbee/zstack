@@ -15,6 +15,16 @@ func (z *ZStack) ResolveNodeIEEEAddress(ctx context.Context, address zigbee.Netw
 	return z.QueryNodeIEEEAddress(ctx, address)
 }
 
+func (z *ZStack) ResolveNodeNWKAddress(ctx context.Context, address zigbee.IEEEAddress) (zigbee.NetworkAddress, error) {
+	device, found := z.deviceTable.GetByIEEE(address)
+
+	if found {
+		return device.NetworkAddress, nil
+	}
+
+	return z.QueryNodeNWKAddress(ctx, address)
+}
+
 func (z *ZStack) QueryNodeIEEEAddress(ctx context.Context, address zigbee.NetworkAddress) (zigbee.IEEEAddress, error) {
 	request := ZdoIEEEAddrReq{
 		NetworkAddress: address,
@@ -33,6 +43,27 @@ func (z *ZStack) QueryNodeIEEEAddress(ctx context.Context, address zigbee.Networ
 		return castResp.IEEEAddress, nil
 	} else {
 		return zigbee.EmptyIEEEAddress, err
+	}
+}
+
+func (z *ZStack) QueryNodeNWKAddress(ctx context.Context, address zigbee.IEEEAddress) (zigbee.NetworkAddress, error) {
+	request := ZdoNWKAddrReq{
+		IEEEAddress: address,
+		ReqType:     0x00,
+		StartIndex:  0x00,
+	}
+
+	resp, err := z.nodeRequest(ctx, &request, &ZdoNWKAddrReqReply{}, &ZdoNWKAddrRsp{}, func(i interface{}) bool {
+		msg := i.(*ZdoNWKAddrRsp)
+		return msg.IEEEAddress == address
+	})
+
+	castResp, ok := resp.(*ZdoNWKAddrRsp)
+
+	if ok {
+		return castResp.NetworkAddress, nil
+	} else {
+		return zigbee.NetworkAddress(0x0), err
 	}
 }
 
@@ -65,3 +96,33 @@ func (s ZdoIEEEAddrRsp) WasSuccessful() bool {
 }
 
 const ZdoIEEEAddrRspID uint8 = 0x81
+
+type ZdoNWKAddrReq struct {
+	IEEEAddress zigbee.IEEEAddress
+	ReqType     uint8
+	StartIndex  uint8
+}
+
+const ZdoNWKAddrReqID uint8 = 0x00
+
+type ZdoNWKAddrReqReply GenericZStackStatus
+
+func (s ZdoNWKAddrReqReply) WasSuccessful() bool {
+	return s.Status == ZSuccess
+}
+
+const ZdoNWKAddrReqReplyID uint8 = 0x00
+
+type ZdoNWKAddrRsp struct {
+	Status            ZStackStatus
+	IEEEAddress       zigbee.IEEEAddress
+	NetworkAddress    zigbee.NetworkAddress
+	StartIndex        uint8
+	AssociatedDevices []zigbee.NetworkAddress `bclength:"8"`
+}
+
+func (s ZdoNWKAddrRsp) WasSuccessful() bool {
+	return s.Status == ZSuccess
+}
+
+const ZdoNWKAddrRspID uint8 = 0x80
