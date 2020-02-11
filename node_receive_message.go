@@ -33,6 +33,8 @@ func (z *ZStack) startMessageReceiver() {
 			Sequence:             msg.Sequence,
 			Data:                 msg.Data,
 		})
+
+		z.deviceTable.Update(ieee, UpdateReceived)
 	})
 }
 

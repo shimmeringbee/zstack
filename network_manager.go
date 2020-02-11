@@ -60,7 +60,7 @@ func (z *ZStack) networkManager() {
 					logicalType = zigbee.Router
 				}
 
-				z.deviceTable.AddOrUpdate(e.IEEEAddress, e.NetworkAddress, LogicalType(logicalType))
+				z.deviceTable.AddOrUpdate(e.IEEEAddress, e.NetworkAddress, LogicalType(logicalType), UpdateDiscovered, UpdateReceived)
 				z.sendEvent(zigbee.DeviceJoinEvent{
 					NetworkAddress: e.NetworkAddress,
 					IEEEAddress:    e.IEEEAddress,
@@ -78,11 +78,11 @@ func (z *ZStack) networkManager() {
 				})
 			case ZdoIEEEAddrRsp:
 				if e.WasSuccessful() {
-					z.deviceTable.AddOrUpdate(e.IEEEAddress, e.NetworkAddress)
+					z.deviceTable.AddOrUpdate(e.IEEEAddress, e.NetworkAddress, UpdateDiscovered)
 				}
 			case ZdoNWKAddrRsp:
 				if e.WasSuccessful() {
-					z.deviceTable.AddOrUpdate(e.IEEEAddress, e.NetworkAddress)
+					z.deviceTable.AddOrUpdate(e.IEEEAddress, e.NetworkAddress, UpdateDiscovered)
 				}
 			default:
 				fmt.Printf("received unknown %+v", reflect.TypeOf(ue))
@@ -133,7 +133,7 @@ func (z *ZStack) processLQITable(lqi ZdoMGMTLQIRsp) {
 		logicalType := zigbee.LogicalType(neighbour.Status & 0x03)
 		relationship := zigbee.Relationship((neighbour.Status >> 4) & 0x07)
 
-		z.deviceTable.AddOrUpdate(neighbour.IEEEAddress, neighbour.NetworkAddress, LogicalType(logicalType))
+		z.deviceTable.AddOrUpdate(neighbour.IEEEAddress, neighbour.NetworkAddress, LogicalType(logicalType), UpdateDiscovered)
 
 		if relationship == zigbee.RelationshipChild {
 			z.deviceTable.Update(neighbour.IEEEAddress, LQI(neighbour.LQI), Depth(neighbour.Depth))
