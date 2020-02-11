@@ -6,15 +6,21 @@ import (
 )
 
 type DeviceTable struct {
+	callbacks     []func(Device)
 	ieeeToDevice  map[zigbee.IEEEAddress]*Device
 	networkToIEEE map[zigbee.NetworkAddress]zigbee.IEEEAddress
 }
 
 func NewDeviceTable() *DeviceTable {
 	return &DeviceTable{
+		callbacks:     []func(Device){},
 		ieeeToDevice:  make(map[zigbee.IEEEAddress]*Device),
 		networkToIEEE: make(map[zigbee.NetworkAddress]zigbee.IEEEAddress),
 	}
+}
+
+func (t *DeviceTable) RegisterCallback(cb func(Device)) {
+	t.callbacks = append(t.callbacks, cb)
 }
 
 func (t *DeviceTable) GetAllDevices() []Device {
@@ -51,8 +57,10 @@ func (t *DeviceTable) AddOrUpdate(ieeeAddress zigbee.IEEEAddress, networkAddress
 	device, found := t.ieeeToDevice[ieeeAddress]
 
 	if found {
-		delete(t.networkToIEEE, device.NetworkAddress)
-		device.NetworkAddress = networkAddress
+		if device.NetworkAddress != networkAddress {
+			delete(t.networkToIEEE, device.NetworkAddress)
+			device.NetworkAddress = networkAddress
+		}
 	} else {
 		t.ieeeToDevice[ieeeAddress] = &Device{
 			IEEEAddress:    ieeeAddress,
@@ -72,6 +80,10 @@ func (t *DeviceTable) Update(ieeeAddress zigbee.IEEEAddress, updates ...DeviceUp
 		for _, du := range updates {
 			du(device)
 		}
+	}
+
+	for _, cb := range t.callbacks {
+		cb(*device)
 	}
 }
 

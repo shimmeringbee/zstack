@@ -115,6 +115,35 @@ func TestDeviceTable(t *testing.T) {
 		devices := dt.GetAllDevices()
 		assert.Equal(t, 1, len(devices))
 	})
+
+	t.Run("callbacks are called for additions", func(t *testing.T) {
+		callbackCalled := false
+
+		dt := NewDeviceTable()
+		dt.RegisterCallback(func(device Device) {
+			callbackCalled = true
+		})
+
+		dt.AddOrUpdate(zigbee.IEEEAddress(0x00), zigbee.NetworkAddress(0x00))
+
+		assert.True(t, callbackCalled)
+	})
+
+	t.Run("callbacks are called for additions", func(t *testing.T) {
+		callbackCalled := false
+
+		dt := NewDeviceTable()
+
+		dt.AddOrUpdate(zigbee.IEEEAddress(0x00), zigbee.NetworkAddress(0x00))
+
+		dt.RegisterCallback(func(device Device) {
+			callbackCalled = true
+		})
+
+		dt.Update(zigbee.IEEEAddress(0x00), UpdateReceived)
+
+		assert.True(t, callbackCalled)
+	})
 }
 
 func TestDeviceUpdate(t *testing.T) {
