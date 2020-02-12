@@ -174,6 +174,9 @@ func Test_NetworkManager(t *testing.T) {
 			Payload:     data,
 		})
 
+		// Throw away the DeviceUpdateEvent.
+		zstack.ReadEvent(ctx)
+
 		event, err := zstack.ReadEvent(ctx)
 		assert.NoError(t, err)
 
