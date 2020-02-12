@@ -46,8 +46,8 @@ func Test_QueryNodeEndpointDescription(t *testing.T) {
 			ProfileID:      0x0101,
 			DeviceID:       1,
 			DeviceVersion:  2,
-			InClusterList:  []zigbee.ZCLClusterID{0x0001},
-			OutClusterList: []zigbee.ZCLClusterID{0x0002},
+			InClusterList:  []zigbee.ClusterID{0x0001},
+			OutClusterList: []zigbee.ClusterID{0x0002},
 		}, endpoints)
 
 		unpiMock.AssertCalls(t)
@@ -99,8 +99,8 @@ func Test_EndpointDescriptionMessages(t *testing.T) {
 			ProfileID:         0x1234,
 			DeviceID:          0x5678,
 			DeviceVersion:     0,
-			InClusterList:     []zigbee.ZCLClusterID{0x1234},
-			OutClusterList:    []zigbee.ZCLClusterID{0x5678},
+			InClusterList:     []zigbee.ClusterID{0x1234},
+			OutClusterList:    []zigbee.ClusterID{0x5678},
 		}
 
 		data, err := bytecodec.Marshall(req)

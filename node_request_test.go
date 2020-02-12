@@ -4,6 +4,7 @@ import (
 	"context"
 	. "github.com/shimmeringbee/unpi"
 	unpiTest "github.com/shimmeringbee/unpi/testing"
+	"github.com/shimmeringbee/zigbee"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
@@ -81,7 +82,7 @@ func Test_NodeRequest(t *testing.T) {
 
 		assert.NoError(t, err)
 		assert.True(t, ok)
-		assert.Equal(t, []byte{0x01, 0x02, 0x03}, castResp.ActiveEndpoints)
+		assert.Equal(t, []zigbee.Endpoint{0x01, 0x02, 0x03}, castResp.ActiveEndpoints)
 
 		unpiMock.AssertCalls(t)
 	})
@@ -126,7 +127,7 @@ func Test_NodeRequest(t *testing.T) {
 
 		assert.NoError(t, err)
 		assert.True(t, ok)
-		assert.Equal(t, []byte{0x02}, castResp.ActiveEndpoints)
+		assert.Equal(t, []zigbee.Endpoint{0x02}, castResp.ActiveEndpoints)
 
 		unpiMock.AssertCalls(t)
 	})
@@ -169,7 +170,7 @@ func Test_NodeRequest(t *testing.T) {
 
 		assert.NoError(t, err)
 		assert.True(t, ok)
-		assert.Equal(t, []byte{0x02}, castResp.ActiveEndpoints)
+		assert.Equal(t, []zigbee.Endpoint{0x02}, castResp.ActiveEndpoints)
 
 		unpiMock.AssertCalls(t)
 	})
@@ -205,7 +206,7 @@ func Test_NodeRequest(t *testing.T) {
 		assert.Error(t, err)
 		assert.True(t, ok)
 		assert.Equal(t, NodeResponseWasNotSuccess, err)
-		assert.Equal(t, []byte{0x01, 0x02, 0x03}, castResp.ActiveEndpoints)
+		assert.Equal(t, []zigbee.Endpoint{0x01, 0x02, 0x03}, castResp.ActiveEndpoints)
 
 		unpiMock.AssertCalls(t)
 	})

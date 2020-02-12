@@ -5,7 +5,7 @@ import (
 	"github.com/shimmeringbee/zigbee"
 )
 
-func (z *ZStack) RegisterAdapterEndpoint(ctx context.Context, endpoint uint8, appProfileId uint16, appDeviceId uint16, appDeviceVersion uint8, inClusters []zigbee.ZCLClusterID, outClusters []zigbee.ZCLClusterID) error {
+func (z *ZStack) RegisterAdapterEndpoint(ctx context.Context, endpoint zigbee.Endpoint, appProfileId zigbee.ProfileID, appDeviceId uint16, appDeviceVersion uint8, inClusters []zigbee.ClusterID, outClusters []zigbee.ClusterID) error {
 	request := AFRegister{
 		Endpoint:         endpoint,
 		AppProfileId:     appProfileId,
@@ -30,13 +30,13 @@ func (z *ZStack) RegisterAdapterEndpoint(ctx context.Context, endpoint uint8, ap
 }
 
 type AFRegister struct {
-	Endpoint         uint8
-	AppProfileId     uint16
+	Endpoint         zigbee.Endpoint
+	AppProfileId     zigbee.ProfileID
 	AppDeviceId      uint16
 	AppDeviceVersion uint8
 	LatencyReq       uint8
-	AppInClusters    []zigbee.ZCLClusterID `bclength:"8"`
-	AppOutClusters   []zigbee.ZCLClusterID `bclength:"8"`
+	AppInClusters    []zigbee.ClusterID `bclength:"8"`
+	AppOutClusters   []zigbee.ClusterID `bclength:"8"`
 }
 
 const AFRegisterID uint8 = 0x00

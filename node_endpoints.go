@@ -5,11 +5,11 @@ import (
 	"github.com/shimmeringbee/zigbee"
 )
 
-func (z *ZStack) QueryNodeEndpoints(ctx context.Context, ieeeAddress zigbee.IEEEAddress) ([]byte, error) {
+func (z *ZStack) QueryNodeEndpoints(ctx context.Context, ieeeAddress zigbee.IEEEAddress) ([]zigbee.Endpoint, error) {
 	networkAddress, err := z.ResolveNodeNWKAddress(ctx, ieeeAddress)
 
 	if err != nil {
-		return []byte{}, err
+		return []zigbee.Endpoint{}, err
 	}
 
 	request := ZdoActiveEpReq{
@@ -50,7 +50,7 @@ type ZdoActiveEpRsp struct {
 	SourceAddress     zigbee.NetworkAddress
 	Status            ZStackStatus
 	OfInterestAddress zigbee.NetworkAddress
-	ActiveEndpoints   []byte `bclength:"8"`
+	ActiveEndpoints   []zigbee.Endpoint `bclength:"8"`
 }
 
 func (r ZdoActiveEpRsp) WasSuccessful() bool {

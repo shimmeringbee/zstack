@@ -50,11 +50,11 @@ func (z *ZStack) stopMessageReceiver() {
 }
 
 type AfIncomingMsg struct {
-	GroupID             uint16
-	ClusterID           zigbee.ZCLClusterID
+	GroupID             zigbee.GroupID
+	ClusterID           zigbee.ClusterID
 	SourceAddress       zigbee.NetworkAddress
-	SourceEndpoint      byte
-	DestinationEndpoint byte
+	SourceEndpoint      zigbee.Endpoint
+	DestinationEndpoint zigbee.Endpoint
 	WasBroadcast        uint8
 	LinkQuality         uint8
 	SecurityUse         uint8

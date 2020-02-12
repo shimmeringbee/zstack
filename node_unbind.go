@@ -5,7 +5,7 @@ import (
 	"github.com/shimmeringbee/zigbee"
 )
 
-func (z *ZStack) UnbindNodeFromController(ctx context.Context, nodeAddress zigbee.IEEEAddress, sourceEndpoint byte, destinationEndpoint byte, cluster zigbee.ZCLClusterID) error {
+func (z *ZStack) UnbindNodeFromController(ctx context.Context, nodeAddress zigbee.IEEEAddress, sourceEndpoint zigbee.Endpoint, destinationEndpoint zigbee.Endpoint, cluster zigbee.ClusterID) error {
 	networkAddress, err := z.ResolveNodeNWKAddress(ctx, nodeAddress)
 
 	if err != nil {
@@ -33,11 +33,11 @@ func (z *ZStack) UnbindNodeFromController(ctx context.Context, nodeAddress zigbe
 type ZdoUnbindReq struct {
 	TargetAddress          zigbee.NetworkAddress
 	SourceAddress          zigbee.IEEEAddress
-	SourceEndpoint         byte
-	ClusterID              zigbee.ZCLClusterID
+	SourceEndpoint         zigbee.Endpoint
+	ClusterID              zigbee.ClusterID
 	DestinationAddressMode uint8
 	DestinationAddress     uint64
-	DestinationEndpoint    byte
+	DestinationEndpoint    zigbee.Endpoint
 }
 
 const ZdoUnbindReqID uint8 = 0x22

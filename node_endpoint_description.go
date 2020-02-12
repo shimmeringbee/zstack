@@ -5,7 +5,7 @@ import (
 	"github.com/shimmeringbee/zigbee"
 )
 
-func (z *ZStack) QueryNodeEndpointDescription(ctx context.Context, ieeeAddress zigbee.IEEEAddress, endpoint byte) (zigbee.EndpointDescription, error) {
+func (z *ZStack) QueryNodeEndpointDescription(ctx context.Context, ieeeAddress zigbee.IEEEAddress, endpoint zigbee.Endpoint) (zigbee.EndpointDescription, error) {
 	networkAddress, err := z.ResolveNodeNWKAddress(ctx, ieeeAddress)
 
 	if err != nil {
@@ -42,7 +42,7 @@ func (z *ZStack) QueryNodeEndpointDescription(ctx context.Context, ieeeAddress z
 type ZdoSimpleDescReq struct {
 	DestinationAddress zigbee.NetworkAddress
 	OfInterestAddress  zigbee.NetworkAddress
-	Endpoint           byte
+	Endpoint           zigbee.Endpoint
 }
 
 const ZdoSimpleDescReqID uint8 = 0x04
@@ -60,12 +60,12 @@ type ZdoSimpleDescRsp struct {
 	Status            ZStackStatus
 	OfInterestAddress zigbee.NetworkAddress
 	Length            uint8
-	Endpoint          byte
-	ProfileID         uint16
+	Endpoint          zigbee.Endpoint
+	ProfileID         zigbee.ProfileID
 	DeviceID          uint16
 	DeviceVersion     uint8
-	InClusterList     []zigbee.ZCLClusterID `bclength:"8"`
-	OutClusterList    []zigbee.ZCLClusterID `bclength:"8"`
+	InClusterList     []zigbee.ClusterID `bclength:"8"`
+	OutClusterList    []zigbee.ClusterID `bclength:"8"`
 }
 
 func (r ZdoSimpleDescRsp) WasSuccessful() bool {

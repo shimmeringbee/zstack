@@ -41,7 +41,7 @@ func Test_QueryNodeEndpoints(t *testing.T) {
 
 		endpoints, err := zstack.QueryNodeEndpoints(ctx, zigbee.IEEEAddress(0x11223344556677))
 		assert.NoError(t, err)
-		assert.Equal(t, []byte{0x01, 0x02, 0x03}, endpoints)
+		assert.Equal(t, []zigbee.Endpoint{0x01, 0x02, 0x03}, endpoints)
 
 		unpiMock.AssertCalls(t)
 	})
@@ -86,7 +86,7 @@ func Test_ActiveEndpointMessages(t *testing.T) {
 			SourceAddress:     zigbee.NetworkAddress(0x2000),
 			Status:            1,
 			OfInterestAddress: zigbee.NetworkAddress(0x4000),
-			ActiveEndpoints:   []byte{0x01, 0x02, 0x03},
+			ActiveEndpoints:   []zigbee.Endpoint{0x01, 0x02, 0x03},
 		}
 
 		data, err := bytecodec.Marshall(req)

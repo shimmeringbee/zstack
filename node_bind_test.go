@@ -47,10 +47,10 @@ func Test_BindToNode(t *testing.T) {
 
 		assert.Equal(t, zigbee.NetworkAddress(0x4000), bindReq.TargetAddress)
 		assert.Equal(t, zigbee.IEEEAddress(1), bindReq.SourceAddress)
-		assert.Equal(t, uint8(2), bindReq.SourceEndpoint)
+		assert.Equal(t, zigbee.Endpoint(2), bindReq.SourceEndpoint)
 		assert.Equal(t, uint64(0), bindReq.DestinationAddress)
-		assert.Equal(t, uint8(4), bindReq.DestinationEndpoint)
-		assert.Equal(t, zigbee.ZCLClusterID(0x5), bindReq.ClusterID)
+		assert.Equal(t, zigbee.Endpoint(4), bindReq.DestinationEndpoint)
+		assert.Equal(t, zigbee.ClusterID(0x5), bindReq.ClusterID)
 		assert.Equal(t, uint8(0x02), bindReq.DestinationAddressMode)
 
 		unpiMock.AssertCalls(t)

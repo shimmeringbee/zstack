@@ -8,7 +8,7 @@ import (
 
 const DefaultRadius uint8 = 0x20
 
-func (z *ZStack) SendNodeMessage(ctx context.Context, destinationAddress zigbee.IEEEAddress, sourceEndpoint byte, destinationEndpoint byte, cluster zigbee.ZCLClusterID, data []byte) error {
+func (z *ZStack) SendNodeMessage(ctx context.Context, destinationAddress zigbee.IEEEAddress, sourceEndpoint zigbee.Endpoint, destinationEndpoint zigbee.Endpoint, cluster zigbee.ClusterID, data []byte) error {
 	network, err := z.ResolveNodeNWKAddress(ctx, destinationAddress)
 
 	if err != nil {
@@ -45,9 +45,9 @@ func (z *ZStack) SendNodeMessage(ctx context.Context, destinationAddress zigbee.
 
 type AfDataRequest struct {
 	DestinationAddress  zigbee.NetworkAddress
-	DestinationEndpoint byte
-	SourceEndpoint      byte
-	ClusterID           zigbee.ZCLClusterID
+	DestinationEndpoint zigbee.Endpoint
+	SourceEndpoint      zigbee.Endpoint
+	ClusterID           zigbee.ClusterID
 	TransactionID       uint8
 	Options             uint8
 	Radius              uint8
@@ -66,7 +66,7 @@ const AfDataRequestReplyID uint8 = 0x01
 
 type AfDataConfirm struct {
 	Status        ZStackStatus
-	Endpoint      byte
+	Endpoint      zigbee.Endpoint
 	TransactionID uint8
 }
 

@@ -27,7 +27,7 @@ func Test_RegisterAdapterEndpoint(t *testing.T) {
 			Payload:     []byte{0x00},
 		})
 
-		err := zstack.RegisterAdapterEndpoint(ctx, 0x01, 0x0104, 0x0001, 0x01, []zigbee.ZCLClusterID{0x0001}, []zigbee.ZCLClusterID{0x0002})
+		err := zstack.RegisterAdapterEndpoint(ctx, 0x01, 0x0104, 0x0001, 0x01, []zigbee.ClusterID{0x0001}, []zigbee.ClusterID{0x0002})
 		assert.NoError(t, err)
 
 		unpiMock.AssertCalls(t)
@@ -52,7 +52,7 @@ func Test_RegisterAdapterEndpoint(t *testing.T) {
 			Payload:     []byte{0x01},
 		})
 
-		err := zstack.RegisterAdapterEndpoint(ctx, 0x01, 0x0104, 0x0001, 0x01, []zigbee.ZCLClusterID{0x0001}, []zigbee.ZCLClusterID{0x0002})
+		err := zstack.RegisterAdapterEndpoint(ctx, 0x01, 0x0104, 0x0001, 0x01, []zigbee.ClusterID{0x0001}, []zigbee.ClusterID{0x0002})
 		assert.Error(t, err)
 		assert.Equal(t, ErrorZFailure, err)
 
@@ -68,8 +68,8 @@ func Test_EndpointRegisterMessages(t *testing.T) {
 			AppDeviceId:      3,
 			AppDeviceVersion: 4,
 			LatencyReq:       5,
-			AppInClusters:    []zigbee.ZCLClusterID{0x10},
-			AppOutClusters:   []zigbee.ZCLClusterID{0x20},
+			AppInClusters:    []zigbee.ClusterID{0x10},
+			AppOutClusters:   []zigbee.ClusterID{0x20},
 		}
 
 		data, err := bytecodec.Marshall(req)

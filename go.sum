@@ -12,6 +12,10 @@ github.com/shimmeringbee/zigbee v0.0.0-20200211203343-845c277a2f38 h1:/tSS+6FeH7
 github.com/shimmeringbee/zigbee v0.0.0-20200211203343-845c277a2f38/go.mod h1:WVZ5totAgMhUc1ubHym27LsKRnXv1MAiGyaDEs4dzak=
 github.com/shimmeringbee/zigbee v0.0.0-20200211203343-f3e002996bf0 h1:zyzFDsFu8lh/0iev2dCLoogTC5R/s3CKvLnX1QREZnY=
 github.com/shimmeringbee/zigbee v0.0.0-20200211203343-f3e002996bf0/go.mod h1:WVZ5totAgMhUc1ubHym27LsKRnXv1MAiGyaDEs4dzak=
+github.com/shimmeringbee/zigbee v0.0.0-20200212085621-8c471d189190 h1:uFWh+iluVIA6XEvnoEkAzSmbYcS/rYcxbTNPCbXwvzc=
+github.com/shimmeringbee/zigbee v0.0.0-20200212085621-8c471d189190/go.mod h1:WVZ5totAgMhUc1ubHym27LsKRnXv1MAiGyaDEs4dzak=
+github.com/shimmeringbee/zigbee v0.0.0-20200212085753-da1320c8f2c3 h1:CUBljL2/W1YyX+hKGHh3bNx10Ji6SYXKZgwuHwGuOA8=
+github.com/shimmeringbee/zigbee v0.0.0-20200212085753-da1320c8f2c3/go.mod h1:WVZ5totAgMhUc1ubHym27LsKRnXv1MAiGyaDEs4dzak=
 github.com/stretchr/objx v0.1.0 h1:4G4v2dO3VZwixGIRoQ5Lfboy6nUhCyYzaqnIAPPhYs4=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.4.0 h1:2E4SXV/wtOkTonXsotYi4li6zVWxYlZuYNCXe9XRJyk=
