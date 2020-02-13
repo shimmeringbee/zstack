@@ -139,7 +139,7 @@ func exploreDevice(z *zstack.ZStack, node zigbee.Node) {
 
 ### ZCL
 
-To handle ZCL messages you must `zigbee.NodeIncomingMessageEvent` messages and process the ZCL payload with the ZCL library, responses can be sent with `z.SendNodeMessage`.
+To handle ZCL messages you must handle `zigbee.NodeIncomingMessageEvent` messages and process the ZCL payload with the ZCL library, responses can be sent with `z.SendNodeMessage`.
 
 ## Maintainers
 
