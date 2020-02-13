@@ -20,10 +20,10 @@ func (z *ZStack) startMessageReceiver() {
 			return
 		}
 
-		device, _ := z.deviceTable.GetByIEEE(ieee)
+		node, _ := z.nodeTable.GetByIEEE(ieee)
 
-		z.sendEvent(zigbee.DeviceIncomingMessageEvent{
-			Device: device,
+		z.sendEvent(zigbee.NodeIncomingMessageEvent{
+			Node: node,
 			IncomingMessage: zigbee.IncomingMessage{
 				GroupID:              msg.GroupID,
 				ClusterID:            msg.ClusterID,
@@ -39,7 +39,7 @@ func (z *ZStack) startMessageReceiver() {
 			},
 		})
 
-		z.deviceTable.Update(ieee, UpdateReceived)
+		z.nodeTable.Update(ieee, UpdateReceived)
 	})
 }
 

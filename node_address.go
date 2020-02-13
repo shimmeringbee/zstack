@@ -6,20 +6,20 @@ import (
 )
 
 func (z *ZStack) ResolveNodeIEEEAddress(ctx context.Context, address zigbee.NetworkAddress) (zigbee.IEEEAddress, error) {
-	device, found := z.deviceTable.GetByNetwork(address)
+	node, found := z.nodeTable.GetByNetwork(address)
 
 	if found {
-		return device.IEEEAddress, nil
+		return node.IEEEAddress, nil
 	}
 
 	return z.QueryNodeIEEEAddress(ctx, address)
 }
 
 func (z *ZStack) ResolveNodeNWKAddress(ctx context.Context, address zigbee.IEEEAddress) (zigbee.NetworkAddress, error) {
-	device, found := z.deviceTable.GetByIEEE(address)
+	node, found := z.nodeTable.GetByIEEE(address)
 
 	if found {
-		return device.NetworkAddress, nil
+		return node.NetworkAddress, nil
 	}
 
 	return z.QueryNodeNWKAddress(ctx, address)

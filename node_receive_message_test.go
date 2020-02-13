@@ -21,7 +21,7 @@ func Test_ReceiveMessage(t *testing.T) {
 		zstack := New(unpiMock)
 		defer unpiMock.Stop()
 
-		zstack.deviceTable.AddOrUpdate(zigbee.IEEEAddress(0x1122334455667788), zigbee.NetworkAddress(0x1000))
+		zstack.nodeTable.AddOrUpdate(zigbee.IEEEAddress(0x1122334455667788), zigbee.NetworkAddress(0x1000))
 
 		zstack.startMessageReceiver()
 
@@ -55,11 +55,11 @@ func Test_ReceiveMessage(t *testing.T) {
 		event, err := zstack.ReadEvent(ctx)
 		assert.NoError(t, err)
 
-		incommingMsg, ok := event.(zigbee.DeviceIncomingMessageEvent)
+		incommingMsg, ok := event.(zigbee.NodeIncomingMessageEvent)
 		assert.True(t, ok)
 
-		expectedMsg := zigbee.DeviceIncomingMessageEvent{
-			Device: zigbee.Device{
+		expectedMsg := zigbee.NodeIncomingMessageEvent{
+			Node: zigbee.Node{
 				IEEEAddress:    0x1122334455667788,
 				NetworkAddress: 0x1000,
 				LogicalType:    0xff,

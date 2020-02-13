@@ -20,7 +20,7 @@ func (z *ZStack) stopNetworkManager() {
 }
 
 func (z *ZStack) networkManager() {
-	z.deviceTable.AddOrUpdate(z.NetworkProperties.IEEEAddress, z.NetworkProperties.NetworkAddress, LogicalType(zigbee.Coordinator))
+	z.nodeTable.AddOrUpdate(z.NetworkProperties.IEEEAddress, z.NetworkProperties.NetworkAddress, LogicalType(zigbee.Coordinator))
 
 	immediateStart := make(chan bool, 1)
 	defer close(immediateStart)
@@ -41,7 +41,7 @@ func (z *ZStack) networkManager() {
 	_, cancel = z.subscriber.Subscribe(&ZdoNWKAddrRsp{}, z.receiveNWKAddrRsp)
 	defer cancel()
 
-	z.deviceTable.RegisterCallback(z.deviceTableUpdate)
+	z.nodeTable.RegisterCallback(z.nodeTableUpdate)
 
 	for {
 		select {
@@ -62,33 +62,33 @@ func (z *ZStack) networkManager() {
 					logicalType = zigbee.Router
 				}
 
-				z.deviceTable.AddOrUpdate(e.IEEEAddress, e.NetworkAddress, LogicalType(logicalType), UpdateDiscovered, UpdateReceived)
-				device, _ := z.deviceTable.GetByIEEE(e.IEEEAddress)
+				z.nodeTable.AddOrUpdate(e.IEEEAddress, e.NetworkAddress, LogicalType(logicalType), UpdateDiscovered, UpdateReceived)
+				node, _ := z.nodeTable.GetByIEEE(e.IEEEAddress)
 
-				z.sendEvent(zigbee.DeviceJoinEvent{
-					Device: device,
+				z.sendEvent(zigbee.NodeJoinEvent{
+					Node: node,
 				})
 
 				if logicalType == zigbee.Router {
-					device, _ := z.deviceTable.GetByIEEE(e.IEEEAddress)
-					go z.pollDeviceForNetworkStatus(device)
+					node, _ := z.nodeTable.GetByIEEE(e.IEEEAddress)
+					go z.pollNodeForNetworkStatus(node)
 				}
 			case ZdoLeaveInd:
-				device, found := z.deviceTable.GetByIEEE(e.IEEEAddress)
-				z.deviceTable.Remove(e.IEEEAddress)
+				node, found := z.nodeTable.GetByIEEE(e.IEEEAddress)
+				z.nodeTable.Remove(e.IEEEAddress)
 
 				if found {
-					z.sendEvent(zigbee.DeviceLeaveEvent{
-						Device: device,
+					z.sendEvent(zigbee.NodeLeaveEvent{
+						Node: node,
 					})
 				}
 			case ZdoIEEEAddrRsp:
 				if e.WasSuccessful() {
-					z.deviceTable.AddOrUpdate(e.IEEEAddress, e.NetworkAddress, UpdateDiscovered)
+					z.nodeTable.AddOrUpdate(e.IEEEAddress, e.NetworkAddress, UpdateDiscovered)
 				}
 			case ZdoNWKAddrRsp:
 				if e.WasSuccessful() {
-					z.deviceTable.AddOrUpdate(e.IEEEAddress, e.NetworkAddress, UpdateDiscovered)
+					z.nodeTable.AddOrUpdate(e.IEEEAddress, e.NetworkAddress, UpdateDiscovered)
 				}
 			default:
 				fmt.Printf("received unknown %+v", reflect.TypeOf(ue))
@@ -98,24 +98,24 @@ func (z *ZStack) networkManager() {
 }
 
 func (z *ZStack) pollRoutersForNetworkStatus() {
-	for _, device := range z.deviceTable.GetAllDevices() {
-		if device.LogicalType == zigbee.Coordinator || device.LogicalType == zigbee.Router {
-			go z.pollDeviceForNetworkStatus(device)
+	for _, node := range z.nodeTable.GetAllNodes() {
+		if node.LogicalType == zigbee.Coordinator || node.LogicalType == zigbee.Router {
+			go z.pollNodeForNetworkStatus(node)
 		}
 	}
 }
 
-func (z *ZStack) pollDeviceForNetworkStatus(device zigbee.Device) {
-	log.Printf("polling %v (%d) for network status\n", device.IEEEAddress, device.NetworkAddress)
-	z.requestLQITable(device)
+func (z *ZStack) pollNodeForNetworkStatus(node zigbee.Node) {
+	log.Printf("polling %v (%d) for network status\n", node.IEEEAddress, node.NetworkAddress)
+	z.requestLQITable(node)
 }
 
-func (z *ZStack) requestLQITable(device zigbee.Device) {
+func (z *ZStack) requestLQITable(node zigbee.Node) {
 	ctx, cancel := context.WithTimeout(context.Background(), DefaultZStackTimeout)
 	defer cancel()
 
 	resp := ZdoMGMTLQIReqReply{}
-	if err := z.requestResponder.RequestResponse(ctx, ZdoMGMTLQIReq{DestinationAddress: device.NetworkAddress, StartIndex: 0}, &resp); err != nil {
+	if err := z.requestResponder.RequestResponse(ctx, ZdoMGMTLQIReq{DestinationAddress: node.NetworkAddress, StartIndex: 0}, &resp); err != nil {
 		log.Printf("failed to request lqi tables: %v\n", err)
 	}
 
@@ -139,10 +139,10 @@ func (z *ZStack) processLQITable(lqi ZdoMGMTLQIRsp) {
 		logicalType := zigbee.LogicalType(neighbour.Status & 0x03)
 		relationship := zigbee.Relationship((neighbour.Status >> 4) & 0x07)
 
-		z.deviceTable.AddOrUpdate(neighbour.IEEEAddress, neighbour.NetworkAddress, LogicalType(logicalType), UpdateDiscovered)
+		z.nodeTable.AddOrUpdate(neighbour.IEEEAddress, neighbour.NetworkAddress, LogicalType(logicalType), UpdateDiscovered)
 
 		if relationship == zigbee.RelationshipChild {
-			z.deviceTable.Update(neighbour.IEEEAddress, LQI(neighbour.LQI), Depth(neighbour.Depth))
+			z.nodeTable.Update(neighbour.IEEEAddress, LQI(neighbour.LQI), Depth(neighbour.Depth))
 		}
 	}
 }
@@ -172,9 +172,9 @@ func (z *ZStack) receiveNWKAddrRsp(v interface{}) {
 	z.networkManagerIncoming <- *msg
 }
 
-func (z *ZStack) deviceTableUpdate(device zigbee.Device) {
-	z.sendEvent(zigbee.DeviceUpdateEvent{
-		Device: device,
+func (z *ZStack) nodeTableUpdate(node zigbee.Node) {
+	z.sendEvent(zigbee.NodeUpdateEvent{
+		Node: node,
 	})
 }
 

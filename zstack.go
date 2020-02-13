@@ -35,7 +35,7 @@ type ZStack struct {
 
 	messageReceiverStop func()
 
-	deviceTable        *DeviceTable
+	nodeTable          *NodeTable
 	transactionIdStore chan uint8
 }
 
@@ -82,7 +82,7 @@ func New(uart io.ReadWriter) *ZStack {
 		events:                 make(chan interface{}, DefaultInflightEvents),
 		networkManagerStop:     make(chan bool, 1),
 		networkManagerIncoming: make(chan interface{}, DefaultInflightEvents),
-		deviceTable:            NewDeviceTable(),
+		nodeTable:              NewNodeTable(),
 		transactionIdStore:     transactionIDs,
 	}
 }

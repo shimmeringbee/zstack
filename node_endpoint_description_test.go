@@ -37,7 +37,7 @@ func Test_QueryNodeEndpointDescription(t *testing.T) {
 			})
 		}()
 
-		zstack.deviceTable.AddOrUpdate(zigbee.IEEEAddress(0x11223344556677), zigbee.NetworkAddress(0x4000))
+		zstack.nodeTable.AddOrUpdate(zigbee.IEEEAddress(0x11223344556677), zigbee.NetworkAddress(0x4000))
 
 		endpoints, err := zstack.QueryNodeEndpointDescription(ctx, zigbee.IEEEAddress(0x11223344556677), 0x01)
 		assert.NoError(t, err)

@@ -37,7 +37,7 @@ func Test_BindToNode(t *testing.T) {
 			})
 		}()
 
-		zstack.deviceTable.AddOrUpdate(zigbee.IEEEAddress(1), zigbee.NetworkAddress(0x4000))
+		zstack.nodeTable.AddOrUpdate(zigbee.IEEEAddress(1), zigbee.NetworkAddress(0x4000))
 
 		err := zstack.BindNodeToController(ctx, zigbee.IEEEAddress(1), 2, 4, 5)
 		assert.NoError(t, err)

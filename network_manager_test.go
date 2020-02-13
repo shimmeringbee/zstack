@@ -25,8 +25,8 @@ func Test_NetworkManager(t *testing.T) {
 			Payload:     []byte{0x00},
 		}).Times(2)
 
-		zstack.deviceTable.AddOrUpdate(zigbee.IEEEAddress(1), zigbee.NetworkAddress(1), LogicalType(zigbee.Router))
-		zstack.deviceTable.AddOrUpdate(zigbee.IEEEAddress(2), zigbee.NetworkAddress(2), LogicalType(zigbee.Unknown))
+		zstack.nodeTable.AddOrUpdate(zigbee.IEEEAddress(1), zigbee.NetworkAddress(1), LogicalType(zigbee.Router))
+		zstack.nodeTable.AddOrUpdate(zigbee.IEEEAddress(2), zigbee.NetworkAddress(2), LogicalType(zigbee.Unknown))
 
 		zstack.startNetworkManager()
 		defer zstack.stopNetworkManager()
@@ -36,7 +36,7 @@ func Test_NetworkManager(t *testing.T) {
 		unpiMock.AssertCalls(t)
 	})
 
-	t.Run("the coordinator is added to the device list as a coordinator", func(t *testing.T) {
+	t.Run("the coordinator is added to the node list as a coordinator", func(t *testing.T) {
 		unpiMock := unpiTest.NewMockAdapter()
 		zstack := New(unpiMock)
 		defer unpiMock.Stop()
@@ -60,16 +60,16 @@ func Test_NetworkManager(t *testing.T) {
 
 		time.Sleep(10 * time.Millisecond)
 
-		device, found := zstack.deviceTable.GetByIEEE(expectedIEEE)
+		node, found := zstack.nodeTable.GetByIEEE(expectedIEEE)
 
 		assert.True(t, found)
-		assert.Equal(t, expectedAddress, device.NetworkAddress)
-		assert.Equal(t, zigbee.Coordinator, device.LogicalType)
+		assert.Equal(t, expectedAddress, node.NetworkAddress)
+		assert.Equal(t, zigbee.Coordinator, node.LogicalType)
 
 		unpiMock.AssertCalls(t)
 	})
 
-	t.Run("a device is added to the device table when an ZdoIEEEAddrRsp messages are received", func(t *testing.T) {
+	t.Run("a node is added to the node table when an ZdoIEEEAddrRsp messages are received", func(t *testing.T) {
 		unpiMock := unpiTest.NewMockAdapter()
 		zstack := New(unpiMock)
 		defer unpiMock.Stop()
@@ -96,14 +96,14 @@ func Test_NetworkManager(t *testing.T) {
 
 		time.Sleep(10 * time.Millisecond)
 
-		device, found := zstack.deviceTable.GetByIEEE(0x1122334455667788)
+		node, found := zstack.nodeTable.GetByIEEE(0x1122334455667788)
 
 		assert.True(t, found)
-		assert.Equal(t, zigbee.IEEEAddress(0x1122334455667788), device.IEEEAddress)
-		assert.Equal(t, zigbee.NetworkAddress(0x4000), device.NetworkAddress)
+		assert.Equal(t, zigbee.IEEEAddress(0x1122334455667788), node.IEEEAddress)
+		assert.Equal(t, zigbee.NetworkAddress(0x4000), node.NetworkAddress)
 	})
 
-	t.Run("a device is added to the device table when an ZdoNWKAddrRsp messages are received", func(t *testing.T) {
+	t.Run("a node is added to the node table when an ZdoNWKAddrRsp messages are received", func(t *testing.T) {
 		unpiMock := unpiTest.NewMockAdapter()
 		zstack := New(unpiMock)
 		defer unpiMock.Stop()
@@ -130,14 +130,14 @@ func Test_NetworkManager(t *testing.T) {
 
 		time.Sleep(10 * time.Millisecond)
 
-		device, found := zstack.deviceTable.GetByIEEE(0x1122334455667788)
+		node, found := zstack.nodeTable.GetByIEEE(0x1122334455667788)
 
 		assert.True(t, found)
-		assert.Equal(t, zigbee.IEEEAddress(0x1122334455667788), device.IEEEAddress)
-		assert.Equal(t, zigbee.NetworkAddress(0x4000), device.NetworkAddress)
+		assert.Equal(t, zigbee.IEEEAddress(0x1122334455667788), node.IEEEAddress)
+		assert.Equal(t, zigbee.NetworkAddress(0x4000), node.NetworkAddress)
 	})
 
-	t.Run("emits DeviceJoin event when device join announcement received", func(t *testing.T) {
+	t.Run("emits NodeJoinEvent event when node join announcement received", func(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
 		defer cancel()
 
@@ -174,28 +174,28 @@ func Test_NetworkManager(t *testing.T) {
 			Payload:     data,
 		})
 
-		// Throw away the DeviceUpdateEvent.
+		// Throw away the NodeUpdateEvent.
 		zstack.ReadEvent(ctx)
 
 		event, err := zstack.ReadEvent(ctx)
 		assert.NoError(t, err)
 
-		deviceJoin, ok := event.(zigbee.DeviceJoinEvent)
+		nodeJoin, ok := event.(zigbee.NodeJoinEvent)
 
 		assert.True(t, ok)
 
-		assert.Equal(t, announce.NetworkAddress, deviceJoin.NetworkAddress)
-		assert.Equal(t, announce.IEEEAddress, deviceJoin.IEEEAddress)
+		assert.Equal(t, announce.NetworkAddress, nodeJoin.NetworkAddress)
+		assert.Equal(t, announce.IEEEAddress, nodeJoin.IEEEAddress)
 
-		device, found := zstack.deviceTable.GetByIEEE(announce.IEEEAddress)
+		node, found := zstack.nodeTable.GetByIEEE(announce.IEEEAddress)
 
 		assert.True(t, found)
-		assert.Equal(t, announce.IEEEAddress, device.IEEEAddress)
-		assert.Equal(t, announce.NetworkAddress, device.NetworkAddress)
-		assert.Equal(t, zigbee.Router, device.LogicalType)
+		assert.Equal(t, announce.IEEEAddress, node.IEEEAddress)
+		assert.Equal(t, announce.NetworkAddress, node.NetworkAddress)
+		assert.Equal(t, zigbee.Router, node.LogicalType)
 	})
 
-	t.Run("emits DeviceLeave event when device leave announcement received", func(t *testing.T) {
+	t.Run("emits NodeLeaveEvent event when node leave announcement received", func(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
 		defer cancel()
 
@@ -219,7 +219,7 @@ func Test_NetworkManager(t *testing.T) {
 			IEEEAddress:   zigbee.IEEEAddress(0x0102030405060708),
 		}
 
-		zstack.deviceTable.AddOrUpdate(zigbee.IEEEAddress(0x0102030405060708), zigbee.NetworkAddress(0x2000))
+		zstack.nodeTable.AddOrUpdate(zigbee.IEEEAddress(0x0102030405060708), zigbee.NetworkAddress(0x2000))
 
 		data, _ := bytecodec.Marshall(announce)
 
@@ -235,14 +235,14 @@ func Test_NetworkManager(t *testing.T) {
 		event, err := zstack.ReadEvent(ctx)
 		assert.NoError(t, err)
 
-		deviceLeave, ok := event.(zigbee.DeviceLeaveEvent)
+		nodeLeave, ok := event.(zigbee.NodeLeaveEvent)
 
 		assert.True(t, ok)
 
-		assert.Equal(t, announce.SourceAddress, deviceLeave.NetworkAddress)
-		assert.Equal(t, announce.IEEEAddress, deviceLeave.IEEEAddress)
+		assert.Equal(t, announce.SourceAddress, nodeLeave.NetworkAddress)
+		assert.Equal(t, announce.IEEEAddress, nodeLeave.IEEEAddress)
 
-		_, found := zstack.deviceTable.GetByIEEE(announce.IEEEAddress)
+		_, found := zstack.nodeTable.GetByIEEE(announce.IEEEAddress)
 		assert.False(t, found)
 	})
 
@@ -292,7 +292,7 @@ func Test_NetworkManager(t *testing.T) {
 		assert.Equal(t, zigbee.NetworkAddress(0x2000), lqiReq.DestinationAddress)
 	})
 
-	t.Run("devices in LQI query are added to network manager", func(t *testing.T) {
+	t.Run("nodes in LQI query are added to network manager", func(t *testing.T) {
 		unpiMock := unpiTest.NewMockAdapter()
 		zstack := New(unpiMock)
 		defer unpiMock.Stop()
@@ -339,16 +339,16 @@ func Test_NetworkManager(t *testing.T) {
 
 		time.Sleep(10 * time.Millisecond)
 
-		device, found := zstack.deviceTable.GetByIEEE(zigbee.IEEEAddress(0x1000))
+		node, found := zstack.nodeTable.GetByIEEE(zigbee.IEEEAddress(0x1000))
 		assert.True(t, found)
 
-		assert.Equal(t, zigbee.NetworkAddress(0x2000), device.NetworkAddress)
-		assert.Equal(t, zigbee.Router, device.LogicalType)
-		assert.Equal(t, uint8(0x43), device.LQI)
-		assert.Equal(t, uint8(0x01), device.Depth)
+		assert.Equal(t, zigbee.NetworkAddress(0x2000), node.NetworkAddress)
+		assert.Equal(t, zigbee.Router, node.LogicalType)
+		assert.Equal(t, uint8(0x43), node.LQI)
+		assert.Equal(t, uint8(0x01), node.Depth)
 	})
 
-	t.Run("devices in LQI query are not added if Ext PANID does not match", func(t *testing.T) {
+	t.Run("nodes in LQI query are not added if Ext PANID does not match", func(t *testing.T) {
 		unpiMock := unpiTest.NewMockAdapter()
 		zstack := New(unpiMock)
 		defer unpiMock.Stop()
@@ -395,11 +395,11 @@ func Test_NetworkManager(t *testing.T) {
 
 		time.Sleep(10 * time.Millisecond)
 
-		_, found := zstack.deviceTable.GetByIEEE(zigbee.IEEEAddress(0x2000))
+		_, found := zstack.nodeTable.GetByIEEE(zigbee.IEEEAddress(0x2000))
 		assert.False(t, found)
 	})
 
-	t.Run("devices in LQI query are not added if it has an invalid IEEE address", func(t *testing.T) {
+	t.Run("nodes in LQI query are not added if it has an invalid IEEE address", func(t *testing.T) {
 		unpiMock := unpiTest.NewMockAdapter()
 		zstack := New(unpiMock)
 		zstack.NetworkProperties.IEEEAddress = zigbee.IEEEAddress(1)
@@ -448,11 +448,11 @@ func Test_NetworkManager(t *testing.T) {
 
 		time.Sleep(10 * time.Millisecond)
 
-		_, found := zstack.deviceTable.GetByIEEE(zigbee.IEEEAddress(0))
+		_, found := zstack.nodeTable.GetByIEEE(zigbee.IEEEAddress(0))
 		assert.False(t, found)
 	})
 
-	t.Run("updates to the device table sends a device update event", func(t *testing.T) {
+	t.Run("updates to the node table sends a node update event", func(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), 50 * time.Millisecond)
 		defer cancel()
 
@@ -475,17 +475,17 @@ func Test_NetworkManager(t *testing.T) {
 
 		go func() {
 			time.Sleep(10 * time.Millisecond)
-			zstack.deviceTable.AddOrUpdate(zigbee.IEEEAddress(0x01), zigbee.NetworkAddress(0x02))
+			zstack.nodeTable.AddOrUpdate(zigbee.IEEEAddress(0x01), zigbee.NetworkAddress(0x02))
 		}()
 
 		event, err := zstack.ReadEvent(ctx)
 		assert.NoError(t, err)
 
-		deviceUpdateEvent, ok := event.(zigbee.DeviceUpdateEvent)
+		nodeUpdateEvent, ok := event.(zigbee.NodeUpdateEvent)
 
 		assert.True(t, ok)
 
-		assert.Equal(t, zigbee.IEEEAddress(0x01), deviceUpdateEvent.Device.IEEEAddress)
-		assert.Equal(t, zigbee.NetworkAddress(0x02), deviceUpdateEvent.Device.NetworkAddress)
+		assert.Equal(t, zigbee.IEEEAddress(0x01), nodeUpdateEvent.Node.IEEEAddress)
+		assert.Equal(t, zigbee.NetworkAddress(0x02), nodeUpdateEvent.Node.NetworkAddress)
 	})
 }
