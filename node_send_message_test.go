@@ -58,7 +58,11 @@ func Test_SendMessages(t *testing.T) {
 			SourceEndpoint:      0x04,
 			ClusterID:           0x0506,
 			TransactionID:       0x07,
-			Options:             0x08,
+			Options:             AfDataRequestOptions{
+				EnableSecurity: true,
+				DiscoveryRoute: true,
+				ACKRequest:     true,
+			},
 			Radius:              0x09,
 			Data:                []byte{0x0a, 0x0b},
 		}
@@ -66,7 +70,7 @@ func Test_SendMessages(t *testing.T) {
 		data, err := bytecodec.Marshal(req)
 
 		assert.NoError(t, err)
-		assert.Equal(t, []byte{0x02, 0x01, 0x03, 0x04, 0x06, 0x05, 0x07, 0x08, 0x09, 0x02, 0x0a, 0x0b}, data)
+		assert.Equal(t, []byte{0x02, 0x01, 0x03, 0x04, 0x06, 0x05, 0x07, 0x70, 0x09, 0x02, 0x0a, 0x0b}, data)
 	})
 
 	t.Run("verify AfDataRequestReply marshals", func(t *testing.T) {

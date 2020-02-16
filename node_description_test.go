@@ -86,16 +86,28 @@ func Test_NodeDescriptionMessages(t *testing.T) {
 
 	t.Run("verify ZdoNodeDescRsp marshals", func(t *testing.T) {
 		req := ZdoNodeDescRsp{
-			SourceAddress:          zigbee.NetworkAddress(0x2000),
-			Status:                 1,
-			OfInterestAddress:      zigbee.NetworkAddress(0x4000),
-			LogicalTypeDescriptor:  0x01,
-			APSFlagsFrequency:      0x02,
-			MacCapabilitiesFlags:   0x03,
-			ManufacturerCode:       0x0405,
-			MaxBufferSize:          0x06,
-			MaxInTransferSize:      0x0708,
-			ServerMask:             0x090a,
+			SourceAddress:     zigbee.NetworkAddress(0x2000),
+			Status:            1,
+			OfInterestAddress: zigbee.NetworkAddress(0x4000),
+			Capabilities: ZdoNodeDescRspCapabilities{
+				LogicalType: zigbee.Router,
+			},
+			NodeFrequencyBand:    0x00,
+			APSFlags:             0x02,
+			MacCapabilitiesFlags: 0x03,
+			ManufacturerCode:     0x0405,
+			MaxBufferSize:        0x06,
+			MaxInTransferSize:    0x0708,
+			ServerMask: ZdoNodeDescRspServerMask{
+				Reserved0:                0,
+				Reserved1:                0,
+				BackupDiscoveryCache:     false,
+				PrimaryDiscoveryCache:    false,
+				BackupBindingTableCache:  false,
+				PrimaryBindingTableCache: false,
+				BackupTrustCenter:        true,
+				PrimaryTrustCenter:       false,
+			},
 			MaxOutTransferSize:     0x0b0c,
 			DescriptorCapabilities: 0x0d,
 		}
@@ -103,7 +115,7 @@ func Test_NodeDescriptionMessages(t *testing.T) {
 		data, err := bytecodec.Marshal(req)
 
 		assert.NoError(t, err)
-		assert.Equal(t, []byte{0x00, 0x20, 0x01, 0x00, 0x40, 0x01, 0x02, 0x03, 0x05, 0x04, 0x06, 0x08, 0x07, 0x0a, 0x09, 0x0c, 0x0b, 0x0d}, data)
+		assert.Equal(t, []byte{0x00, 0x20, 0x01, 0x00, 0x40, 0x01, 0x02, 0x03, 0x05, 0x04, 0x06, 0x08, 0x07, 0x00, 0x02, 0x0c, 0x0b, 0x0d}, data)
 	})
 
 	t.Run("ZdoNodeDescRsp returns true if success", func(t *testing.T) {

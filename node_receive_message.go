@@ -31,8 +31,8 @@ func (z *ZStack) startMessageReceiver() {
 				SourceNetworkAddress: msg.SourceAddress,
 				SourceEndpoint:       msg.SourceEndpoint,
 				DestinationEndpoint:  msg.DestinationEndpoint,
-				Broadcast:            msg.WasBroadcast != 0,
-				Secure:               msg.SecurityUse != 0,
+				Broadcast:            msg.WasBroadcast,
+				Secure:               msg.SecurityUse,
 				LinkQuality:          msg.LinkQuality,
 				Sequence:             msg.Sequence,
 				Data:                 msg.Data,
@@ -55,9 +55,9 @@ type AfIncomingMsg struct {
 	SourceAddress       zigbee.NetworkAddress
 	SourceEndpoint      zigbee.Endpoint
 	DestinationEndpoint zigbee.Endpoint
-	WasBroadcast        uint8
+	WasBroadcast        bool
 	LinkQuality         uint8
-	SecurityUse         uint8
+	SecurityUse         bool
 	TimeStamp           uint32
 	Sequence            uint8
 	Data                []byte `bcsliceprefix:"8"`

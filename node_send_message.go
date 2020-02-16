@@ -30,7 +30,7 @@ func (z *ZStack) SendNodeMessage(ctx context.Context, destinationAddress zigbee.
 		SourceEndpoint:      sourceEndpoint,
 		ClusterID:           cluster,
 		TransactionID:       transactionId,
-		Options:             0x10, //AF_ACK_REQUEST
+		Options:             AfDataRequestOptions{ACKRequest: true},
 		Radius:              DefaultRadius,
 		Data:                data,
 	}
@@ -43,13 +43,21 @@ func (z *ZStack) SendNodeMessage(ctx context.Context, destinationAddress zigbee.
 	return err
 }
 
+type AfDataRequestOptions struct {
+	Reserved0      uint8 `bcfieldwidth:"1"`
+	EnableSecurity bool  `bcfieldwidth:"1"`
+	DiscoveryRoute bool  `bcfieldwidth:"1"`
+	ACKRequest     bool  `bcfieldwidth:"1"`
+	Reserved1      uint8 `bcfieldwidth:"4"`
+}
+
 type AfDataRequest struct {
 	DestinationAddress  zigbee.NetworkAddress
 	DestinationEndpoint zigbee.Endpoint
 	SourceEndpoint      zigbee.Endpoint
 	ClusterID           zigbee.ClusterID
 	TransactionID       uint8
-	Options             uint8
+	Options             AfDataRequestOptions
 	Radius              uint8
 	Data                []byte `bcsliceprefix:"8"`
 }
