@@ -58,7 +58,7 @@ func (z *ZStack) networkManager() {
 			case ZdoEndDeviceAnnceInd:
 				logicalType := zigbee.EndDevice
 
-				if e.Capabilities&0x02 == 0x02 {
+				if e.Capabilities.Router {
 					logicalType = zigbee.Router
 				}
 

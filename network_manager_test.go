@@ -162,7 +162,15 @@ func Test_NetworkManager(t *testing.T) {
 			SourceAddress:  zigbee.NetworkAddress(0x1000),
 			NetworkAddress: zigbee.NetworkAddress(0x2000),
 			IEEEAddress:    zigbee.IEEEAddress(0x0102030405060708),
-			Capabilities:   0b00000010,
+			Capabilities: ZdoEndDeviceAnnceIndCapabilities{
+				AltPANController:   false,
+				Router:             true,
+				PowerSource:        false,
+				ReceiveOnIdle:      false,
+				Reserved:           false,
+				SecurityCapability: false,
+				AddressAllocated:   false,
+			},
 		}
 
 		data, _ := bytecodec.Marshal(announce)
@@ -268,7 +276,15 @@ func Test_NetworkManager(t *testing.T) {
 			SourceAddress:  zigbee.NetworkAddress(0x1000),
 			NetworkAddress: zigbee.NetworkAddress(0x2000),
 			IEEEAddress:    zigbee.IEEEAddress(0x0102030405060708),
-			Capabilities:   0b00000010,
+			Capabilities:   ZdoEndDeviceAnnceIndCapabilities{
+				AltPANController:   false,
+				Router:             true,
+				PowerSource:        false,
+				ReceiveOnIdle:      false,
+				Reserved:           false,
+				SecurityCapability: false,
+				AddressAllocated:   false,
+			},
 		}
 
 		data, _ := bytecodec.Marshal(announce)
