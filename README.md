@@ -39,6 +39,8 @@ import "github.com/shimmeringbee/zstack"
 
 ## Usage
 
+**This libraries API is unstable and should not yet be relied upon.**
+
 ### Open Serial Connection and Start ZStack
 
 ```go
