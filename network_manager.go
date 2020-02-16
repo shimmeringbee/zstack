@@ -136,12 +136,9 @@ func (z *ZStack) processLQITable(lqi ZdoMGMTLQIRsp) {
 			continue
 		}
 
-		logicalType := zigbee.LogicalType(neighbour.Status & 0x03)
-		relationship := zigbee.Relationship((neighbour.Status >> 4) & 0x07)
+		z.nodeTable.AddOrUpdate(neighbour.IEEEAddress, neighbour.NetworkAddress, LogicalType(neighbour.Status.DeviceType), UpdateDiscovered)
 
-		z.nodeTable.AddOrUpdate(neighbour.IEEEAddress, neighbour.NetworkAddress, LogicalType(logicalType), UpdateDiscovered)
-
-		if relationship == zigbee.RelationshipChild {
+		if neighbour.Status.Relationship == zigbee.RelationshipChild {
 			z.nodeTable.Update(neighbour.IEEEAddress, LQI(neighbour.LQI), Depth(neighbour.Depth))
 		}
 	}
@@ -189,12 +186,19 @@ type ZdoMGMTLQIReqReply GenericZStackStatus
 
 const ZdoMGMTLQIReqReplyID uint8 = 0x31
 
+type ZdoMGMTLQINeighbourStatus struct {
+	Reserved     uint8               `bcfieldwidth:"1"`
+	Relationship zigbee.Relationship `bcfieldwidth:"3"`
+	RxOnWhenIdle uint8               `bcfieldwidth:"2"`
+	DeviceType   zigbee.LogicalType  `bcfieldwidth:"2"`
+}
+
 type ZdoMGMTLQINeighbour struct {
 	ExtendedPANID  zigbee.ExtendedPANID
 	IEEEAddress    zigbee.IEEEAddress
 	NetworkAddress zigbee.NetworkAddress
-	Status         uint8
-	PermitJoining  uint8
+	Status         ZdoMGMTLQINeighbourStatus
+	PermitJoining  bool
 	Depth          uint8
 	LQI            uint8
 }
