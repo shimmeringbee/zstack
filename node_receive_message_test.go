@@ -42,7 +42,7 @@ func Test_ReceiveMessage(t *testing.T) {
 				Data:                []byte{0x01, 0x02},
 			}
 
-			data, _ := bytecodec.Marshall(&msg)
+			data, _ := bytecodec.Marshal(&msg)
 
 			unpiMock.InjectOutgoing(Frame{
 				MessageType: AREQ,
@@ -103,7 +103,7 @@ func Test_IncomingMessage(t *testing.T) {
 			Data:                []byte{0x00, 0x01, 0x02},
 		}
 
-		data, err := bytecodec.Marshall(req)
+		data, err := bytecodec.Marshal(req)
 
 		assert.NoError(t, err)
 		assert.Equal(t, []byte{0x02, 0x01, 0x04, 0x03, 0x06, 0x05, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x13, 0x12, 0x11, 0x10, 0x0d, 0x03, 0x00, 0x01, 0x02}, data)

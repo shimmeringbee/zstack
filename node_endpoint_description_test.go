@@ -62,7 +62,7 @@ func Test_EndpointDescriptionMessages(t *testing.T) {
 			Endpoint:           0x08,
 		}
 
-		data, err := bytecodec.Marshall(req)
+		data, err := bytecodec.Marshal(req)
 
 		assert.NoError(t, err)
 		assert.Equal(t, []byte{0x00, 0x20, 0x00, 0x40, 0x08}, data)
@@ -73,7 +73,7 @@ func Test_EndpointDescriptionMessages(t *testing.T) {
 			Status: 1,
 		}
 
-		data, err := bytecodec.Marshall(req)
+		data, err := bytecodec.Marshal(req)
 
 		assert.NoError(t, err)
 		assert.Equal(t, []byte{0x01}, data)
@@ -103,7 +103,7 @@ func Test_EndpointDescriptionMessages(t *testing.T) {
 			OutClusterList:    []zigbee.ClusterID{0x5678},
 		}
 
-		data, err := bytecodec.Marshall(req)
+		data, err := bytecodec.Marshal(req)
 
 		assert.NoError(t, err)
 		assert.Equal(t, []byte{0x00, 0x20, 0x01, 0x00, 0x40, 0x0a, 0x08, 0x34, 0x12, 0x78, 0x56, 0x00, 0x01, 0x34, 0x12, 0x01, 0x78, 0x56}, data)

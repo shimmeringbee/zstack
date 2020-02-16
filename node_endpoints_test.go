@@ -54,7 +54,7 @@ func Test_ActiveEndpointMessages(t *testing.T) {
 			OfInterestAddress:  zigbee.NetworkAddress(0x4000),
 		}
 
-		data, err := bytecodec.Marshall(req)
+		data, err := bytecodec.Marshal(req)
 
 		assert.NoError(t, err)
 		assert.Equal(t, []byte{0x00, 0x20, 0x00, 0x40}, data)
@@ -65,7 +65,7 @@ func Test_ActiveEndpointMessages(t *testing.T) {
 			Status: 1,
 		}
 
-		data, err := bytecodec.Marshall(req)
+		data, err := bytecodec.Marshal(req)
 
 		assert.NoError(t, err)
 		assert.Equal(t, []byte{0x01}, data)
@@ -89,7 +89,7 @@ func Test_ActiveEndpointMessages(t *testing.T) {
 			ActiveEndpoints:   []zigbee.Endpoint{0x01, 0x02, 0x03},
 		}
 
-		data, err := bytecodec.Marshall(req)
+		data, err := bytecodec.Marshal(req)
 
 		assert.NoError(t, err)
 		assert.Equal(t, []byte{0x00, 0x20, 0x01, 0x00, 0x40, 0x03, 0x01, 0x02, 0x03}, data)

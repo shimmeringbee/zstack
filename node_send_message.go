@@ -51,7 +51,7 @@ type AfDataRequest struct {
 	TransactionID       uint8
 	Options             uint8
 	Radius              uint8
-	Data                []byte `bclength:"8"`
+	Data                []byte `bcsliceprefix:"8"`
 }
 
 const AfDataRequestID uint8 = 0x01

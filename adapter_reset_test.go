@@ -14,7 +14,7 @@ func Test_resetMessages(t *testing.T) {
 	t.Run("verify SysResetReq marshals", func(t *testing.T) {
 		req := SysResetReq{ResetType: Soft}
 
-		data, err := bytecodec.Marshall(req)
+		data, err := bytecodec.Marshal(req)
 
 		assert.NoError(t, err)
 		assert.Equal(t, []byte{0x01}, data)
@@ -30,7 +30,7 @@ func Test_resetMessages(t *testing.T) {
 			HardwareRevision:  1,
 		}
 
-		data, err := bytecodec.Marshall(req)
+		data, err := bytecodec.Marshal(req)
 
 		assert.NoError(t, err)
 		assert.Equal(t, []byte{0x01, 0x02, 0x01, 0x02, 0x04, 0x01}, data)

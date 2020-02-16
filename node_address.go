@@ -88,7 +88,7 @@ type ZdoIEEEAddrRsp struct {
 	IEEEAddress       zigbee.IEEEAddress
 	NetworkAddress    zigbee.NetworkAddress
 	StartIndex        uint8
-	AssociatedDevices []zigbee.NetworkAddress `bclength:"8"`
+	AssociatedDevices []zigbee.NetworkAddress `bcsliceprefix:"8"`
 }
 
 func (s ZdoIEEEAddrRsp) WasSuccessful() bool {
@@ -118,7 +118,7 @@ type ZdoNWKAddrRsp struct {
 	IEEEAddress       zigbee.IEEEAddress
 	NetworkAddress    zigbee.NetworkAddress
 	StartIndex        uint8
-	AssociatedDevices []zigbee.NetworkAddress `bclength:"8"`
+	AssociatedDevices []zigbee.NetworkAddress `bcsliceprefix:"8"`
 }
 
 func (s ZdoNWKAddrRsp) WasSuccessful() bool {

@@ -165,7 +165,7 @@ func Test_NetworkManager(t *testing.T) {
 			Capabilities:   0b00000010,
 		}
 
-		data, _ := bytecodec.Marshall(announce)
+		data, _ := bytecodec.Marshal(announce)
 
 		unpiMock.InjectOutgoing(Frame{
 			MessageType: AREQ,
@@ -221,7 +221,7 @@ func Test_NetworkManager(t *testing.T) {
 
 		zstack.nodeTable.AddOrUpdate(zigbee.IEEEAddress(0x0102030405060708), zigbee.NetworkAddress(0x2000))
 
-		data, _ := bytecodec.Marshall(announce)
+		data, _ := bytecodec.Marshal(announce)
 
 		time.Sleep(10 * time.Millisecond)
 
@@ -271,7 +271,7 @@ func Test_NetworkManager(t *testing.T) {
 			Capabilities:   0b00000010,
 		}
 
-		data, _ := bytecodec.Marshall(announce)
+		data, _ := bytecodec.Marshal(announce)
 
 		unpiMock.InjectOutgoing(Frame{
 			MessageType: AREQ,
@@ -287,7 +287,7 @@ func Test_NetworkManager(t *testing.T) {
 		frame := c.CapturedCalls[1]
 
 		lqiReq := ZdoMGMTLQIReq{}
-		_ = bytecodec.Unmarshall(frame.Frame.Payload, &lqiReq)
+		_ = bytecodec.Unmarshal(frame.Frame.Payload, &lqiReq)
 
 		assert.Equal(t, zigbee.NetworkAddress(0x2000), lqiReq.DestinationAddress)
 	})
@@ -328,7 +328,7 @@ func Test_NetworkManager(t *testing.T) {
 			},
 		}
 
-		data, _ := bytecodec.Marshall(announce)
+		data, _ := bytecodec.Marshal(announce)
 
 		unpiMock.InjectOutgoing(Frame{
 			MessageType: AREQ,
@@ -384,7 +384,7 @@ func Test_NetworkManager(t *testing.T) {
 			},
 		}
 
-		data, _ := bytecodec.Marshall(announce)
+		data, _ := bytecodec.Marshal(announce)
 
 		unpiMock.InjectOutgoing(Frame{
 			MessageType: AREQ,
@@ -437,7 +437,7 @@ func Test_NetworkManager(t *testing.T) {
 			},
 		}
 
-		data, _ := bytecodec.Marshall(announce)
+		data, _ := bytecodec.Marshal(announce)
 
 		unpiMock.InjectOutgoing(Frame{
 			MessageType: AREQ,

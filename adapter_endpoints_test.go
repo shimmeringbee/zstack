@@ -72,7 +72,7 @@ func Test_EndpointRegisterMessages(t *testing.T) {
 			AppOutClusters:   []zigbee.ClusterID{0x20},
 		}
 
-		data, err := bytecodec.Marshall(req)
+		data, err := bytecodec.Marshal(req)
 
 		assert.NoError(t, err)
 		assert.Equal(t, []byte{0x01, 0x02, 0x00, 0x03, 0x00, 0x04, 0x05, 0x01, 0x10, 0x00, 0x01, 0x20, 0x00}, data)
@@ -83,7 +83,7 @@ func Test_EndpointRegisterMessages(t *testing.T) {
 			Status: 1,
 		}
 
-		data, err := bytecodec.Marshall(req)
+		data, err := bytecodec.Marshal(req)
 
 		assert.NoError(t, err)
 		assert.Equal(t, []byte{0x01}, data)

@@ -35,8 +35,8 @@ type AFRegister struct {
 	AppDeviceId      uint16
 	AppDeviceVersion uint8
 	LatencyReq       uint8
-	AppInClusters    []zigbee.ClusterID `bclength:"8"`
-	AppOutClusters   []zigbee.ClusterID `bclength:"8"`
+	AppInClusters    []zigbee.ClusterID `bcsliceprefix:"8"`
+	AppOutClusters   []zigbee.ClusterID `bcsliceprefix:"8"`
 }
 
 const AFRegisterID uint8 = 0x00

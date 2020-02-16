@@ -64,8 +64,8 @@ type ZdoSimpleDescRsp struct {
 	ProfileID         zigbee.ProfileID
 	DeviceID          uint16
 	DeviceVersion     uint8
-	InClusterList     []zigbee.ClusterID `bclength:"8"`
-	OutClusterList    []zigbee.ClusterID `bclength:"8"`
+	InClusterList     []zigbee.ClusterID `bcsliceprefix:"8"`
+	OutClusterList    []zigbee.ClusterID `bcsliceprefix:"8"`
 }
 
 func (r ZdoSimpleDescRsp) WasSuccessful() bool {

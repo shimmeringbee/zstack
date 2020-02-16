@@ -57,7 +57,7 @@ func Test_NodeDescriptionMessages(t *testing.T) {
 			OfInterestAddress:  zigbee.NetworkAddress(0x4000),
 		}
 
-		data, err := bytecodec.Marshall(req)
+		data, err := bytecodec.Marshal(req)
 
 		assert.NoError(t, err)
 		assert.Equal(t, []byte{0x00, 0x20, 0x00, 0x40}, data)
@@ -68,7 +68,7 @@ func Test_NodeDescriptionMessages(t *testing.T) {
 			Status: 1,
 		}
 
-		data, err := bytecodec.Marshall(req)
+		data, err := bytecodec.Marshal(req)
 
 		assert.NoError(t, err)
 		assert.Equal(t, []byte{0x01}, data)
@@ -100,7 +100,7 @@ func Test_NodeDescriptionMessages(t *testing.T) {
 			DescriptorCapabilities: 0x0d,
 		}
 
-		data, err := bytecodec.Marshall(req)
+		data, err := bytecodec.Marshal(req)
 
 		assert.NoError(t, err)
 		assert.Equal(t, []byte{0x00, 0x20, 0x01, 0x00, 0x40, 0x01, 0x02, 0x03, 0x05, 0x04, 0x06, 0x08, 0x07, 0x0a, 0x09, 0x0c, 0x0b, 0x0d}, data)

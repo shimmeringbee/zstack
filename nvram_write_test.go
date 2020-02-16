@@ -100,7 +100,7 @@ func Test_NVRAMStructs(t *testing.T) {
 			StartOption: 3,
 		}
 
-		actualBytes, err := bytecodec.Marshall(s)
+		actualBytes, err := bytecodec.Marshal(s)
 
 		expectedBytes := []byte{0x03}
 
@@ -113,7 +113,7 @@ func Test_NVRAMStructs(t *testing.T) {
 			LogicalType: zigbee.Router,
 		}
 
-		actualBytes, err := bytecodec.Marshall(s)
+		actualBytes, err := bytecodec.Marshal(s)
 
 		expectedBytes := []byte{0x01}
 
@@ -126,7 +126,7 @@ func Test_NVRAMStructs(t *testing.T) {
 			Enabled: 1,
 		}
 
-		actualBytes, err := bytecodec.Marshall(s)
+		actualBytes, err := bytecodec.Marshal(s)
 
 		expectedBytes := []byte{0x01}
 
@@ -139,7 +139,7 @@ func Test_NVRAMStructs(t *testing.T) {
 			Enabled: 1,
 		}
 
-		actualBytes, err := bytecodec.Marshall(s)
+		actualBytes, err := bytecodec.Marshal(s)
 
 		expectedBytes := []byte{0x01}
 
@@ -152,7 +152,7 @@ func Test_NVRAMStructs(t *testing.T) {
 			NetworkKey: [16]byte{0x00, 0x01, 0x02, 0x03, 0x00, 0x01, 0x02, 0x03, 0x00, 0x01, 0x02, 0x03, 0x00, 0x01, 0x02, 0x03},
 		}
 
-		actualBytes, err := bytecodec.Marshall(s)
+		actualBytes, err := bytecodec.Marshal(s)
 
 		expectedBytes := []byte{0x00, 0x01, 0x02, 0x03, 0x00, 0x01, 0x02, 0x03, 0x00, 0x01, 0x02, 0x03, 0x00, 0x01, 0x02, 0x03}
 
@@ -165,7 +165,7 @@ func Test_NVRAMStructs(t *testing.T) {
 			Enabled: 1,
 		}
 
-		actualBytes, err := bytecodec.Marshall(s)
+		actualBytes, err := bytecodec.Marshal(s)
 
 		expectedBytes := []byte{0x01}
 
@@ -178,7 +178,7 @@ func Test_NVRAMStructs(t *testing.T) {
 			Channels: [4]byte{0x00, 0x00, 0x00, 0x03},
 		}
 
-		actualBytes, err := bytecodec.Marshall(s)
+		actualBytes, err := bytecodec.Marshal(s)
 
 		expectedBytes := []byte{0x00, 0x00, 0x00, 0x03}
 
@@ -191,7 +191,7 @@ func Test_NVRAMStructs(t *testing.T) {
 			PANID: zigbee.PANID(0x0102),
 		}
 
-		actualBytes, err := bytecodec.Marshall(s)
+		actualBytes, err := bytecodec.Marshal(s)
 
 		expectedBytes := []byte{0x02, 0x01}
 
@@ -204,7 +204,7 @@ func Test_NVRAMStructs(t *testing.T) {
 			ExtendedPANID: zigbee.ExtendedPANID(0x0102030405060708),
 		}
 
-		actualBytes, err := bytecodec.Marshall(s)
+		actualBytes, err := bytecodec.Marshal(s)
 
 		expectedBytes := []byte{0x08, 0x07, 0x06, 0x05, 0x04, 0x03, 0x02, 0x01}
 
@@ -217,7 +217,7 @@ func Test_NVRAMStructs(t *testing.T) {
 			Enabled: 1,
 		}
 
-		actualBytes, err := bytecodec.Marshall(s)
+		actualBytes, err := bytecodec.Marshal(s)
 
 		expectedBytes := []byte{0x01}
 
@@ -233,7 +233,7 @@ func Test_NVRAMStructs(t *testing.T) {
 			RXFrameCounter: 654321,
 		}
 
-		actualBytes, err := bytecodec.Marshall(s)
+		actualBytes, err := bytecodec.Marshal(s)
 
 		expectedBytes := []byte{0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x0, 0x1, 0x2, 0x3, 0x0, 0x1, 0x2, 0x3, 0x0, 0x1, 0x2, 0x3, 0x0, 0x1, 0x2, 0x3, 0x40, 0xe2, 0x1, 0x0, 0xf1, 0xfb, 0x9, 0x0}
 

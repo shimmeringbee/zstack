@@ -43,7 +43,7 @@ func Test_BindToNode(t *testing.T) {
 		assert.NoError(t, err)
 
 		bindReq := ZdoBindReq{}
-		bytecodec.Unmarshall(call.CapturedCalls[0].Frame.Payload, &bindReq)
+		bytecodec.Unmarshal(call.CapturedCalls[0].Frame.Payload, &bindReq)
 
 		assert.Equal(t, zigbee.NetworkAddress(0x4000), bindReq.TargetAddress)
 		assert.Equal(t, zigbee.IEEEAddress(1), bindReq.SourceAddress)
@@ -69,7 +69,7 @@ func Test_BindMessages(t *testing.T) {
 			DestinationEndpoint:    0x02,
 		}
 
-		data, err := bytecodec.Marshall(req)
+		data, err := bytecodec.Marshal(req)
 
 		assert.NoError(t, err)
 		assert.Equal(t, []byte{0x21, 0x20, 0xff, 0xee, 0xdd, 0xcc, 0xbb, 0xaa, 0x99, 0x88, 0x01, 0xfe, 0xca, 0x01, 0xfe, 0x3f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02}, data)
@@ -80,7 +80,7 @@ func Test_BindMessages(t *testing.T) {
 			Status: 1,
 		}
 
-		data, err := bytecodec.Marshall(req)
+		data, err := bytecodec.Marshal(req)
 
 		assert.NoError(t, err)
 		assert.Equal(t, []byte{0x01}, data)
@@ -102,7 +102,7 @@ func Test_BindMessages(t *testing.T) {
 			Status:        1,
 		}
 
-		data, err := bytecodec.Marshall(req)
+		data, err := bytecodec.Marshal(req)
 
 		assert.NoError(t, err)
 		assert.Equal(t, []byte{0x00, 0x20, 0x01}, data)

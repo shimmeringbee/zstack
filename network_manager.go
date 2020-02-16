@@ -204,7 +204,7 @@ type ZdoMGMTLQIRsp struct {
 	Status                ZStackStatus
 	NeighbourTableEntries uint8
 	StartIndex            uint8
-	Neighbors             []ZdoMGMTLQINeighbour `bclength:"8"`
+	Neighbors             []ZdoMGMTLQINeighbour `bcsliceprefix:"8"`
 }
 
 const ZdoMGMTLQIRspID uint8 = 0xb1

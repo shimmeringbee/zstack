@@ -63,7 +63,7 @@ func Test_SendMessages(t *testing.T) {
 			Data:                []byte{0x0a, 0x0b},
 		}
 
-		data, err := bytecodec.Marshall(req)
+		data, err := bytecodec.Marshal(req)
 
 		assert.NoError(t, err)
 		assert.Equal(t, []byte{0x02, 0x01, 0x03, 0x04, 0x06, 0x05, 0x07, 0x08, 0x09, 0x02, 0x0a, 0x0b}, data)
@@ -74,7 +74,7 @@ func Test_SendMessages(t *testing.T) {
 			Status: 1,
 		}
 
-		data, err := bytecodec.Marshall(req)
+		data, err := bytecodec.Marshal(req)
 
 		assert.NoError(t, err)
 		assert.Equal(t, []byte{0x01}, data)
@@ -97,7 +97,7 @@ func Test_SendMessages(t *testing.T) {
 			TransactionID: 0x03,
 		}
 
-		data, err := bytecodec.Marshall(req)
+		data, err := bytecodec.Marshal(req)
 
 		assert.NoError(t, err)
 		assert.Equal(t, []byte{0x01, 0x02, 0x03}, data)

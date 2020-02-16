@@ -60,7 +60,7 @@ type AfIncomingMsg struct {
 	SecurityUse         uint8
 	TimeStamp           uint32
 	Sequence            uint8
-	Data                []byte `bclength:"8"`
+	Data                []byte `bcsliceprefix:"8"`
 }
 
 const AfIncomingMsgID uint8 = 0x81

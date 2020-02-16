@@ -19,7 +19,7 @@ func (z *ZStack) writeNVRAM(ctx context.Context, v interface{}) error {
 		return NVRAMUnrecognised
 	}
 
-	configValue, err := bytecodec.Marshall(v)
+	configValue, err := bytecodec.Marshal(v)
 	if err != nil {
 		return err
 	}
@@ -46,7 +46,7 @@ func (z *ZStack) writeNVRAM(ctx context.Context, v interface{}) error {
 type SysOSALNVWrite struct {
 	NVItemID uint16
 	Offset   uint8
-	Value    []byte `bclength:"8"`
+	Value    []byte `bcsliceprefix:"8"`
 }
 
 const SysOSALNVWriteID uint8 = 0x09

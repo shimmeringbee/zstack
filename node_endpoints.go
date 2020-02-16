@@ -50,7 +50,7 @@ type ZdoActiveEpRsp struct {
 	SourceAddress     zigbee.NetworkAddress
 	Status            ZStackStatus
 	OfInterestAddress zigbee.NetworkAddress
-	ActiveEndpoints   []zigbee.Endpoint `bclength:"8"`
+	ActiveEndpoints   []zigbee.Endpoint `bcsliceprefix:"8"`
 }
 
 func (r ZdoActiveEpRsp) WasSuccessful() bool {

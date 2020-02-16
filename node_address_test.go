@@ -59,7 +59,7 @@ func Test_ResolveNodeIEEEAddress(t *testing.T) {
 		assert.Equal(t, zigbee.IEEEAddress(0x1122334455667788), ieee)
 
 		addressReq := ZdoIEEEAddrReq{}
-		bytecodec.Unmarshall(call.CapturedCalls[0].Frame.Payload, &addressReq)
+		bytecodec.Unmarshal(call.CapturedCalls[0].Frame.Payload, &addressReq)
 
 		assert.Equal(t, zigbee.NetworkAddress(0x4000), addressReq.NetworkAddress)
 		assert.Equal(t, uint8(0), addressReq.ReqType)
@@ -99,7 +99,7 @@ func Test_QueryNodeIEEEAddress(t *testing.T) {
 		assert.Equal(t, zigbee.IEEEAddress(0x1122334455667788), ieee)
 
 		addressReq := ZdoIEEEAddrReq{}
-		bytecodec.Unmarshall(call.CapturedCalls[0].Frame.Payload, &addressReq)
+		bytecodec.Unmarshal(call.CapturedCalls[0].Frame.Payload, &addressReq)
 
 		assert.Equal(t, zigbee.NetworkAddress(0x4000), addressReq.NetworkAddress)
 		assert.Equal(t, uint8(0), addressReq.ReqType)
@@ -155,7 +155,7 @@ func Test_ResolveNodeNWKAddress(t *testing.T) {
 		assert.Equal(t, zigbee.NetworkAddress(0x4000), NWK)
 
 		addressReq := ZdoNWKAddrReq{}
-		bytecodec.Unmarshall(call.CapturedCalls[0].Frame.Payload, &addressReq)
+		bytecodec.Unmarshal(call.CapturedCalls[0].Frame.Payload, &addressReq)
 
 		assert.Equal(t, zigbee.IEEEAddress(0x1122334455667788), addressReq.IEEEAddress)
 		assert.Equal(t, uint8(0), addressReq.ReqType)
@@ -195,7 +195,7 @@ func Test_QueryNodeNWKAddress(t *testing.T) {
 		assert.Equal(t, zigbee.NetworkAddress(0x4000), ieee)
 
 		addressReq := ZdoNWKAddrReq{}
-		bytecodec.Unmarshall(call.CapturedCalls[0].Frame.Payload, &addressReq)
+		bytecodec.Unmarshal(call.CapturedCalls[0].Frame.Payload, &addressReq)
 
 		assert.Equal(t, zigbee.IEEEAddress(0x1122334455667788), addressReq.IEEEAddress)
 		assert.Equal(t, uint8(0), addressReq.ReqType)
@@ -211,7 +211,7 @@ func Test_IEEEMessages(t *testing.T) {
 			StartIndex:     0x02,
 		}
 
-		data, err := bytecodec.Marshall(req)
+		data, err := bytecodec.Marshal(req)
 
 		assert.NoError(t, err)
 		assert.Equal(t, []byte{0x40, 0x20, 0x01, 0x02}, data)
@@ -222,7 +222,7 @@ func Test_IEEEMessages(t *testing.T) {
 			Status: 1,
 		}
 
-		data, err := bytecodec.Marshall(req)
+		data, err := bytecodec.Marshal(req)
 
 		assert.NoError(t, err)
 		assert.Equal(t, []byte{0x01}, data)
@@ -247,7 +247,7 @@ func Test_IEEEMessages(t *testing.T) {
 			AssociatedDevices: []zigbee.NetworkAddress{0x2002, 0x3003},
 		}
 
-		data, err := bytecodec.Marshall(req)
+		data, err := bytecodec.Marshal(req)
 
 		assert.NoError(t, err)
 		assert.Equal(t, []byte{0x01, 0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11, 0xbb, 0xaa, 0x02, 0x02, 0x02, 0x20, 0x03, 0x30}, data)
@@ -272,7 +272,7 @@ func Test_NWKMessages(t *testing.T) {
 			StartIndex:  0x02,
 		}
 
-		data, err := bytecodec.Marshall(req)
+		data, err := bytecodec.Marshal(req)
 
 		assert.NoError(t, err)
 		assert.Equal(t, []byte{0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11, 0x01, 0x02}, data)
@@ -283,7 +283,7 @@ func Test_NWKMessages(t *testing.T) {
 			Status: 1,
 		}
 
-		data, err := bytecodec.Marshall(req)
+		data, err := bytecodec.Marshal(req)
 
 		assert.NoError(t, err)
 		assert.Equal(t, []byte{0x01}, data)
@@ -308,7 +308,7 @@ func Test_NWKMessages(t *testing.T) {
 			AssociatedDevices: []zigbee.NetworkAddress{0x2002, 0x3003},
 		}
 
-		data, err := bytecodec.Marshall(req)
+		data, err := bytecodec.Marshal(req)
 
 		assert.NoError(t, err)
 		assert.Equal(t, []byte{0x01, 0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11, 0xbb, 0xaa, 0x02, 0x02, 0x02, 0x20, 0x03, 0x30}, data)

@@ -21,7 +21,7 @@ func Test_Initialise(t *testing.T) {
 		defer unpiMock.Stop()
 		defer zstack.Stop()
 
-		resetResponse, _ := bytecodec.Marshall(SysResetInd{
+		resetResponse, _ := bytecodec.Marshal(SysResetInd{
 			Reason:            External,
 			TransportRevision: 2,
 			ProductID:         1,
@@ -37,7 +37,7 @@ func Test_Initialise(t *testing.T) {
 			Payload:     resetResponse,
 		}).Times(3)
 
-		nvramWriteResponse, _ := bytecodec.Marshall(SysOSALNVWriteReply{Status: ZSuccess})
+		nvramWriteResponse, _ := bytecodec.Marshal(SysOSALNVWriteReply{Status: ZSuccess})
 		nvramOn := unpiMock.On(SREQ, SYS, SysOSALNVWriteID).Return(Frame{
 			MessageType: SRSP,
 			Subsystem:   SYS,

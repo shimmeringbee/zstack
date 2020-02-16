@@ -3,8 +3,8 @@ module github.com/shimmeringbee/zstack
 go 1.13
 
 require (
-	github.com/shimmeringbee/bytecodec v0.0.0-20191116111328-f873abddc0ca
-	github.com/shimmeringbee/unpi v0.0.0-20200209172841-6ee838464159
-	github.com/shimmeringbee/zigbee v0.0.0-20200213194816-a6f034460c08
+	github.com/shimmeringbee/bytecodec v0.0.0-20200216095833-c6062a8149ad
+	github.com/shimmeringbee/unpi v0.0.0-20200216100225-38152f35c281
+	github.com/shimmeringbee/zigbee v0.0.0-20200216095834-429ab31c8e3b
 	github.com/stretchr/testify v1.4.0
 )
