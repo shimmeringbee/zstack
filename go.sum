@@ -8,6 +8,10 @@ github.com/shimmeringbee/bytecodec v0.0.0-20200216095833-c6062a8149ad h1:QRvb9Lb
 github.com/shimmeringbee/bytecodec v0.0.0-20200216095833-c6062a8149ad/go.mod h1:J/gvzi9IgGBHP1cBn++bqJ4tchSbgS10N2lmGMlqD3M=
 github.com/shimmeringbee/bytecodec v0.0.0-20200216120857-49d677293817 h1:rxW12QzHtMYEZNTQ3/GxhquLP+H+t61Mbx0SCFtOLLs=
 github.com/shimmeringbee/bytecodec v0.0.0-20200216120857-49d677293817/go.mod h1:J/gvzi9IgGBHP1cBn++bqJ4tchSbgS10N2lmGMlqD3M=
+github.com/shimmeringbee/bytecodec v0.0.0-20200216212936-7922e9173e6c h1:jh8dAJ4UpojdBZiwZ2x/IqLmuTwX+AVJHWNrUCN/dgk=
+github.com/shimmeringbee/bytecodec v0.0.0-20200216212936-7922e9173e6c/go.mod h1:J/gvzi9IgGBHP1cBn++bqJ4tchSbgS10N2lmGMlqD3M=
+github.com/shimmeringbee/bytecodec v0.0.0-20200218212230-1bd87868c4ce h1:0nrkfOT1KU4WSs8b+2GXnAB+ggXFk3nl/qaSEIfCxME=
+github.com/shimmeringbee/bytecodec v0.0.0-20200218212230-1bd87868c4ce/go.mod h1:J/gvzi9IgGBHP1cBn++bqJ4tchSbgS10N2lmGMlqD3M=
 github.com/shimmeringbee/unpi v0.0.0-20200209172841-6ee838464159 h1:Wk573edZy7NXWWKlDvJgT7bZMsrd4bIk52FAnPC8Nq4=
 github.com/shimmeringbee/unpi v0.0.0-20200209172841-6ee838464159/go.mod h1:tCd6/CDw4VidtU3wJNxFJG3TH4VDuiQdRZp5AnX+dZc=
 github.com/shimmeringbee/unpi v0.0.0-20200216095835-c2b405679c9e h1:wxTjJFy+cXnQoD4k3pdcUM8r2+2T9SHGWJMjZR8Az5Q=
