@@ -155,7 +155,7 @@ All Shimmering Bee projects follow the [Contributor Covenant](https://shimmering
 
 ## License
 
-   Copyright 2019 Peter Wood
+   Copyright 2019-2020 Shimmering Bee Contributors
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
