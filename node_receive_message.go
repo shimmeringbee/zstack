@@ -26,16 +26,18 @@ func (z *ZStack) startMessageReceiver() {
 			Node: node,
 			IncomingMessage: zigbee.IncomingMessage{
 				GroupID:              msg.GroupID,
-				ClusterID:            msg.ClusterID,
 				SourceIEEEAddress:    ieee,
 				SourceNetworkAddress: msg.SourceAddress,
-				SourceEndpoint:       msg.SourceEndpoint,
-				DestinationEndpoint:  msg.DestinationEndpoint,
 				Broadcast:            msg.WasBroadcast,
 				Secure:               msg.SecurityUse,
 				LinkQuality:          msg.LinkQuality,
 				Sequence:             msg.Sequence,
-				Data:                 msg.Data,
+				ApplicationMessage: zigbee.ApplicationMessage{
+					ClusterID:           msg.ClusterID,
+					SourceEndpoint:      msg.SourceEndpoint,
+					DestinationEndpoint: msg.DestinationEndpoint,
+					Data:                msg.Data,
+				},
 			},
 		})
 

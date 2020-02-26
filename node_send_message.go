@@ -8,7 +8,7 @@ import (
 
 const DefaultRadius uint8 = 0x20
 
-func (z *ZStack) SendNodeMessage(ctx context.Context, destinationAddress zigbee.IEEEAddress, sourceEndpoint zigbee.Endpoint, destinationEndpoint zigbee.Endpoint, cluster zigbee.ClusterID, data []byte) error {
+func (z *ZStack) SendNodeMessageToNode(ctx context.Context, destinationAddress zigbee.IEEEAddress, message zigbee.ApplicationMessage) error {
 	network, err := z.ResolveNodeNWKAddress(ctx, destinationAddress)
 
 	if err != nil {
@@ -26,18 +26,18 @@ func (z *ZStack) SendNodeMessage(ctx context.Context, destinationAddress zigbee.
 
 	request := AfDataRequest{
 		DestinationAddress:  network,
-		DestinationEndpoint: destinationEndpoint,
-		SourceEndpoint:      sourceEndpoint,
-		ClusterID:           cluster,
+		DestinationEndpoint: message.DestinationEndpoint,
+		SourceEndpoint:      message.SourceEndpoint,
+		ClusterID:           message.ClusterID,
 		TransactionID:       transactionId,
 		Options:             AfDataRequestOptions{ACKRequest: true},
 		Radius:              DefaultRadius,
-		Data:                data,
+		Data:                message.Data,
 	}
 
 	_, err = z.nodeRequest(ctx, &request, &AfDataRequestReply{}, &AfDataConfirm{}, func(i interface{}) bool {
 		msg := i.(*AfDataConfirm)
-		return msg.TransactionID == transactionId && msg.Endpoint == destinationEndpoint
+		return msg.TransactionID == transactionId && msg.Endpoint == message.DestinationEndpoint
 	})
 
 	return err

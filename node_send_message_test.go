@@ -41,7 +41,14 @@ func Test_SendNodeMessage(t *testing.T) {
 			})
 		}()
 
-		err := zstack.SendNodeMessage(ctx, zigbee.IEEEAddress(0x1122334455667788), 0x03, 0x04, 0x2000, []byte{0x0a, 0x0b})
+		appMessage := zigbee.ApplicationMessage{
+			ClusterID:           0x2000,
+			SourceEndpoint:      0x03,
+			DestinationEndpoint: 0x04,
+			Data:                []byte{0x0a, 0x0b},
+		}
+
+		err := zstack.SendNodeMessageToNode(ctx, zigbee.IEEEAddress(0x1122334455667788), appMessage)
 		assert.NoError(t, err)
 
 		sentFrame := c.CapturedCalls[0].Frame
