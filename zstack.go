@@ -58,7 +58,7 @@ type NetworkProperties struct {
 }
 
 const DefaultZStackTimeout = 5 * time.Second
-const DefaultResolveIEEETimeout = 100 * time.Millisecond
+const DefaultResolveIEEETimeout = 500 * time.Millisecond
 const DefaultZStackRetries = 3
 const DefaultInflightEvents = 50
 const DefaultInflightTransactions = 20
