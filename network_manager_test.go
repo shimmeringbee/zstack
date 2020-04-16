@@ -276,7 +276,7 @@ func Test_NetworkManager(t *testing.T) {
 			SourceAddress:  zigbee.NetworkAddress(0x1000),
 			NetworkAddress: zigbee.NetworkAddress(0x2000),
 			IEEEAddress:    zigbee.IEEEAddress(0x0102030405060708),
-			Capabilities:   ZdoEndDeviceAnnceIndCapabilities{
+			Capabilities: ZdoEndDeviceAnnceIndCapabilities{
 				AltPANController:   false,
 				Router:             true,
 				PowerSource:        false,
@@ -342,9 +342,9 @@ func Test_NetworkManager(t *testing.T) {
 						RxOnWhenIdle: 0,
 						DeviceType:   zigbee.Router,
 					},
-					PermitJoining:  false,
-					Depth:          1,
-					LQI:            67,
+					PermitJoining: false,
+					Depth:         1,
+					LQI:           67,
 				},
 			},
 		}
@@ -403,9 +403,9 @@ func Test_NetworkManager(t *testing.T) {
 						RxOnWhenIdle: 0,
 						DeviceType:   zigbee.Router,
 					},
-					PermitJoining:  false,
-					Depth:          0,
-					LQI:            67,
+					PermitJoining: false,
+					Depth:         0,
+					LQI:           67,
 				},
 			},
 		}
@@ -461,9 +461,9 @@ func Test_NetworkManager(t *testing.T) {
 						RxOnWhenIdle: 0,
 						DeviceType:   zigbee.Router,
 					},
-					PermitJoining:  false,
-					Depth:          0,
-					LQI:            67,
+					PermitJoining: false,
+					Depth:         0,
+					LQI:           67,
 				},
 			},
 		}
@@ -484,7 +484,7 @@ func Test_NetworkManager(t *testing.T) {
 	})
 
 	t.Run("updates to the node table sends a node update event", func(t *testing.T) {
-		ctx, cancel := context.WithTimeout(context.Background(), 50 * time.Millisecond)
+		ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()

@@ -53,7 +53,7 @@ func Test_SendNodeMessage(t *testing.T) {
 
 		sentFrame := c.CapturedCalls[0].Frame
 
-		assert.Equal(t, []byte{ 0x00, 0x10, 0x04, 0x03, 0x00, 0x20, 0x00, 0x10, 0x20, 0x02, 0x0a, 0x0b}, sentFrame.Payload)
+		assert.Equal(t, []byte{0x00, 0x10, 0x04, 0x03, 0x00, 0x20, 0x00, 0x10, 0x20, 0x02, 0x0a, 0x0b}, sentFrame.Payload)
 	})
 }
 
@@ -65,13 +65,13 @@ func Test_SendMessages(t *testing.T) {
 			SourceEndpoint:      0x04,
 			ClusterID:           0x0506,
 			TransactionID:       0x07,
-			Options:             AfDataRequestOptions{
+			Options: AfDataRequestOptions{
 				EnableSecurity: true,
 				DiscoveryRoute: true,
 				ACKRequest:     true,
 			},
-			Radius:              0x09,
-			Data:                []byte{0x0a, 0x0b},
+			Radius: 0x09,
+			Data:   []byte{0x0a, 0x0b},
 		}
 
 		data, err := bytecodec.Marshal(req)
