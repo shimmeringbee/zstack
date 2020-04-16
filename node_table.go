@@ -2,6 +2,7 @@ package zstack
 
 import (
 	"github.com/shimmeringbee/zigbee"
+	"sync"
 	"time"
 )
 
@@ -9,6 +10,7 @@ type NodeTable struct {
 	callbacks     []func(zigbee.Node)
 	ieeeToNode    map[zigbee.IEEEAddress]*zigbee.Node
 	networkToIEEE map[zigbee.NetworkAddress]zigbee.IEEEAddress
+	lock          *sync.RWMutex
 }
 
 func NewNodeTable() *NodeTable {
@@ -16,6 +18,7 @@ func NewNodeTable() *NodeTable {
 		callbacks:     []func(zigbee.Node){},
 		ieeeToNode:    make(map[zigbee.IEEEAddress]*zigbee.Node),
 		networkToIEEE: make(map[zigbee.NetworkAddress]zigbee.IEEEAddress),
+		lock:          &sync.RWMutex{},
 	}
 }
 
@@ -24,6 +27,9 @@ func (t *NodeTable) RegisterCallback(cb func(zigbee.Node)) {
 }
 
 func (t *NodeTable) GetAllNodes() []zigbee.Node {
+	t.lock.RLock()
+	defer t.lock.RUnlock()
+
 	var nodes []zigbee.Node
 
 	for _, node := range t.ieeeToNode {
@@ -34,6 +40,9 @@ func (t *NodeTable) GetAllNodes() []zigbee.Node {
 }
 
 func (t *NodeTable) GetByIEEE(ieeeAddress zigbee.IEEEAddress) (zigbee.Node, bool) {
+	t.lock.RLock()
+	defer t.lock.RUnlock()
+
 	node, found := t.ieeeToNode[ieeeAddress]
 
 	if found {
@@ -44,7 +53,9 @@ func (t *NodeTable) GetByIEEE(ieeeAddress zigbee.IEEEAddress) (zigbee.Node, bool
 }
 
 func (t *NodeTable) GetByNetwork(networkAddress zigbee.NetworkAddress) (zigbee.Node, bool) {
+	t.lock.RLock()
 	ieee, found := t.networkToIEEE[networkAddress]
+	t.lock.RUnlock()
 
 	if !found {
 		return zigbee.Node{}, false
@@ -54,6 +65,7 @@ func (t *NodeTable) GetByNetwork(networkAddress zigbee.NetworkAddress) (zigbee.N
 }
 
 func (t *NodeTable) AddOrUpdate(ieeeAddress zigbee.IEEEAddress, networkAddress zigbee.NetworkAddress, updates ...NodeUpdate) {
+	t.lock.Lock()
 	node, found := t.ieeeToNode[ieeeAddress]
 
 	if found {
@@ -70,24 +82,32 @@ func (t *NodeTable) AddOrUpdate(ieeeAddress zigbee.IEEEAddress, networkAddress z
 	}
 
 	t.networkToIEEE[networkAddress] = ieeeAddress
+	t.lock.Unlock()
+
 	t.Update(ieeeAddress, updates...)
 }
 
 func (t *NodeTable) Update(ieeeAddress zigbee.IEEEAddress, updates ...NodeUpdate) {
+	t.lock.Lock()
+	defer t.lock.Unlock()
+
 	node, found := t.ieeeToNode[ieeeAddress]
 
 	if found {
 		for _, du := range updates {
 			du(node)
 		}
-	}
 
-	for _, cb := range t.callbacks {
-		cb(*node)
+		for _, cb := range t.callbacks {
+			cb(*node)
+		}
 	}
 }
 
 func (t *NodeTable) Remove(ieeeAddress zigbee.IEEEAddress) {
+	t.lock.Lock()
+	defer t.lock.Unlock()
+
 	node, found := t.GetByIEEE(ieeeAddress)
 
 	if found {
