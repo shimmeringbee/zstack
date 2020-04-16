@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/shimmeringbee/zigbee"
+	"reflect"
 )
 
 func (z *ZStack) Initialise(ctx context.Context, nc zigbee.NetworkConfiguration) error {
@@ -17,11 +18,19 @@ func (z *ZStack) Initialise(ctx context.Context, nc zigbee.NetworkConfiguration)
 		return err
 	}
 
-	if err := z.wipeAdapter(ctx); err != nil {
+	if valid, err := z.verifyAdapterNetworkConfig(ctx); err != nil {
 		return err
+	} else if !valid {
+		if err := z.wipeAdapter(ctx); err != nil {
+			return err
+		}
+
+		if err := z.makeCoordinator(ctx); err != nil {
+			return err
+		}
 	}
 
-	if err := z.configureAdapter(ctx); err != nil {
+	if err := z.configureNetwork(ctx); err != nil {
 		return err
 	}
 
@@ -49,6 +58,32 @@ func (z *ZStack) waitForAdapterReset(ctx context.Context) error {
 	})
 }
 
+func (z *ZStack) verifyAdapterNetworkConfig(ctx context.Context) (bool, error) {
+	configToVerify := []interface{}{
+		&ZCDNVLogicalType{LogicalType: zigbee.Coordinator},
+		&ZCDNVPANID{PANID: z.NetworkProperties.PANID},
+		&ZCDNVExtPANID{ExtendedPANID: z.NetworkProperties.ExtendedPANID},
+		&ZCDNVChanList{Channels: channelToBits(z.NetworkProperties.Channel)},
+	}
+
+	for _, expectedConfig := range configToVerify {
+		configType := reflect.TypeOf(expectedConfig).Elem()
+		actualConfig := reflect.New(configType).Interface()
+
+		fmt.Printf("doing %+v\n", expectedConfig)
+
+		if err := z.readNVRAM(ctx, actualConfig); err != nil {
+			return false, err
+		}
+
+		if !reflect.DeepEqual(expectedConfig, actualConfig) {
+			return false, nil
+		}
+	}
+
+	return true, nil
+}
+
 func (z *ZStack) wipeAdapter(ctx context.Context) error {
 	return retryFunctions(ctx, []func(context.Context) error{
 		func(invokeCtx context.Context) error {
@@ -60,7 +95,7 @@ func (z *ZStack) wipeAdapter(ctx context.Context) error {
 	})
 }
 
-func (z *ZStack) configureAdapter(ctx context.Context) error {
+func (z *ZStack) makeCoordinator(ctx context.Context) error {
 	return retryFunctions(ctx, []func(context.Context) error{
 		func(invokeCtx context.Context) error {
 			return z.writeNVRAM(invokeCtx, ZCDNVLogicalType{LogicalType: zigbee.Coordinator})
@@ -68,6 +103,11 @@ func (z *ZStack) configureAdapter(ctx context.Context) error {
 		func(invokeCtx context.Context) error {
 			return z.resetAdapter(invokeCtx, Soft)
 		},
+	})
+}
+
+func (z *ZStack) configureNetwork(ctx context.Context) error {
+	return retryFunctions(ctx, []func(context.Context) error{
 		func(invokeCtx context.Context) error {
 			return z.writeNVRAM(invokeCtx, ZCDNVSecurityMode{Enabled: 1})
 		},
@@ -81,15 +121,7 @@ func (z *ZStack) configureAdapter(ctx context.Context) error {
 			return z.writeNVRAM(invokeCtx, ZCDNVZDODirectCB{Enabled: 1})
 		},
 		func(invokeCtx context.Context) error {
-			channelBits := 1 << z.NetworkProperties.Channel
-
-			channelBytes := [4]byte{}
-			channelBytes[0] = byte((channelBits >> 24) & 0xff)
-			channelBytes[1] = byte((channelBits >> 16) & 0xff)
-			channelBytes[2] = byte((channelBits >> 8) & 0xff)
-			channelBytes[3] = byte((channelBits >> 0) & 0xff)
-
-			return z.writeNVRAM(invokeCtx, ZCDNVChanList{Channels: channelBytes})
+			return z.writeNVRAM(invokeCtx, ZCDNVChanList{Channels: channelToBits(z.NetworkProperties.Channel)})
 		},
 		func(invokeCtx context.Context) error {
 			return z.writeNVRAM(invokeCtx, ZCDNVPANID{PANID: z.NetworkProperties.PANID})
@@ -177,6 +209,18 @@ func retryFunctions(ctx context.Context, funcs []func(context.Context) error) er
 	}
 
 	return nil
+}
+
+func channelToBits(channel uint8) [4]byte {
+	channelBits := 1 << channel
+
+	channelBytes := [4]byte{}
+	channelBytes[0] = byte((channelBits >> 24) & 0xff)
+	channelBytes[1] = byte((channelBits >> 16) & 0xff)
+	channelBytes[2] = byte((channelBits >> 8) & 0xff)
+	channelBytes[3] = byte((channelBits >> 0) & 0xff)
+
+	return channelBytes
 }
 
 type SAPIZBStartRequest struct{}
