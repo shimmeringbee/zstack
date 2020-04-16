@@ -70,8 +70,6 @@ func (z *ZStack) verifyAdapterNetworkConfig(ctx context.Context) (bool, error) {
 		configType := reflect.TypeOf(expectedConfig).Elem()
 		actualConfig := reflect.New(configType).Interface()
 
-		fmt.Printf("doing %+v\n", expectedConfig)
-
 		if err := z.readNVRAM(ctx, actualConfig); err != nil {
 			return false, err
 		}
