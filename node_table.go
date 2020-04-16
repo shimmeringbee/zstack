@@ -105,10 +105,10 @@ func (t *NodeTable) Update(ieeeAddress zigbee.IEEEAddress, updates ...NodeUpdate
 }
 
 func (t *NodeTable) Remove(ieeeAddress zigbee.IEEEAddress) {
+	node, found := t.GetByIEEE(ieeeAddress)
+
 	t.lock.Lock()
 	defer t.lock.Unlock()
-
-	node, found := t.GetByIEEE(ieeeAddress)
 
 	if found {
 		delete(t.networkToIEEE, node.NetworkAddress)
