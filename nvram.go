@@ -9,11 +9,11 @@ import (
 	"reflect"
 )
 
-var NVRAMWriteUnsuccessful = errors.New("nvram write unsuccessful")
-var NVRAMUnrecognised = errors.New("nvram write structure unrecognised")
+var NVRAMUnsuccessful = errors.New("nvram operation unsuccessful")
+var NVRAMUnrecognised = errors.New("nvram structure unrecognised")
 
 func (z *ZStack) writeNVRAM(ctx context.Context, v interface{}) error {
-	configId, found := nvMapping[reflect.TypeOf(v)]
+	configId, found := nvramStructToID[reflect.TypeOf(v)]
 
 	if !found {
 		return NVRAMUnrecognised
@@ -37,10 +37,41 @@ func (z *ZStack) writeNVRAM(ctx context.Context, v interface{}) error {
 	}
 
 	if writeResponse.Status != ZSuccess {
-		return fmt.Errorf("%w: status = %v", NVRAMWriteUnsuccessful, writeResponse.Status)
+		return fmt.Errorf("%w: status = %v", NVRAMUnsuccessful, writeResponse.Status)
 	}
 
 	return nil
+}
+
+func (z *ZStack) readNVRAM(ctx context.Context, v interface{}) error {
+	vType := reflect.TypeOf(v)
+
+	if vType.Kind() == reflect.Ptr {
+		vType = vType.Elem()
+	}
+
+	configId, found := nvramStructToID[vType]
+
+	if !found {
+		return NVRAMUnrecognised
+	}
+
+	readRequest := SysOSALNVRead{
+		NVItemID: configId,
+		Offset:   0,
+	}
+
+	readResponse := SysOSALNVReadReply{}
+
+	if err := z.requestResponder.RequestResponse(ctx, readRequest, &readResponse); err != nil {
+		return err
+	}
+
+	if readResponse.Status != ZSuccess {
+		return fmt.Errorf("%w: status = %v", NVRAMUnsuccessful, readResponse.Status)
+	}
+
+	return bytecodec.Unmarshal(readResponse.Value, v)
 }
 
 type SysOSALNVWrite struct {
@@ -55,7 +86,21 @@ type SysOSALNVWriteReply GenericZStackStatus
 
 const SysOSALNVWriteReplyID uint8 = 0x09
 
-var nvMapping = map[reflect.Type]uint16{
+type SysOSALNVRead struct {
+	NVItemID uint16
+	Offset   uint8
+}
+
+const SysOSALNVReadID uint8 = 0x08
+
+type SysOSALNVReadReply struct {
+	Status ZStackStatus
+	Value  []byte `bcsliceprefix:"8"`
+}
+
+const SysOSALNVReadReplyID uint8 = 0x08
+
+var nvramStructToID = map[reflect.Type]uint16{
 	reflect.TypeOf(ZCDNVStartUpOption{}):    ZCDNVStartUpOptionID,
 	reflect.TypeOf(ZCDNVLogicalType{}):      ZCDNVLogicalTypeID,
 	reflect.TypeOf(ZCDNVSecurityMode{}):     ZCDNVSecurityModeID,

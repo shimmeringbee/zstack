@@ -11,6 +11,69 @@ import (
 	"time"
 )
 
+func Test_readNVRAM(t *testing.T) {
+	t.Run("verifies that a request response is made to unpi", func(t *testing.T) {
+		mrr := &ReturningMockRequestResponse{}
+
+		z := ZStack{requestResponder: mrr}
+
+		ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
+		defer cancel()
+
+		val := &ZCDNVLogicalType{}
+		err := z.readNVRAM(ctx, val)
+
+		assert.NoError(t, err)
+		assert.Equal(t, zigbee.EndDevice, val.LogicalType)
+	})
+
+	t.Run("verifies that read requests that fail raise an error", func(t *testing.T) {
+		mrr := &ReadFailingMockRequestResponse{}
+
+		z := ZStack{requestResponder: mrr}
+
+		ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
+		defer cancel()
+
+		err := z.readNVRAM(ctx, &ZCDNVLogicalType{})
+
+		assert.Error(t, err)
+	})
+
+	t.Run("verifies that a request response with errors is raised", func(t *testing.T) {
+		mrr := new(MockRequestResponder)
+
+		mrr.On("RequestResponse", mock.Anything, SysOSALNVRead{
+			NVItemID: ZCDNVLogicalTypeID,
+			Offset:   0,
+		}, &SysOSALNVReadReply{}).Return(errors.New("context expired"))
+
+		z := ZStack{requestResponder: mrr}
+
+		ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
+		defer cancel()
+
+		err := z.readNVRAM(ctx, &ZCDNVLogicalType{})
+
+		mrr.AssertExpectations(t)
+		assert.Error(t, err)
+	})
+
+	t.Run("verifies that unknown structure raises an error", func(t *testing.T) {
+		mrr := new(MockRequestResponder)
+
+		z := ZStack{requestResponder: mrr}
+
+		ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
+		defer cancel()
+
+		err := z.readNVRAM(ctx, struct{}{})
+
+		mrr.AssertExpectations(t)
+		assert.Error(t, err)
+	})
+}
+
 func Test_writeNVRAM(t *testing.T) {
 	t.Run("verifies that a request response is made to unpi", func(t *testing.T) {
 		mrr := new(MockRequestResponder)
@@ -33,7 +96,7 @@ func Test_writeNVRAM(t *testing.T) {
 	})
 
 	t.Run("verifies that write requests that fail raise an error", func(t *testing.T) {
-		mrr := &FailingMockRequestResponse{}
+		mrr := &WriteFailingMockRequestResponse{}
 
 		z := ZStack{requestResponder: mrr}
 
@@ -80,9 +143,9 @@ func Test_writeNVRAM(t *testing.T) {
 	})
 }
 
-type FailingMockRequestResponse struct{}
+type WriteFailingMockRequestResponse struct{}
 
-func (m *FailingMockRequestResponse) RequestResponse(ctx context.Context, req interface{}, resp interface{}) error {
+func (m *WriteFailingMockRequestResponse) RequestResponse(ctx context.Context, req interface{}, resp interface{}) error {
 	response, ok := resp.(*SysOSALNVWriteReply)
 
 	if !ok {
@@ -90,6 +153,35 @@ func (m *FailingMockRequestResponse) RequestResponse(ctx context.Context, req in
 	}
 
 	response.Status = 0x01
+
+	return nil
+}
+
+type ReadFailingMockRequestResponse struct{}
+
+func (m *ReadFailingMockRequestResponse) RequestResponse(ctx context.Context, req interface{}, resp interface{}) error {
+	response, ok := resp.(*SysOSALNVReadReply)
+
+	if !ok {
+		panic("incorrect type passed to mock")
+	}
+
+	response.Status = 0x01
+
+	return nil
+}
+
+type ReturningMockRequestResponse struct{}
+
+func (m *ReturningMockRequestResponse) RequestResponse(ctx context.Context, req interface{}, resp interface{}) error {
+	response, ok := resp.(*SysOSALNVReadReply)
+
+	if !ok {
+		panic("incorrect type passed to mock")
+	}
+
+	response.Status = ZSuccess
+	response.Value = []byte{0x02}
 
 	return nil
 }

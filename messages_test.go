@@ -52,6 +52,34 @@ func Test_registerMessages(t *testing.T) {
 		assert.Equal(t, reflect.TypeOf(SysResetInd{}), ty)
 	})
 
+	t.Run("SysOSALNVRead", func(t *testing.T) {
+		identity, found := ml.GetByObject(&SysOSALNVRead{})
+
+		assert.True(t, found)
+		assert.Equal(t, SREQ, identity.MessageType)
+		assert.Equal(t, SYS, identity.Subsystem)
+		assert.Equal(t, uint8(0x08), identity.CommandID)
+
+		ty, found := ml.GetByIdentifier(SREQ, SYS, 0x08)
+
+		assert.True(t, found)
+		assert.Equal(t, reflect.TypeOf(SysOSALNVRead{}), ty)
+	})
+
+	t.Run("SysOSALNVReadReply", func(t *testing.T) {
+		identity, found := ml.GetByObject(&SysOSALNVReadReply{})
+
+		assert.True(t, found)
+		assert.Equal(t, SRSP, identity.MessageType)
+		assert.Equal(t, SYS, identity.Subsystem)
+		assert.Equal(t, uint8(0x08), identity.CommandID)
+
+		ty, found := ml.GetByIdentifier(SRSP, SYS, 0x08)
+
+		assert.True(t, found)
+		assert.Equal(t, reflect.TypeOf(SysOSALNVReadReply{}), ty)
+	})
+
 	t.Run("SysOSALNVWrite", func(t *testing.T) {
 		identity, found := ml.GetByObject(&SysOSALNVWrite{})
 

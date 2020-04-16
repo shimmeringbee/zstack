@@ -10,6 +10,9 @@ func registerMessages(l *Library) {
 	l.Add(AREQ, SYS, SysResetReqID, SysResetReq{})
 	l.Add(AREQ, SYS, SysResetIndID, SysResetInd{})
 
+	l.Add(SREQ, SYS, SysOSALNVReadID, SysOSALNVRead{})
+	l.Add(SRSP, SYS, SysOSALNVReadReplyID, SysOSALNVReadReply{})
+
 	l.Add(SREQ, SYS, SysOSALNVWriteID, SysOSALNVWrite{})
 	l.Add(SRSP, SYS, SysOSALNVWriteReplyID, SysOSALNVWriteReply{})
 
