@@ -13,11 +13,15 @@ func (z *ZStack) Initialise(ctx context.Context, nc zigbee.NetworkConfiguration)
 	z.NetworkProperties.NetworkKey = nc.NetworkKey
 	z.NetworkProperties.Channel = nc.Channel
 
-	if err := z.clearAdapterConfigAndState(ctx); err != nil {
+	if err := z.waitForAdapterReset(ctx); err != nil {
 		return err
 	}
 
-	if err := z.initialiseAdapterFull(ctx); err != nil {
+	if err := z.wipeAdapter(ctx); err != nil {
+		return err
+	}
+
+	if err := z.configureAdapter(ctx); err != nil {
 		return err
 	}
 
@@ -39,7 +43,13 @@ func (z *ZStack) Initialise(ctx context.Context, nc zigbee.NetworkConfiguration)
 	return nil
 }
 
-func (z *ZStack) clearAdapterConfigAndState(ctx context.Context) error {
+func (z *ZStack) waitForAdapterReset(ctx context.Context) error {
+	return Retry(ctx, DefaultZStackTimeout, 18, func(invokeCtx context.Context) error {
+		return z.resetAdapter(invokeCtx, Soft)
+	})
+}
+
+func (z *ZStack) wipeAdapter(ctx context.Context) error {
 	return retryFunctions(ctx, []func(context.Context) error{
 		func(invokeCtx context.Context) error {
 			return z.writeNVRAM(invokeCtx, ZCDNVStartUpOption{StartOption: 0x03})
@@ -50,11 +60,8 @@ func (z *ZStack) clearAdapterConfigAndState(ctx context.Context) error {
 	})
 }
 
-func (z *ZStack) initialiseAdapterFull(ctx context.Context) error {
+func (z *ZStack) configureAdapter(ctx context.Context) error {
 	return retryFunctions(ctx, []func(context.Context) error{
-		func(invokeCtx context.Context) error {
-			return z.resetAdapter(invokeCtx, Soft)
-		},
 		func(invokeCtx context.Context) error {
 			return z.writeNVRAM(invokeCtx, ZCDNVLogicalType{LogicalType: zigbee.Coordinator})
 		},
