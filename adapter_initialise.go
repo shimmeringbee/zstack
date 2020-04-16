@@ -13,13 +13,45 @@ func (z *ZStack) Initialise(ctx context.Context, nc zigbee.NetworkConfiguration)
 	z.NetworkProperties.NetworkKey = nc.NetworkKey
 	z.NetworkProperties.Channel = nc.Channel
 
-	initFunctions := []func(context.Context) error{
-		func(invokeCtx context.Context) error {
-			return z.resetAdapter(invokeCtx, Soft)
-		},
+	if err := z.clearAdapterConfigAndState(ctx); err != nil {
+		return err
+	}
+
+	if err := z.initialiseAdapterFull(ctx); err != nil {
+		return err
+	}
+
+	if err := z.startZigbeeStack(ctx); err != nil {
+		return err
+	}
+
+	if err := z.retrieveAdapterAddresses(ctx); err != nil {
+		return err
+	}
+
+	if err := z.DenyJoin(ctx); err != nil {
+		return err
+	}
+
+	z.startNetworkManager()
+	z.startMessageReceiver()
+
+	return nil
+}
+
+func (z *ZStack) clearAdapterConfigAndState(ctx context.Context) error {
+	return retryFunctions(ctx, []func(context.Context) error{
 		func(invokeCtx context.Context) error {
 			return z.writeNVRAM(invokeCtx, ZCDNVStartUpOption{StartOption: 0x03})
 		},
+		func(invokeCtx context.Context) error {
+			return z.resetAdapter(invokeCtx, Soft)
+		},
+	})
+}
+
+func (z *ZStack) initialiseAdapterFull(ctx context.Context) error {
+	return retryFunctions(ctx, []func(context.Context) error{
 		func(invokeCtx context.Context) error {
 			return z.resetAdapter(invokeCtx, Soft)
 		},
@@ -36,13 +68,13 @@ func (z *ZStack) Initialise(ctx context.Context, nc zigbee.NetworkConfiguration)
 			return z.writeNVRAM(invokeCtx, ZCDNVPreCfgKeysEnable{Enabled: 1})
 		},
 		func(invokeCtx context.Context) error {
-			return z.writeNVRAM(invokeCtx, ZCDNVPreCfgKey{NetworkKey: nc.NetworkKey})
+			return z.writeNVRAM(invokeCtx, ZCDNVPreCfgKey{NetworkKey: z.NetworkProperties.NetworkKey})
 		},
 		func(invokeCtx context.Context) error {
 			return z.writeNVRAM(invokeCtx, ZCDNVZDODirectCB{Enabled: 1})
 		},
 		func(invokeCtx context.Context) error {
-			channelBits := 1 << nc.Channel
+			channelBits := 1 << z.NetworkProperties.Channel
 
 			channelBytes := [4]byte{}
 			channelBytes[0] = byte((channelBits >> 24) & 0xff)
@@ -53,10 +85,10 @@ func (z *ZStack) Initialise(ctx context.Context, nc zigbee.NetworkConfiguration)
 			return z.writeNVRAM(invokeCtx, ZCDNVChanList{Channels: channelBytes})
 		},
 		func(invokeCtx context.Context) error {
-			return z.writeNVRAM(invokeCtx, ZCDNVPANID{PANID: nc.PANID})
+			return z.writeNVRAM(invokeCtx, ZCDNVPANID{PANID: z.NetworkProperties.PANID})
 		},
 		func(invokeCtx context.Context) error {
-			return z.writeNVRAM(invokeCtx, ZCDNVExtPANID{ExtendedPANID: nc.ExtendedPANID})
+			return z.writeNVRAM(invokeCtx, ZCDNVExtPANID{ExtendedPANID: z.NetworkProperties.ExtendedPANID})
 		},
 		func(invokeCtx context.Context) error {
 			return z.writeNVRAM(invokeCtx, ZCDNVUseDefaultTCLK{Enabled: 1})
@@ -69,6 +101,11 @@ func (z *ZStack) Initialise(ctx context.Context, nc zigbee.NetworkConfiguration)
 				RXFrameCounter: 0,
 			})
 		},
+	})
+}
+
+func (z *ZStack) retrieveAdapterAddresses(ctx context.Context) error {
+	return retryFunctions(ctx, []func(context.Context) error{
 		func(invokeCtx context.Context) error {
 			address, err := z.GetAdapterIEEEAddress(ctx)
 
@@ -80,42 +117,18 @@ func (z *ZStack) Initialise(ctx context.Context, nc zigbee.NetworkConfiguration)
 
 			return nil
 		},
-	}
+		func(ctx context.Context) error {
+			address, err := z.GetAddressNetworkAddress(ctx)
 
-	for _, f := range initFunctions {
-		if err := Retry(ctx, DefaultZStackTimeout, DefaultZStackRetries, f); err != nil {
-			return fmt.Errorf("failed during configuration and initialisation: %w", err)
-		}
-	}
+			if err != nil {
+				return err
+			}
 
-	if err := z.startZigbeeStack(ctx); err != nil {
-		return err
-	}
+			z.NetworkProperties.NetworkAddress = address
 
-	if err := Retry(ctx, DefaultZStackTimeout, DefaultZStackRetries, func(invokeCtx context.Context) error {
-		address, err := z.GetAddressNetworkAddress(ctx)
-
-		if err != nil {
-			return err
-		}
-
-		z.NetworkProperties.NetworkAddress = address
-
-		return nil
-	}); err != nil {
-		return err
-	}
-
-	if err := Retry(ctx, DefaultZStackTimeout, DefaultZStackRetries, func(invokeCtx context.Context) error {
-		return z.DenyJoin(invokeCtx)
-	}); err != nil {
-		return err
-	}
-
-	z.startNetworkManager()
-	z.startMessageReceiver()
-
-	return nil
+			return nil
+		},
+	})
 }
 
 func (z *ZStack) startZigbeeStack(ctx context.Context) error {
@@ -147,6 +160,16 @@ func (z *ZStack) startZigbeeStack(ctx context.Context) error {
 	case <-ctx.Done():
 		return errors.New("context expired while waiting for adapter start up")
 	}
+}
+
+func retryFunctions(ctx context.Context, funcs []func(context.Context) error) error {
+	for _, f := range funcs {
+		if err := Retry(ctx, DefaultZStackTimeout, DefaultZStackRetries, f); err != nil {
+			return fmt.Errorf("failed during configuration and initialisation: %w", err)
+		}
+	}
+
+	return nil
 }
 
 type SAPIZBStartRequest struct{}
