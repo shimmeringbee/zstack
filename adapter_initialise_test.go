@@ -233,8 +233,13 @@ func Test_Initialise(t *testing.T) {
 		).Times(4)
 
 		err := zstack.Initialise(ctx, nc)
-
 		assert.NoError(t, err)
+
+		adapterNode := zstack.AdapterNode()
+		assert.Equal(t, zigbee.IEEEAddress(0x8090a0b0c0d0e0f), adapterNode.IEEEAddress)
+		assert.Equal(t, zigbee.NetworkAddress(0x809), adapterNode.NetworkAddress)
+		assert.Equal(t, zigbee.Coordinator, adapterNode.LogicalType)
+
 		unpiMock.AssertCalls(t)
 
 		assert.Equal(t, nc.PANID, zstack.NetworkProperties.PANID)

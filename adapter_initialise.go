@@ -155,7 +155,7 @@ func (z *ZStack) retrieveAdapterAddresses(ctx context.Context) error {
 			return nil
 		},
 		func(ctx context.Context) error {
-			address, err := z.GetAddressNetworkAddress(ctx)
+			address, err := z.GetAdapterNetworkAddress(ctx)
 
 			if err != nil {
 				return err

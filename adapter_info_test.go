@@ -52,7 +52,7 @@ func Test_GetAdapterNetworkAddress(t *testing.T) {
 			Payload:     []byte{0x02, 0x09, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
 		})
 
-		address, err := zstack.GetAddressNetworkAddress(ctx)
+		address, err := zstack.GetAdapterNetworkAddress(ctx)
 		assert.NoError(t, err)
 		assert.Equal(t, zigbee.NetworkAddress(0x0809), address)
 

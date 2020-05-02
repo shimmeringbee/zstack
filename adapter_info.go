@@ -5,6 +5,14 @@ import (
 	"github.com/shimmeringbee/zigbee"
 )
 
+func (z *ZStack) AdapterNode() zigbee.Node {
+	return zigbee.Node{
+		IEEEAddress:    z.NetworkProperties.IEEEAddress,
+		NetworkAddress: z.NetworkProperties.NetworkAddress,
+		LogicalType:    zigbee.Coordinator,
+	}
+}
+
 func (z *ZStack) GetAdapterIEEEAddress(ctx context.Context) (zigbee.IEEEAddress, error) {
 	data, err := z.getAddressInfo(ctx, IEEEAddress)
 
@@ -13,7 +21,7 @@ func (z *ZStack) GetAdapterIEEEAddress(ctx context.Context) (zigbee.IEEEAddress,
 	return ieeeAddress, err
 }
 
-func (z *ZStack) GetAddressNetworkAddress(ctx context.Context) (zigbee.NetworkAddress, error) {
+func (z *ZStack) GetAdapterNetworkAddress(ctx context.Context) (zigbee.NetworkAddress, error) {
 	data, err := z.getAddressInfo(ctx, NetworkAddress)
 
 	networkAddress := zigbee.NetworkAddress(data & 0xffff)
