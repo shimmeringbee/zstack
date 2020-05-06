@@ -1,10 +1,12 @@
 module github.com/shimmeringbee/zstack
 
-go 1.13
+go 1.14
 
 require (
-	github.com/shimmeringbee/bytecodec v0.0.0-20200218212230-1bd87868c4ce
-	github.com/shimmeringbee/unpi v0.0.0-20200216100225-38152f35c281
-	github.com/shimmeringbee/zigbee v0.0.0-20200226075755-6b8669365435
-	github.com/stretchr/testify v1.4.0
+	github.com/shimmeringbee/bytecodec v0.0.0-20200304195519-f8afcb18b3d8
+	github.com/shimmeringbee/unpi v0.0.0-20200222222253-5846f3798404
+	github.com/shimmeringbee/zigbee v0.0.0-20200504194836-215e705ad90d
+	github.com/stretchr/objx v0.2.0 // indirect
+	github.com/stretchr/testify v1.5.1
+	gopkg.in/yaml.v2 v2.2.8 // indirect
 )
