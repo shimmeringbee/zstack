@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/shimmeringbee/retry"
 	"github.com/shimmeringbee/zigbee"
 	"reflect"
 )
@@ -53,7 +54,7 @@ func (z *ZStack) Initialise(ctx context.Context, nc zigbee.NetworkConfiguration)
 }
 
 func (z *ZStack) waitForAdapterReset(ctx context.Context) error {
-	return Retry(ctx, DefaultZStackTimeout, 18, func(invokeCtx context.Context) error {
+	return retry.Retry(ctx, DefaultZStackTimeout, 18, func(invokeCtx context.Context) error {
 		return z.resetAdapter(invokeCtx, Soft)
 	})
 }
@@ -169,7 +170,7 @@ func (z *ZStack) retrieveAdapterAddresses(ctx context.Context) error {
 }
 
 func (z *ZStack) startZigbeeStack(ctx context.Context) error {
-	if err := Retry(ctx, DefaultZStackTimeout, DefaultZStackRetries, func(invokeCtx context.Context) error {
+	if err := retry.Retry(ctx, DefaultZStackTimeout, DefaultZStackRetries, func(invokeCtx context.Context) error {
 		return z.requestResponder.RequestResponse(invokeCtx, SAPIZBStartRequest{}, &SAPIZBStartRequestReply{})
 	}); err != nil {
 		return err
@@ -201,7 +202,7 @@ func (z *ZStack) startZigbeeStack(ctx context.Context) error {
 
 func retryFunctions(ctx context.Context, funcs []func(context.Context) error) error {
 	for _, f := range funcs {
-		if err := Retry(ctx, DefaultZStackTimeout, DefaultZStackRetries, f); err != nil {
+		if err := retry.Retry(ctx, DefaultZStackTimeout, DefaultZStackRetries, f); err != nil {
 			return fmt.Errorf("failed during configuration and initialisation: %w", err)
 		}
 	}
