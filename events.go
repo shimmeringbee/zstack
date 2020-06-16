@@ -2,7 +2,7 @@ package zstack
 
 import (
 	"context"
-	"errors"
+	"github.com/shimmeringbee/zigbee"
 )
 
 func (z *ZStack) sendEvent(event interface{}) {
@@ -14,6 +14,6 @@ func (z *ZStack) ReadEvent(ctx context.Context) (interface{}, error) {
 	case event := <-z.events:
 		return event, nil
 	case <-ctx.Done():
-		return nil, errors.New("context expired")
+		return nil, zigbee.ContextExpired
 	}
 }
