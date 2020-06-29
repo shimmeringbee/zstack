@@ -30,7 +30,7 @@ func (z *ZStack) SendApplicationMessageToNode(ctx context.Context, destinationAd
 		SourceEndpoint:      message.SourceEndpoint,
 		ClusterID:           message.ClusterID,
 		TransactionID:       transactionId,
-		Options:             AfDataRequestOptions{ACKRequest: true},
+		Options:             AfDataRequestOptions{ACKRequest: requireAck},
 		Radius:              DefaultRadius,
 		Data:                message.Data,
 	}
