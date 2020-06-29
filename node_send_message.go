@@ -35,10 +35,14 @@ func (z *ZStack) SendApplicationMessageToNode(ctx context.Context, destinationAd
 		Data:                message.Data,
 	}
 
-	_, err = z.nodeRequest(ctx, &request, &AfDataRequestReply{}, &AfDataConfirm{}, func(i interface{}) bool {
-		msg := i.(*AfDataConfirm)
-		return msg.TransactionID == transactionId && msg.Endpoint == message.DestinationEndpoint
-	})
+	if requireAck {
+		_, err = z.nodeRequest(ctx, &request, &AfDataRequestReply{}, &AfDataConfirm{}, func(i interface{}) bool {
+			msg := i.(*AfDataConfirm)
+			return msg.TransactionID == transactionId && msg.Endpoint == message.DestinationEndpoint
+		})
+	} else {
+		err = z.requestResponder.RequestResponse(ctx, &request, &AfDataRequestReply{})
+	}
 
 	return err
 }
