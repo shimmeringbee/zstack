@@ -8,7 +8,7 @@ import (
 
 const DefaultRadius uint8 = 0x20
 
-func (z *ZStack) SendNodeMessageToNode(ctx context.Context, destinationAddress zigbee.IEEEAddress, message zigbee.ApplicationMessage) error {
+func (z *ZStack) SendApplicationMessageToNode(ctx context.Context, destinationAddress zigbee.IEEEAddress, message zigbee.ApplicationMessage, requireAck bool) error {
 	network, err := z.ResolveNodeNWKAddress(ctx, destinationAddress)
 
 	if err != nil {
