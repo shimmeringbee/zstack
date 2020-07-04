@@ -27,7 +27,7 @@ func (z *ZStack) QueryNodeDescription(ctx context.Context, ieeeAddress zigbee.IE
 	if ok {
 		return zigbee.NodeDescription{
 			LogicalType:      castResp.Capabilities.LogicalType,
-			ManufacturerCode: castResp.ManufacturerCode,
+			ManufacturerCode: zigbee.ManufacturerCode(castResp.ManufacturerCode),
 		}, nil
 	} else {
 		return zigbee.NodeDescription{}, err
