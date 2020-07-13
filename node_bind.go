@@ -17,8 +17,8 @@ func (z *ZStack) BindNodeToController(ctx context.Context, nodeAddress zigbee.IE
 		SourceAddress:          nodeAddress,
 		SourceEndpoint:         sourceEndpoint,
 		ClusterID:              cluster,
-		DestinationAddressMode: 0x02, // Network Address (16 bits)
-		DestinationAddress:     uint64(0),
+		DestinationAddressMode: 0x03, // IEEE Address (64 bits)
+		DestinationAddress:     uint64(z.NetworkProperties.IEEEAddress),
 		DestinationEndpoint:    destinationEndpoint,
 	}
 
