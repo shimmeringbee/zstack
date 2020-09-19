@@ -20,7 +20,7 @@ func (z *ZStack) stopNetworkManager() {
 }
 
 func (z *ZStack) networkManager() {
-	z.nodeTable.AddOrUpdate(z.NetworkProperties.IEEEAddress, z.NetworkProperties.NetworkAddress, LogicalType(zigbee.Coordinator))
+	z.nodeTable.addOrUpdate(z.NetworkProperties.IEEEAddress, z.NetworkProperties.NetworkAddress, logicalType(zigbee.Coordinator))
 
 	immediateStart := make(chan bool, 1)
 	defer close(immediateStart)
@@ -41,7 +41,7 @@ func (z *ZStack) networkManager() {
 	_, cancel = z.subscriber.Subscribe(&ZdoNWKAddrRsp{}, z.receiveNWKAddrRsp)
 	defer cancel()
 
-	z.nodeTable.RegisterCallback(z.nodeTableUpdate)
+	z.nodeTable.registerCallback(z.nodeTableUpdate)
 
 	for {
 		select {
@@ -56,26 +56,26 @@ func (z *ZStack) networkManager() {
 			case ZdoMGMTLQIRsp:
 				z.processLQITable(e)
 			case ZdoEndDeviceAnnceInd:
-				logicalType := zigbee.EndDevice
+				deviceLogicalType := zigbee.EndDevice
 
 				if e.Capabilities.Router {
-					logicalType = zigbee.Router
+					deviceLogicalType = zigbee.Router
 				}
 
-				z.nodeTable.AddOrUpdate(e.IEEEAddress, e.NetworkAddress, LogicalType(logicalType), UpdateDiscovered, UpdateReceived)
-				node, _ := z.nodeTable.GetByIEEE(e.IEEEAddress)
+				z.nodeTable.addOrUpdate(e.IEEEAddress, e.NetworkAddress, logicalType(deviceLogicalType), updateDiscovered, updateReceived)
+				node, _ := z.nodeTable.getByIEEE(e.IEEEAddress)
 
 				z.sendEvent(zigbee.NodeJoinEvent{
 					Node: node,
 				})
 
-				if logicalType == zigbee.Router {
-					node, _ := z.nodeTable.GetByIEEE(e.IEEEAddress)
+				if deviceLogicalType == zigbee.Router {
+					node, _ := z.nodeTable.getByIEEE(e.IEEEAddress)
 					go z.pollNodeForNetworkStatus(node)
 				}
 			case ZdoLeaveInd:
-				node, found := z.nodeTable.GetByIEEE(e.IEEEAddress)
-				z.nodeTable.Remove(e.IEEEAddress)
+				node, found := z.nodeTable.getByIEEE(e.IEEEAddress)
+				z.nodeTable.remove(e.IEEEAddress)
 
 				if found {
 					z.sendEvent(zigbee.NodeLeaveEvent{
@@ -84,11 +84,11 @@ func (z *ZStack) networkManager() {
 				}
 			case ZdoIEEEAddrRsp:
 				if e.WasSuccessful() {
-					z.nodeTable.AddOrUpdate(e.IEEEAddress, e.NetworkAddress, UpdateDiscovered)
+					z.nodeTable.addOrUpdate(e.IEEEAddress, e.NetworkAddress, updateDiscovered)
 				}
 			case ZdoNWKAddrRsp:
 				if e.WasSuccessful() {
-					z.nodeTable.AddOrUpdate(e.IEEEAddress, e.NetworkAddress, UpdateDiscovered)
+					z.nodeTable.addOrUpdate(e.IEEEAddress, e.NetworkAddress, updateDiscovered)
 				}
 			default:
 				fmt.Printf("received unknown %+v", reflect.TypeOf(ue))
@@ -98,7 +98,7 @@ func (z *ZStack) networkManager() {
 }
 
 func (z *ZStack) pollRoutersForNetworkStatus() {
-	for _, node := range z.nodeTable.GetAllNodes() {
+	for _, node := range z.nodeTable.Nodes() {
 		if node.LogicalType == zigbee.Coordinator || node.LogicalType == zigbee.Router {
 			go z.pollNodeForNetworkStatus(node)
 		}
@@ -124,22 +124,22 @@ func (z *ZStack) requestLQITable(node zigbee.Node) {
 	}
 }
 
-func (z *ZStack) processLQITable(lqi ZdoMGMTLQIRsp) {
-	if lqi.Status != ZSuccess {
-		log.Printf("failed lqi response from %+v\n", lqi.SourceAddress)
+func (z *ZStack) processLQITable(lqiResp ZdoMGMTLQIRsp) {
+	if lqiResp.Status != ZSuccess {
+		log.Printf("failed lqi response from %+v\n", lqiResp.SourceAddress)
 		return
 	}
 
-	for _, neighbour := range lqi.Neighbors {
+	for _, neighbour := range lqiResp.Neighbors {
 		if neighbour.ExtendedPANID != z.NetworkProperties.ExtendedPANID ||
 			neighbour.IEEEAddress == zigbee.EmptyIEEEAddress {
 			continue
 		}
 
-		z.nodeTable.AddOrUpdate(neighbour.IEEEAddress, neighbour.NetworkAddress, LogicalType(neighbour.Status.DeviceType), UpdateDiscovered)
+		z.nodeTable.addOrUpdate(neighbour.IEEEAddress, neighbour.NetworkAddress, logicalType(neighbour.Status.DeviceType), updateDiscovered)
 
 		if neighbour.Status.Relationship == zigbee.RelationshipChild {
-			z.nodeTable.Update(neighbour.IEEEAddress, LQI(neighbour.LQI), Depth(neighbour.Depth))
+			z.nodeTable.update(neighbour.IEEEAddress, lqi(neighbour.LQI), depth(neighbour.Depth))
 		}
 	}
 }

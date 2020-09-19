@@ -12,7 +12,7 @@ import (
 )
 
 func Test_NetworkManager(t *testing.T) {
-	t.Run("issues a LQI poll request only for coordinators or routers", func(t *testing.T) {
+	t.Run("issues a lqi poll request only for coordinators or routers", func(t *testing.T) {
 		unpiMock := unpiTest.NewMockAdapter()
 		zstack := New(unpiMock, NewNodeTable())
 		defer unpiMock.Stop()
@@ -25,8 +25,8 @@ func Test_NetworkManager(t *testing.T) {
 			Payload:     []byte{0x00},
 		}).Times(2)
 
-		zstack.nodeTable.AddOrUpdate(zigbee.IEEEAddress(1), zigbee.NetworkAddress(1), LogicalType(zigbee.Router))
-		zstack.nodeTable.AddOrUpdate(zigbee.IEEEAddress(2), zigbee.NetworkAddress(2), LogicalType(zigbee.Unknown))
+		zstack.nodeTable.addOrUpdate(zigbee.IEEEAddress(1), zigbee.NetworkAddress(1), logicalType(zigbee.Router))
+		zstack.nodeTable.addOrUpdate(zigbee.IEEEAddress(2), zigbee.NetworkAddress(2), logicalType(zigbee.Unknown))
 
 		zstack.startNetworkManager()
 		defer zstack.stopNetworkManager()
@@ -60,7 +60,7 @@ func Test_NetworkManager(t *testing.T) {
 
 		time.Sleep(10 * time.Millisecond)
 
-		node, found := zstack.nodeTable.GetByIEEE(expectedIEEE)
+		node, found := zstack.nodeTable.getByIEEE(expectedIEEE)
 
 		assert.True(t, found)
 		assert.Equal(t, expectedAddress, node.NetworkAddress)
@@ -96,7 +96,7 @@ func Test_NetworkManager(t *testing.T) {
 
 		time.Sleep(10 * time.Millisecond)
 
-		node, found := zstack.nodeTable.GetByIEEE(0x1122334455667788)
+		node, found := zstack.nodeTable.getByIEEE(0x1122334455667788)
 
 		assert.True(t, found)
 		assert.Equal(t, zigbee.IEEEAddress(0x1122334455667788), node.IEEEAddress)
@@ -130,7 +130,7 @@ func Test_NetworkManager(t *testing.T) {
 
 		time.Sleep(10 * time.Millisecond)
 
-		node, found := zstack.nodeTable.GetByIEEE(0x1122334455667788)
+		node, found := zstack.nodeTable.getByIEEE(0x1122334455667788)
 
 		assert.True(t, found)
 		assert.Equal(t, zigbee.IEEEAddress(0x1122334455667788), node.IEEEAddress)
@@ -195,7 +195,7 @@ func Test_NetworkManager(t *testing.T) {
 		assert.Equal(t, announce.NetworkAddress, nodeJoin.NetworkAddress)
 		assert.Equal(t, announce.IEEEAddress, nodeJoin.IEEEAddress)
 
-		node, found := zstack.nodeTable.GetByIEEE(announce.IEEEAddress)
+		node, found := zstack.nodeTable.getByIEEE(announce.IEEEAddress)
 
 		assert.True(t, found)
 		assert.Equal(t, announce.IEEEAddress, node.IEEEAddress)
@@ -227,7 +227,7 @@ func Test_NetworkManager(t *testing.T) {
 			IEEEAddress:   zigbee.IEEEAddress(0x0102030405060708),
 		}
 
-		zstack.nodeTable.AddOrUpdate(zigbee.IEEEAddress(0x0102030405060708), zigbee.NetworkAddress(0x2000))
+		zstack.nodeTable.addOrUpdate(zigbee.IEEEAddress(0x0102030405060708), zigbee.NetworkAddress(0x2000))
 
 		data, _ := bytecodec.Marshal(announce)
 
@@ -250,7 +250,7 @@ func Test_NetworkManager(t *testing.T) {
 		assert.Equal(t, announce.SourceAddress, nodeLeave.NetworkAddress)
 		assert.Equal(t, announce.IEEEAddress, nodeLeave.IEEEAddress)
 
-		_, found := zstack.nodeTable.GetByIEEE(announce.IEEEAddress)
+		_, found := zstack.nodeTable.getByIEEE(announce.IEEEAddress)
 		assert.False(t, found)
 	})
 
@@ -308,7 +308,7 @@ func Test_NetworkManager(t *testing.T) {
 		assert.Equal(t, zigbee.NetworkAddress(0x2000), lqiReq.DestinationAddress)
 	})
 
-	t.Run("nodes in LQI query are added to network manager", func(t *testing.T) {
+	t.Run("nodes in lqi query are added to network manager", func(t *testing.T) {
 		unpiMock := unpiTest.NewMockAdapter()
 		zstack := New(unpiMock, NewNodeTable())
 		defer unpiMock.Stop()
@@ -360,7 +360,7 @@ func Test_NetworkManager(t *testing.T) {
 
 		time.Sleep(10 * time.Millisecond)
 
-		node, found := zstack.nodeTable.GetByIEEE(zigbee.IEEEAddress(0x1000))
+		node, found := zstack.nodeTable.getByIEEE(zigbee.IEEEAddress(0x1000))
 		assert.True(t, found)
 
 		assert.Equal(t, zigbee.NetworkAddress(0x2000), node.NetworkAddress)
@@ -369,7 +369,7 @@ func Test_NetworkManager(t *testing.T) {
 		assert.Equal(t, uint8(0x01), node.Depth)
 	})
 
-	t.Run("nodes in LQI query are not added if Ext PANID does not match", func(t *testing.T) {
+	t.Run("nodes in lqi query are not added if Ext PANID does not match", func(t *testing.T) {
 		unpiMock := unpiTest.NewMockAdapter()
 		zstack := New(unpiMock, NewNodeTable())
 		defer unpiMock.Stop()
@@ -421,11 +421,11 @@ func Test_NetworkManager(t *testing.T) {
 
 		time.Sleep(10 * time.Millisecond)
 
-		_, found := zstack.nodeTable.GetByIEEE(zigbee.IEEEAddress(0x2000))
+		_, found := zstack.nodeTable.getByIEEE(zigbee.IEEEAddress(0x2000))
 		assert.False(t, found)
 	})
 
-	t.Run("nodes in LQI query are not added if it has an invalid IEEE address", func(t *testing.T) {
+	t.Run("nodes in lqi query are not added if it has an invalid IEEE address", func(t *testing.T) {
 		unpiMock := unpiTest.NewMockAdapter()
 		zstack := New(unpiMock, NewNodeTable())
 		zstack.NetworkProperties.IEEEAddress = zigbee.IEEEAddress(1)
@@ -479,7 +479,7 @@ func Test_NetworkManager(t *testing.T) {
 
 		time.Sleep(10 * time.Millisecond)
 
-		_, found := zstack.nodeTable.GetByIEEE(zigbee.IEEEAddress(0))
+		_, found := zstack.nodeTable.getByIEEE(zigbee.IEEEAddress(0))
 		assert.False(t, found)
 	})
 
@@ -506,7 +506,7 @@ func Test_NetworkManager(t *testing.T) {
 
 		go func() {
 			time.Sleep(10 * time.Millisecond)
-			zstack.nodeTable.AddOrUpdate(zigbee.IEEEAddress(0x01), zigbee.NetworkAddress(0x02))
+			zstack.nodeTable.addOrUpdate(zigbee.IEEEAddress(0x01), zigbee.NetworkAddress(0x02))
 		}()
 
 		event, err := zstack.ReadEvent(ctx)

@@ -37,7 +37,7 @@ func Test_UnbindToNode(t *testing.T) {
 			})
 		}()
 
-		zstack.nodeTable.AddOrUpdate(zigbee.IEEEAddress(1), zigbee.NetworkAddress(0x4000))
+		zstack.nodeTable.addOrUpdate(zigbee.IEEEAddress(1), zigbee.NetworkAddress(0x4000))
 
 		err := zstack.UnbindNodeFromController(ctx, zigbee.IEEEAddress(1), 2, 4, 5)
 		assert.NoError(t, err)

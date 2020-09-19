@@ -47,8 +47,11 @@ import "github.com/shimmeringbee/zstack"
 /* Obtain a ReadWriter UART interface to CC253X */
 serialPort :=
 
+/* Construct node table, cache of network nodes. */
+t := zstack.NewNodeTable()
+
 /* Create a new ZStack struct. */
-z := zstack.New(serialPort)
+z := zstack.New(serialPort, t)
 
 /* Generate random Zigbee network, on default channel (15) */
 netCfg, _ := zigbee.GenerateNetworkConfiguration()
@@ -137,6 +140,23 @@ func exploreDevice(z *zstack.ZStack, node zigbee.Node) {
 		}
 	}
 }
+```
+
+### Node Table Cache
+
+`zstack` requires a `NodeTable` structure to cache a devices IEEE address to its Zibgee network address. A design 
+decision for `zstack` was that all operations would reference the IEEE address. This cache must be persisted between 
+program runs as the coordinator hardware does not retain this information between restarts.
+
+```go
+// Create new table
+nodeTable := NewNodeTable()
+
+// Dump current content
+nodes := nodeTable.Nodes()
+
+// Load previous content - this should be done before starting ZStack.
+nodeTable.Load(nodes)
 ```
 
 ### ZCL

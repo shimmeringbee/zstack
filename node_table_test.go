@@ -14,9 +14,9 @@ func TestNodeTable(t *testing.T) {
 	t.Run("an added node can be retrieved by its IEEE address, and has minimum information", func(t *testing.T) {
 		nt := NewNodeTable()
 
-		nt.AddOrUpdate(ieee, network)
+		nt.addOrUpdate(ieee, network)
 
-		node, found := nt.GetByIEEE(ieee)
+		node, found := nt.getByIEEE(ieee)
 
 		assert.True(t, found)
 		assert.Equal(t, ieee, node.IEEEAddress)
@@ -27,9 +27,9 @@ func TestNodeTable(t *testing.T) {
 	t.Run("an added node with updates can be retrieved and has updated information", func(t *testing.T) {
 		nt := NewNodeTable()
 
-		nt.AddOrUpdate(ieee, network, LogicalType(zigbee.EndDevice))
+		nt.addOrUpdate(ieee, network, logicalType(zigbee.EndDevice))
 
-		node, found := nt.GetByIEEE(ieee)
+		node, found := nt.getByIEEE(ieee)
 
 		assert.True(t, found)
 		assert.Equal(t, zigbee.EndDevice, node.LogicalType)
@@ -38,43 +38,43 @@ func TestNodeTable(t *testing.T) {
 	t.Run("an added node can be retrieved by its network address", func(t *testing.T) {
 		nt := NewNodeTable()
 
-		nt.AddOrUpdate(ieee, network)
+		nt.addOrUpdate(ieee, network)
 
-		_, found := nt.GetByNetwork(network)
+		_, found := nt.getByNetwork(network)
 		assert.True(t, found)
 	})
 
 	t.Run("a missing node queried by its ieee address returns not found", func(t *testing.T) {
 		nt := NewNodeTable()
 
-		_, found := nt.GetByIEEE(ieee)
+		_, found := nt.getByIEEE(ieee)
 		assert.False(t, found)
 	})
 
 	t.Run("a missing node queried by its network address returns not found", func(t *testing.T) {
 		nt := NewNodeTable()
 
-		_, found := nt.GetByNetwork(network)
+		_, found := nt.getByNetwork(network)
 		assert.False(t, found)
 	})
 
 	t.Run("removing a node results in it not being found by ieee address", func(t *testing.T) {
 		nt := NewNodeTable()
 
-		nt.AddOrUpdate(ieee, network)
-		nt.Remove(ieee)
+		nt.addOrUpdate(ieee, network)
+		nt.remove(ieee)
 
-		_, found := nt.GetByIEEE(ieee)
+		_, found := nt.getByIEEE(ieee)
 		assert.False(t, found)
 	})
 
 	t.Run("removing a node results in it not being found by network address", func(t *testing.T) {
 		nt := NewNodeTable()
 
-		nt.AddOrUpdate(ieee, network)
-		nt.Remove(ieee)
+		nt.addOrUpdate(ieee, network)
+		nt.remove(ieee)
 
-		_, found := nt.GetByNetwork(network)
+		_, found := nt.getByNetwork(network)
 		assert.False(t, found)
 	})
 
@@ -83,13 +83,13 @@ func TestNodeTable(t *testing.T) {
 
 		newNetwork := zigbee.NetworkAddress(0x1234)
 
-		nt.AddOrUpdate(ieee, network)
-		nt.AddOrUpdate(ieee, newNetwork)
+		nt.addOrUpdate(ieee, network)
+		nt.addOrUpdate(ieee, newNetwork)
 
-		_, found := nt.GetByNetwork(network)
+		_, found := nt.getByNetwork(network)
 		assert.False(t, found)
 
-		node, found := nt.GetByNetwork(newNetwork)
+		node, found := nt.getByNetwork(newNetwork)
 		assert.True(t, found)
 
 		assert.Equal(t, newNetwork, node.NetworkAddress)
@@ -98,11 +98,11 @@ func TestNodeTable(t *testing.T) {
 	t.Run("an update makes all changes as requested by node updates", func(t *testing.T) {
 		nt := NewNodeTable()
 
-		nt.AddOrUpdate(ieee, network)
+		nt.addOrUpdate(ieee, network)
 
-		nt.Update(ieee, LogicalType(zigbee.EndDevice))
+		nt.update(ieee, logicalType(zigbee.EndDevice))
 
-		d, _ := nt.GetByIEEE(ieee)
+		d, _ := nt.getByIEEE(ieee)
 
 		assert.Equal(t, zigbee.EndDevice, d.LogicalType)
 	})
@@ -110,9 +110,9 @@ func TestNodeTable(t *testing.T) {
 	t.Run("returns all nodes when queried", func(t *testing.T) {
 		nt := NewNodeTable()
 
-		nt.AddOrUpdate(ieee, network)
+		nt.addOrUpdate(ieee, network)
 
-		nodes := nt.GetAllNodes()
+		nodes := nt.Nodes()
 		assert.Equal(t, 1, len(nodes))
 	})
 
@@ -120,11 +120,11 @@ func TestNodeTable(t *testing.T) {
 		callbackCalled := false
 
 		nt := NewNodeTable()
-		nt.RegisterCallback(func(node zigbee.Node) {
+		nt.registerCallback(func(node zigbee.Node) {
 			callbackCalled = true
 		})
 
-		nt.AddOrUpdate(zigbee.IEEEAddress(0x00), zigbee.NetworkAddress(0x00))
+		nt.addOrUpdate(zigbee.IEEEAddress(0x00), zigbee.NetworkAddress(0x00))
 
 		assert.True(t, callbackCalled)
 	})
@@ -134,55 +134,67 @@ func TestNodeTable(t *testing.T) {
 
 		nt := NewNodeTable()
 
-		nt.AddOrUpdate(zigbee.IEEEAddress(0x00), zigbee.NetworkAddress(0x00))
+		nt.addOrUpdate(zigbee.IEEEAddress(0x00), zigbee.NetworkAddress(0x00))
 
-		nt.RegisterCallback(func(node zigbee.Node) {
+		nt.registerCallback(func(node zigbee.Node) {
 			callbackCalled = true
 		})
 
-		nt.Update(zigbee.IEEEAddress(0x00), UpdateReceived)
+		nt.update(zigbee.IEEEAddress(0x00), updateReceived)
 
 		assert.True(t, callbackCalled)
+	})
+
+	t.Run("dumping and loading result in the same nodes being present in the table", func(t *testing.T) {
+		ntOne := NewNodeTable()
+		ntOne.addOrUpdate(zigbee.IEEEAddress(0x01), zigbee.NetworkAddress(0x01))
+		ntOneDump := ntOne.Nodes()
+
+		ntTwo := NewNodeTable()
+		ntTwo.Load(ntOneDump)
+		ntTwoDump := ntTwo.Nodes()
+
+		assert.Equal(t, ntOneDump, ntTwoDump)
 	})
 }
 
 func TestNodeUpdate(t *testing.T) {
-	t.Run("LogicalType updates the logical type of node", func(t *testing.T) {
+	t.Run("logicalType updates the logical type of node", func(t *testing.T) {
 		node := &zigbee.Node{}
 
-		LogicalType(zigbee.EndDevice)(node)
+		logicalType(zigbee.EndDevice)(node)
 
 		assert.Equal(t, zigbee.EndDevice, node.LogicalType)
 	})
 
-	t.Run("LQI updates the lqi of node", func(t *testing.T) {
+	t.Run("lqi updates the lqi of node", func(t *testing.T) {
 		node := &zigbee.Node{}
 
-		LQI(48)(node)
+		lqi(48)(node)
 
 		assert.Equal(t, uint8(48), node.LQI)
 	})
 
-	t.Run("Depth updates the depth of node", func(t *testing.T) {
+	t.Run("depth updates the depth of node", func(t *testing.T) {
 		node := &zigbee.Node{}
 
-		Depth(3)(node)
+		depth(3)(node)
 
 		assert.Equal(t, uint8(3), node.Depth)
 	})
 
-	t.Run("UpdateReceived updates the last received time of node", func(t *testing.T) {
+	t.Run("updateReceived updates the last received time of node", func(t *testing.T) {
 		node := &zigbee.Node{}
 
-		UpdateReceived(node)
+		updateReceived(node)
 
 		assert.NotEqual(t, time.Time{}, node.LastReceived)
 	})
 
-	t.Run("UpdateDiscovered updates the last received time of node", func(t *testing.T) {
+	t.Run("updateDiscovered updates the last received time of node", func(t *testing.T) {
 		node := &zigbee.Node{}
 
-		UpdateDiscovered(node)
+		updateDiscovered(node)
 
 		assert.NotEqual(t, time.Time{}, node.LastDiscovered)
 	})

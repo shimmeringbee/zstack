@@ -20,7 +20,7 @@ func (z *ZStack) startMessageReceiver() {
 			return
 		}
 
-		node, _ := z.nodeTable.GetByIEEE(ieee)
+		node, _ := z.nodeTable.getByIEEE(ieee)
 
 		z.sendEvent(zigbee.NodeIncomingMessageEvent{
 			Node: node,
@@ -41,7 +41,7 @@ func (z *ZStack) startMessageReceiver() {
 			},
 		})
 
-		z.nodeTable.Update(ieee, UpdateReceived)
+		z.nodeTable.update(ieee, updateReceived)
 	})
 }
 

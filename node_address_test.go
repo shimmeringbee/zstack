@@ -21,7 +21,7 @@ func Test_ResolveNodeIEEEAddress(t *testing.T) {
 		zstack := New(unpiMock, NewNodeTable())
 		defer unpiMock.Stop()
 
-		zstack.nodeTable.AddOrUpdate(0x1122334455667788, 0xaabb)
+		zstack.nodeTable.addOrUpdate(0x1122334455667788, 0xaabb)
 
 		ieee, err := zstack.ResolveNodeIEEEAddress(ctx, zigbee.NetworkAddress(0xaabb))
 		assert.NoError(t, err)
@@ -117,7 +117,7 @@ func Test_ResolveNodeNWKAddress(t *testing.T) {
 		zstack := New(unpiMock, NewNodeTable())
 		defer unpiMock.Stop()
 
-		zstack.nodeTable.AddOrUpdate(0x1122334455667788, 0xaabb)
+		zstack.nodeTable.addOrUpdate(0x1122334455667788, 0xaabb)
 
 		nwk, err := zstack.ResolveNodeNWKAddress(ctx, zigbee.IEEEAddress(0x1122334455667788))
 		assert.NoError(t, err)
