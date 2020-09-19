@@ -25,13 +25,15 @@ func (z *ZStack) startMessageReceiver() {
 		z.sendEvent(zigbee.NodeIncomingMessageEvent{
 			Node: node,
 			IncomingMessage: zigbee.IncomingMessage{
-				GroupID:              msg.GroupID,
-				SourceIEEEAddress:    ieee,
-				SourceNetworkAddress: msg.SourceAddress,
-				Broadcast:            msg.WasBroadcast,
-				Secure:               msg.SecurityUse,
-				LinkQuality:          msg.LinkQuality,
-				Sequence:             msg.Sequence,
+				GroupID: msg.GroupID,
+				SourceAddress: zigbee.SourceAddress{
+					IEEEAddress:    ieee,
+					NetworkAddress: msg.SourceAddress,
+				},
+				Broadcast:   msg.WasBroadcast,
+				Secure:      msg.SecurityUse,
+				LinkQuality: msg.LinkQuality,
+				Sequence:    msg.Sequence,
 				ApplicationMessage: zigbee.ApplicationMessage{
 					ClusterID:           msg.ClusterID,
 					SourceEndpoint:      msg.SourceEndpoint,

@@ -69,13 +69,15 @@ func Test_ReceiveMessage(t *testing.T) {
 				LastReceived:   time.Time{},
 			},
 			IncomingMessage: zigbee.IncomingMessage{
-				GroupID:              0x01,
-				SourceNetworkAddress: 0x1000,
-				SourceIEEEAddress:    0x1122334455667788,
-				Broadcast:            true,
-				Secure:               true,
-				LinkQuality:          55,
-				Sequence:             63,
+				GroupID: 0x01,
+				SourceAddress: zigbee.SourceAddress{
+					IEEEAddress:    0x1122334455667788,
+					NetworkAddress: 0x1000,
+				},
+				Broadcast:   true,
+				Secure:      true,
+				LinkQuality: 55,
+				Sequence:    63,
 				ApplicationMessage: zigbee.ApplicationMessage{
 					ClusterID:           0x02,
 					SourceEndpoint:      3,
