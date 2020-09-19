@@ -17,7 +17,7 @@ func Test_QueryNodeDescription(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, NewNodeTable())
 		defer unpiMock.Stop()
 
 		unpiMock.On(SREQ, ZDO, ZdoNodeDescReqID).Return(Frame{

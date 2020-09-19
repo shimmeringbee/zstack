@@ -14,7 +14,7 @@ func Test_ReadEvent(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, NewNodeTable())
 		defer unpiMock.Stop()
 		defer unpiMock.AssertCalls(t)
 

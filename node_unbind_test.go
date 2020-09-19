@@ -17,7 +17,7 @@ func Test_UnbindToNode(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, NewNodeTable())
 		defer unpiMock.Stop()
 
 		call := unpiMock.On(SREQ, ZDO, ZdoUnbindReqReplyID).Return(Frame{

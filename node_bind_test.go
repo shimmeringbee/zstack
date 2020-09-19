@@ -17,7 +17,7 @@ func Test_BindToNode(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, NewNodeTable())
 		defer unpiMock.Stop()
 
 		call := unpiMock.On(SREQ, ZDO, ZdoBindReqReplyID).Return(Frame{

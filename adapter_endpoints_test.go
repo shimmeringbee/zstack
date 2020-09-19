@@ -17,7 +17,7 @@ func Test_RegisterAdapterEndpoint(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, NewNodeTable())
 		defer unpiMock.Stop()
 
 		c := unpiMock.On(SREQ, AF, AFRegisterID).Return(Frame{
@@ -42,7 +42,7 @@ func Test_RegisterAdapterEndpoint(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, NewNodeTable())
 		defer unpiMock.Stop()
 
 		unpiMock.On(SREQ, AF, AFRegisterID).Return(Frame{

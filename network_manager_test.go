@@ -14,7 +14,7 @@ import (
 func Test_NetworkManager(t *testing.T) {
 	t.Run("issues a LQI poll request only for coordinators or routers", func(t *testing.T) {
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, NewNodeTable())
 		defer unpiMock.Stop()
 		defer zstack.Stop()
 
@@ -38,7 +38,7 @@ func Test_NetworkManager(t *testing.T) {
 
 	t.Run("the coordinator is added to the node list as a coordinator", func(t *testing.T) {
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, NewNodeTable())
 		defer unpiMock.Stop()
 		defer zstack.Stop()
 
@@ -71,7 +71,7 @@ func Test_NetworkManager(t *testing.T) {
 
 	t.Run("a node is added to the node table when an ZdoIEEEAddrRsp messages are received", func(t *testing.T) {
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, NewNodeTable())
 		defer unpiMock.Stop()
 		defer unpiMock.AssertCalls(t)
 
@@ -105,7 +105,7 @@ func Test_NetworkManager(t *testing.T) {
 
 	t.Run("a node is added to the node table when an ZdoNWKAddrRsp messages are received", func(t *testing.T) {
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, NewNodeTable())
 		defer unpiMock.Stop()
 		defer unpiMock.AssertCalls(t)
 
@@ -142,7 +142,7 @@ func Test_NetworkManager(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, NewNodeTable())
 		defer unpiMock.Stop()
 		defer unpiMock.AssertCalls(t)
 
@@ -208,7 +208,7 @@ func Test_NetworkManager(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, NewNodeTable())
 		defer unpiMock.Stop()
 		defer unpiMock.AssertCalls(t)
 
@@ -256,7 +256,7 @@ func Test_NetworkManager(t *testing.T) {
 
 	t.Run("a new router will be queried for network state", func(t *testing.T) {
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, NewNodeTable())
 		defer unpiMock.Stop()
 		defer unpiMock.AssertCalls(t)
 
@@ -310,7 +310,7 @@ func Test_NetworkManager(t *testing.T) {
 
 	t.Run("nodes in LQI query are added to network manager", func(t *testing.T) {
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, NewNodeTable())
 		defer unpiMock.Stop()
 		defer unpiMock.AssertCalls(t)
 
@@ -371,7 +371,7 @@ func Test_NetworkManager(t *testing.T) {
 
 	t.Run("nodes in LQI query are not added if Ext PANID does not match", func(t *testing.T) {
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, NewNodeTable())
 		defer unpiMock.Stop()
 		defer unpiMock.AssertCalls(t)
 
@@ -427,7 +427,7 @@ func Test_NetworkManager(t *testing.T) {
 
 	t.Run("nodes in LQI query are not added if it has an invalid IEEE address", func(t *testing.T) {
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, NewNodeTable())
 		zstack.NetworkProperties.IEEEAddress = zigbee.IEEEAddress(1)
 
 		defer unpiMock.Stop()
@@ -488,7 +488,7 @@ func Test_NetworkManager(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, NewNodeTable())
 		defer unpiMock.Stop()
 		defer unpiMock.AssertCalls(t)
 

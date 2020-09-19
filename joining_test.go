@@ -16,7 +16,7 @@ func Test_PermitJoin(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, NewNodeTable())
 		defer unpiMock.Stop()
 
 		c := unpiMock.On(SREQ, SAPI, SAPIZBPermitJoiningRequestID).Return(Frame{
@@ -40,7 +40,7 @@ func Test_PermitJoin(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, NewNodeTable())
 		defer unpiMock.Stop()
 		zstack.NetworkProperties.NetworkAddress = zigbee.NetworkAddress(0x0102)
 
@@ -65,7 +65,7 @@ func Test_PermitJoin(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, NewNodeTable())
 		defer unpiMock.Stop()
 
 		unpiMock.On(SREQ, SAPI, SAPIZBPermitJoiningRequestID).Return(Frame{
@@ -88,7 +88,7 @@ func Test_DenyJoin(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, NewNodeTable())
 		defer unpiMock.Stop()
 
 		c := unpiMock.On(SREQ, SAPI, SAPIZBPermitJoiningRequestID).Return(Frame{
@@ -113,7 +113,7 @@ func Test_DenyJoin(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, NewNodeTable())
 		defer unpiMock.Stop()
 
 		unpiMock.On(SREQ, SAPI, SAPIZBPermitJoiningRequestID).Return(Frame{

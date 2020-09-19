@@ -63,7 +63,7 @@ const DefaultZStackRetries = 3
 const DefaultInflightEvents = 50
 const DefaultInflightTransactions = 20
 
-func New(uart io.ReadWriter) *ZStack {
+func New(uart io.ReadWriter, nodeTable *NodeTable) *ZStack {
 	ml := library.NewLibrary()
 	registerMessages(ml)
 
@@ -82,7 +82,7 @@ func New(uart io.ReadWriter) *ZStack {
 		events:                 make(chan interface{}, DefaultInflightEvents),
 		networkManagerStop:     make(chan bool, 1),
 		networkManagerIncoming: make(chan interface{}, DefaultInflightEvents),
-		nodeTable:              NewNodeTable(),
+		nodeTable:              nodeTable,
 		transactionIdStore:     transactionIDs,
 	}
 }

@@ -17,7 +17,7 @@ func Test_Initialise(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, NewNodeTable())
 		defer unpiMock.Stop()
 		defer zstack.Stop()
 
@@ -134,7 +134,7 @@ func Test_Initialise(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, NewNodeTable())
 		defer unpiMock.Stop()
 		defer zstack.Stop()
 
@@ -269,7 +269,7 @@ func Test_verifyAdapterNetworkConfig(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, NewNodeTable())
 		defer unpiMock.Stop()
 		defer zstack.Stop()
 
@@ -320,7 +320,7 @@ func Test_verifyAdapterNetworkConfig(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, NewNodeTable())
 		defer unpiMock.Stop()
 		defer zstack.Stop()
 
@@ -373,7 +373,7 @@ func Test_startZigbeeStack(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, NewNodeTable())
 		defer unpiMock.Stop()
 
 		unpiMock.On(SREQ, SAPI, SAPIZBStartRequestID).Return(Frame{
@@ -404,7 +404,7 @@ func Test_startZigbeeStack(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, NewNodeTable())
 		defer unpiMock.Stop()
 
 		unpiMock.On(SREQ, SAPI, SAPIZBStartRequestID).Return(Frame{

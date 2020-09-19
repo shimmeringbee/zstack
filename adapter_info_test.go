@@ -16,7 +16,7 @@ func Test_GetAdapterIEEEAddress(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, NewNodeTable())
 		defer unpiMock.Stop()
 
 		c := unpiMock.On(SREQ, SAPI, SAPIZBGetDeviceInfoID).Return(Frame{
@@ -42,7 +42,7 @@ func Test_GetAdapterNetworkAddress(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, NewNodeTable())
 		defer unpiMock.Stop()
 
 		c := unpiMock.On(SREQ, SAPI, SAPIZBGetDeviceInfoID).Return(Frame{
