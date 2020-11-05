@@ -214,10 +214,10 @@ func channelToBits(channel uint8) [4]byte {
 	channelBits := 1 << channel
 
 	channelBytes := [4]byte{}
-	channelBytes[0] = byte((channelBits >> 24) & 0xff)
-	channelBytes[1] = byte((channelBits >> 16) & 0xff)
-	channelBytes[2] = byte((channelBits >> 8) & 0xff)
-	channelBytes[3] = byte((channelBits >> 0) & 0xff)
+	channelBytes[0] = byte((channelBits >> 0) & 0xff)
+	channelBytes[1] = byte((channelBits >> 8) & 0xff)
+	channelBytes[2] = byte((channelBits >> 16) & 0xff)
+	channelBytes[3] = byte((channelBits >> 24) & 0xff)
 
 	return channelBytes
 }
