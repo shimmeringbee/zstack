@@ -51,22 +51,34 @@ func (m *MockRequestResponder) RequestResponse(ctx context.Context, req interfac
 func Test_resetAdapter(t *testing.T) {
 	t.Run("verifies that a request response is made to unpi", func(t *testing.T) {
 		mrr := new(MockRequestResponder)
+		defer mrr.AssertExpectations(t)
 
-		mrr.On("RequestResponse", mock.Anything, SysResetReq{ResetType: Soft}, &SysResetInd{}).Return(nil)
+		expectedVersion := Version{
+			TransportRevision: 1,
+			ProductID:         2,
+			MajorRelease:      3,
+			MinorRelease:      4,
+			HardwareRevision:  5,
+		}
+
+		mrr.On("RequestResponse", mock.Anything, SysResetReq{ResetType: Soft}, &SysResetInd{}).Return(nil).Run(func(args mock.Arguments) {
+			sysResetInd := args.Get(2).(*SysResetInd)
+			sysResetInd.Version = expectedVersion
+		})
 
 		z := ZStack{requestResponder: mrr}
 
 		ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
 		defer cancel()
 
-		err := z.resetAdapter(ctx, Soft)
-
-		mrr.AssertExpectations(t)
+		actualVersion, err := z.resetAdapter(ctx, Soft)
 		assert.NoError(t, err)
+		assert.Equal(t, expectedVersion, actualVersion)
 	})
 
 	t.Run("verifies that a request response with errors is raised", func(t *testing.T) {
 		mrr := new(MockRequestResponder)
+		defer mrr.AssertExpectations(t)
 
 		mrr.On("RequestResponse", mock.Anything, SysResetReq{ResetType: Soft}, &SysResetInd{}).Return(errors.New("context expired"))
 
@@ -75,9 +87,7 @@ func Test_resetAdapter(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
 		defer cancel()
 
-		err := z.resetAdapter(ctx, Soft)
-
-		mrr.AssertExpectations(t)
+		_, err := z.resetAdapter(ctx, Soft)
 		assert.Error(t, err)
 	})
 }
