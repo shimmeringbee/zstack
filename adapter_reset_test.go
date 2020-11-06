@@ -22,12 +22,14 @@ func Test_resetMessages(t *testing.T) {
 
 	t.Run("verify SysResetInd marshals", func(t *testing.T) {
 		req := SysResetInd{
-			Reason:            External,
-			TransportRevision: 2,
-			ProductID:         1,
-			MajorRelease:      2,
-			MinorRelease:      4,
-			HardwareRevision:  1,
+			Reason: External,
+			Version: Version{
+				TransportRevision: 2,
+				ProductID:         1,
+				MajorRelease:      2,
+				MinorRelease:      4,
+				HardwareRevision:  1,
+			},
 		}
 
 		data, err := bytecodec.Marshal(req)

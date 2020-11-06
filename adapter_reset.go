@@ -28,7 +28,11 @@ const (
 )
 
 type SysResetInd struct {
-	Reason            ResetReason
+	Reason  ResetReason
+	Version Version
+}
+
+type Version struct {
 	TransportRevision uint8
 	ProductID         uint8
 	MajorRelease      uint8
