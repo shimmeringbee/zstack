@@ -22,12 +22,14 @@ func Test_Initialise(t *testing.T) {
 		defer zstack.Stop()
 
 		resetResponse, _ := bytecodec.Marshal(SysResetInd{
-			Reason:            External,
-			TransportRevision: 2,
-			ProductID:         1,
-			MajorRelease:      2,
-			MinorRelease:      3,
-			HardwareRevision:  4,
+			Reason: External,
+			Version: Version{
+				TransportRevision: 2,
+				ProductID:         1,
+				MajorRelease:      2,
+				MinorRelease:      3,
+				HardwareRevision:  4,
+			},
 		})
 
 		resetOn := unpiMock.On(AREQ, SYS, SysResetReqID).Return(Frame{
@@ -139,12 +141,14 @@ func Test_Initialise(t *testing.T) {
 		defer zstack.Stop()
 
 		resetResponse, _ := bytecodec.Marshal(SysResetInd{
-			Reason:            External,
-			TransportRevision: 2,
-			ProductID:         1,
-			MajorRelease:      2,
-			MinorRelease:      3,
-			HardwareRevision:  4,
+			Reason: External,
+			Version: Version{
+				TransportRevision: 2,
+				ProductID:         1,
+				MajorRelease:      2,
+				MinorRelease:      3,
+				HardwareRevision:  4,
+			},
 		})
 
 		resetOn := unpiMock.On(AREQ, SYS, SysResetReqID).Return(Frame{
