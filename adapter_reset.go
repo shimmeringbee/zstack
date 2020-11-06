@@ -2,8 +2,10 @@ package zstack
 
 import "context"
 
-func (z *ZStack) resetAdapter(ctx context.Context, resetType ResetType) error {
-	return z.requestResponder.RequestResponse(ctx, SysResetReq{ResetType: resetType}, &SysResetInd{})
+func (z *ZStack) resetAdapter(ctx context.Context, resetType ResetType) (Version, error) {
+	resetInd := &SysResetInd{}
+	err := z.requestResponder.RequestResponse(ctx, SysResetReq{ResetType: resetType}, resetInd)
+	return resetInd.Version, err
 }
 
 type ResetType uint8

@@ -55,7 +55,8 @@ func (z *ZStack) Initialise(ctx context.Context, nc zigbee.NetworkConfiguration)
 
 func (z *ZStack) waitForAdapterReset(ctx context.Context) error {
 	return retry.Retry(ctx, DefaultZStackTimeout, 18, func(invokeCtx context.Context) error {
-		return z.resetAdapter(invokeCtx, Soft)
+		_, err := z.resetAdapter(invokeCtx, Soft)
+		return err
 	})
 }
 
@@ -89,7 +90,8 @@ func (z *ZStack) wipeAdapter(ctx context.Context) error {
 			return z.writeNVRAM(invokeCtx, ZCDNVStartUpOption{StartOption: 0x03})
 		},
 		func(invokeCtx context.Context) error {
-			return z.resetAdapter(invokeCtx, Soft)
+			_, err := z.resetAdapter(invokeCtx, Soft)
+			return err
 		},
 	})
 }
@@ -100,7 +102,8 @@ func (z *ZStack) makeCoordinator(ctx context.Context) error {
 			return z.writeNVRAM(invokeCtx, ZCDNVLogicalType{LogicalType: zigbee.Coordinator})
 		},
 		func(invokeCtx context.Context) error {
-			return z.resetAdapter(invokeCtx, Soft)
+			_, err := z.resetAdapter(invokeCtx, Soft)
+			return err
 		},
 	})
 }
