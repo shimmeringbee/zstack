@@ -42,4 +42,8 @@ type Version struct {
 	HardwareRevision  uint8
 }
 
+func (v Version) IsV3() bool {
+	return v.ProductID > 0
+}
+
 const SysResetIndID uint8 = 0x80

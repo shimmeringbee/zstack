@@ -15,11 +15,12 @@ func (z *ZStack) Initialise(ctx context.Context, nc zigbee.NetworkConfiguration)
 	z.NetworkProperties.NetworkKey = nc.NetworkKey
 	z.NetworkProperties.Channel = nc.Channel
 
-	if err := z.waitForAdapterReset(ctx); err != nil {
+	version, err := z.waitForAdapterReset(ctx)
+	if err != nil {
 		return err
 	}
 
-	if valid, err := z.verifyAdapterNetworkConfig(ctx); err != nil {
+	if valid, err := z.verifyAdapterNetworkConfig(ctx, version); err != nil {
 		return err
 	} else if !valid {
 		if err := z.wipeAdapter(ctx); err != nil {
@@ -29,10 +30,10 @@ func (z *ZStack) Initialise(ctx context.Context, nc zigbee.NetworkConfiguration)
 		if err := z.makeCoordinator(ctx); err != nil {
 			return err
 		}
-	}
 
-	if err := z.configureNetwork(ctx); err != nil {
-		return err
+		if err := z.configureNetwork(ctx, version); err != nil {
+			return err
+		}
 	}
 
 	if err := z.startZigbeeStack(ctx); err != nil {
@@ -53,14 +54,19 @@ func (z *ZStack) Initialise(ctx context.Context, nc zigbee.NetworkConfiguration)
 	return nil
 }
 
-func (z *ZStack) waitForAdapterReset(ctx context.Context) error {
-	return retry.Retry(ctx, DefaultZStackTimeout, 18, func(invokeCtx context.Context) error {
-		_, err := z.resetAdapter(invokeCtx, Soft)
+func (z *ZStack) waitForAdapterReset(ctx context.Context) (Version, error) {
+	retVersion := Version{}
+
+	err := retry.Retry(ctx, DefaultZStackTimeout, 18, func(invokeCtx context.Context) error {
+		version, err := z.resetAdapter(invokeCtx, Soft)
+		retVersion = version
 		return err
 	})
+
+	return retVersion, err
 }
 
-func (z *ZStack) verifyAdapterNetworkConfig(ctx context.Context) (bool, error) {
+func (z *ZStack) verifyAdapterNetworkConfig(ctx context.Context, version Version) (bool, error) {
 	configToVerify := []interface{}{
 		&ZCDNVLogicalType{LogicalType: zigbee.Coordinator},
 		&ZCDNVPANID{PANID: z.NetworkProperties.PANID},
@@ -108,8 +114,8 @@ func (z *ZStack) makeCoordinator(ctx context.Context) error {
 	})
 }
 
-func (z *ZStack) configureNetwork(ctx context.Context) error {
-	return retryFunctions(ctx, []func(context.Context) error{
+func (z *ZStack) configureNetwork(ctx context.Context, version Version) error {
+	if err := retryFunctions(ctx, []func(context.Context) error{
 		func(invokeCtx context.Context) error {
 			return z.writeNVRAM(invokeCtx, ZCDNVSecurityMode{Enabled: 1})
 		},
@@ -131,18 +137,32 @@ func (z *ZStack) configureNetwork(ctx context.Context) error {
 		func(invokeCtx context.Context) error {
 			return z.writeNVRAM(invokeCtx, ZCDNVExtPANID{ExtendedPANID: z.NetworkProperties.ExtendedPANID})
 		},
-		func(invokeCtx context.Context) error {
-			return z.writeNVRAM(invokeCtx, ZCDNVUseDefaultTCLK{Enabled: 1})
-		},
-		func(invokeCtx context.Context) error {
-			return z.writeNVRAM(invokeCtx, ZCDNVTCLKTableStart{
-				Address:        zigbee.IEEEAddress(0xffffffffffffffff),
-				NetworkKey:     zigbee.TCLinkKey,
-				TXFrameCounter: 0,
-				RXFrameCounter: 0,
-			})
-		},
-	})
+	}); err != nil {
+		return err
+	}
+
+	if !version.IsV3() {
+		/* Z-Stack 3.X.X has a valid default Trust Centre key, so this is not required. */
+		return retryFunctions(ctx, []func(context.Context) error{
+			func(invokeCtx context.Context) error {
+				return z.writeNVRAM(invokeCtx, ZCDNVUseDefaultTCLK{Enabled: 1})
+			},
+			func(invokeCtx context.Context) error {
+				return z.writeNVRAM(invokeCtx, ZCDNVTCLKTableStart{
+					Address:        zigbee.IEEEAddress(0xffffffffffffffff),
+					NetworkKey:     zigbee.TCLinkKey,
+					TXFrameCounter: 0,
+					RXFrameCounter: 0,
+				})
+			},
+		})
+	} else {
+		/* Z-Stack 3.X.X requires configuration of Base Device Behaviour. */
+
+		// TODO
+
+		return nil
+	}
 }
 
 func (z *ZStack) retrieveAdapterAddresses(ctx context.Context) error {

@@ -91,3 +91,11 @@ func Test_resetAdapter(t *testing.T) {
 		assert.Error(t, err)
 	})
 }
+
+func Test_Version(t *testing.T) {
+	t.Run("Version.IsV3 returns true if Version.ProductId > 0", func(t *testing.T) {
+		assert.False(t, Version{ProductID: 0}.IsV3())
+		assert.True(t, Version{ProductID: 1}.IsV3())
+		assert.True(t, Version{ProductID: 2}.IsV3())
+	})
+}

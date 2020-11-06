@@ -22,14 +22,8 @@ func Test_Initialise(t *testing.T) {
 		defer zstack.Stop()
 
 		resetResponse, _ := bytecodec.Marshal(SysResetInd{
-			Reason: External,
-			Version: Version{
-				TransportRevision: 2,
-				ProductID:         1,
-				MajorRelease:      2,
-				MinorRelease:      3,
-				HardwareRevision:  4,
-			},
+			Reason:  External,
+			Version: Version{},
 		})
 
 		resetOn := unpiMock.On(AREQ, SYS, SysResetReqID).Return(Frame{
@@ -141,14 +135,8 @@ func Test_Initialise(t *testing.T) {
 		defer zstack.Stop()
 
 		resetResponse, _ := bytecodec.Marshal(SysResetInd{
-			Reason: External,
-			Version: Version{
-				TransportRevision: 2,
-				ProductID:         1,
-				MajorRelease:      2,
-				MinorRelease:      3,
-				HardwareRevision:  4,
-			},
+			Reason:  External,
+			Version: Version{},
 		})
 
 		resetOn := unpiMock.On(AREQ, SYS, SysResetReqID).Return(Frame{
@@ -157,14 +145,6 @@ func Test_Initialise(t *testing.T) {
 			CommandID:   SysResetIndID,
 			Payload:     resetResponse,
 		}).Times(1)
-
-		nvramWriteResponse, _ := bytecodec.Marshal(SysOSALNVWriteReply{Status: ZSuccess})
-		nvramOn := unpiMock.On(SREQ, SYS, SysOSALNVWriteID).Return(Frame{
-			MessageType: SRSP,
-			Subsystem:   SYS,
-			CommandID:   SysOSALNVWriteReplyID,
-			Payload:     nvramWriteResponse,
-		}).Times(9)
 
 		unpiMock.On(SREQ, SAPI, SAPIZBStartRequestID).Return(Frame{
 			MessageType: SRSP,
@@ -252,15 +232,6 @@ func Test_Initialise(t *testing.T) {
 		assert.Equal(t, nc.Channel, zstack.NetworkProperties.Channel)
 
 		assert.Equal(t, []byte{0x01}, resetOn.CapturedCalls[0].Frame.Payload)
-		assert.Equal(t, []byte{0x64, 0x00, 0x00, 0x01, 0x1}, nvramOn.CapturedCalls[0].Frame.Payload)
-		assert.Equal(t, []byte{0x63, 0x00, 0x00, 0x01, 0x1}, nvramOn.CapturedCalls[1].Frame.Payload)
-		assert.Equal(t, []byte{0x62, 0x00, 0x00, 0x10, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08}, nvramOn.CapturedCalls[2].Frame.Payload)
-		assert.Equal(t, []byte{0x8f, 0x00, 0x00, 0x01, 0x01}, nvramOn.CapturedCalls[3].Frame.Payload)
-		assert.Equal(t, []byte{0x84, 0x00, 0x00, 0x04, 0x00, 0x80, 0x00, 0x00}, nvramOn.CapturedCalls[4].Frame.Payload)
-		assert.Equal(t, []byte{0x83, 0x00, 0x00, 0x02, 0x02, 0x01}, nvramOn.CapturedCalls[5].Frame.Payload)
-		assert.Equal(t, []byte{0x2d, 0x00, 0x00, 0x08, 0x08, 0x07, 0x06, 0x05, 0x04, 0x03, 0x02, 0x01}, nvramOn.CapturedCalls[6].Frame.Payload)
-		assert.Equal(t, []byte{0x6d, 0x00, 0x00, 0x01, 0x01}, nvramOn.CapturedCalls[7].Frame.Payload)
-		assert.Equal(t, []byte{0x01, 0x01, 0x00, 0x20, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x5a, 0x69, 0x67, 0x42, 0x65, 0x65, 0x41, 0x6c, 0x6c, 0x69, 0x61, 0x6e, 0x63, 0x65, 0x30, 0x39, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, nvramOn.CapturedCalls[8].Frame.Payload)
 
 		assert.Equal(t, zigbee.IEEEAddress(0x08090a0b0c0d0e0f), zstack.NetworkProperties.IEEEAddress)
 		assert.Equal(t, zigbee.NetworkAddress(0x0809), zstack.NetworkProperties.NetworkAddress)
@@ -312,7 +283,7 @@ func Test_verifyAdapterNetworkConfig(t *testing.T) {
 			chanListFrame,
 		).Times(4)
 
-		valid, err := zstack.verifyAdapterNetworkConfig(ctx)
+		valid, err := zstack.verifyAdapterNetworkConfig(ctx, Version{})
 
 		assert.NoError(t, err)
 		assert.True(t, valid)
@@ -363,7 +334,7 @@ func Test_verifyAdapterNetworkConfig(t *testing.T) {
 			chanListFrame,
 		).Times(4)
 
-		valid, err := zstack.verifyAdapterNetworkConfig(ctx)
+		valid, err := zstack.verifyAdapterNetworkConfig(ctx, Version{})
 
 		assert.NoError(t, err)
 		assert.False(t, valid)
