@@ -7,7 +7,6 @@ import (
 	"github.com/shimmeringbee/retry"
 	"github.com/shimmeringbee/zigbee"
 	"reflect"
-	"time"
 )
 
 func (z *ZStack) Initialise(pctx context.Context, nc zigbee.NetworkConfiguration) error {
@@ -34,7 +33,7 @@ func (z *ZStack) Initialise(pctx context.Context, nc zigbee.NetworkConfiguration
 			return err
 		}
 
-		z.logger.LogInfo(ctx, "Converting adapter to coordinator.")
+		z.logger.LogInfo(ctx, "Setting adapter to coordinator.")
 		if err := z.makeCoordinator(ctx); err != nil {
 			return err
 		}
@@ -50,11 +49,6 @@ func (z *ZStack) Initialise(pctx context.Context, nc zigbee.NetworkConfiguration
 		return err
 	}
 
-	//z.logger.LogInfo(ctx, "Waiting for coordinator to start.")
-	//if err := z.waitForCoordinatorStart(ctx); err != nil {
-	//	return err
-	//}
-
 	z.logger.LogInfo(ctx, "Fetching adapter IEEE and Network addresses.")
 	if err := z.retrieveAdapterAddresses(ctx); err != nil {
 		return err
@@ -64,9 +58,6 @@ func (z *ZStack) Initialise(pctx context.Context, nc zigbee.NetworkConfiguration
 	if err := z.DenyJoin(ctx); err != nil {
 		return err
 	}
-
-	channelBits := channelToBits(z.NetworkProperties.Channel)
-	z.writeNVRAM(ctx, ZCDNVChanList{Channels: channelBits})
 
 	z.startNetworkManager()
 	z.startMessageReceiver()
@@ -161,6 +152,7 @@ func (z *ZStack) configureNetwork(ctx context.Context, version Version) error {
 	}
 
 	if !version.IsV3() {
+		/* Less than Z-Stack 3.X.X requires the Trust Centre key to be loaded. */
 		return retryFunctions(ctx, []func(context.Context) error{
 			func(invokeCtx context.Context) error {
 				return z.writeNVRAM(invokeCtx, ZCDNVUseDefaultTCLK{Enabled: 1})
@@ -205,32 +197,26 @@ func (z *ZStack) configureNetwork(ctx context.Context, version Version) error {
 func (z *ZStack) retrieveAdapterAddresses(ctx context.Context) error {
 	return retryFunctions(ctx, []func(context.Context) error{
 		func(invokeCtx context.Context) error {
-			address, err := z.GetAdapterIEEEAddress(ctx)
-
-			if err != nil {
+			if address, err := z.GetAdapterIEEEAddress(ctx); err != nil {
 				return err
+			} else {
+				z.NetworkProperties.IEEEAddress = address
+				return nil
 			}
-
-			z.NetworkProperties.IEEEAddress = address
-
-			return nil
 		},
 		func(ctx context.Context) error {
-			address, err := z.GetAdapterNetworkAddress(ctx)
-
-			if err != nil {
+			if address, err := z.GetAdapterNetworkAddress(ctx); err != nil {
 				return err
+			} else {
+				z.NetworkProperties.NetworkAddress = address
+				return nil
 			}
-
-			z.NetworkProperties.NetworkAddress = address
-
-			return nil
 		},
 	})
 }
 
 func (z *ZStack) startZigbeeStack(ctx context.Context) error {
-	return retry.Retry(ctx, 30*time.Second, DefaultZStackRetries, func(invokeCtx context.Context) error {
+	return retry.Retry(ctx, DefaultZStackTimeout, DefaultZStackRetries, func(invokeCtx context.Context) error {
 		return z.requestResponder.RequestResponse(invokeCtx, ZDOStartUpFromAppRequest{StartDelay: 100}, &ZDOStartUpFromAppRequestReply{})
 	})
 }
