@@ -37,7 +37,7 @@ func (z *ZStack) writeNVRAM(ctx context.Context, v interface{}) error {
 	}
 
 	if writeResponse.Status != ZSuccess {
-		return fmt.Errorf("%w: status = %v", NVRAMUnsuccessful, writeResponse.Status)
+		return fmt.Errorf("%w: write: configId = %v, status = %v", NVRAMUnsuccessful, configId, writeResponse.Status)
 	}
 
 	return nil
@@ -68,7 +68,7 @@ func (z *ZStack) readNVRAM(ctx context.Context, v interface{}) error {
 	}
 
 	if readResponse.Status != ZSuccess {
-		return fmt.Errorf("%w: status = %v", NVRAMUnsuccessful, readResponse.Status)
+		return fmt.Errorf("%w: read: configId = %v, status = %v", NVRAMUnsuccessful, configId, readResponse.Status)
 	}
 
 	return bytecodec.Unmarshal(readResponse.Value, v)

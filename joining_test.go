@@ -2,6 +2,7 @@ package zstack
 
 import (
 	"context"
+	"github.com/shimmeringbee/bytecodec"
 	. "github.com/shimmeringbee/unpi"
 	unpiTest "github.com/shimmeringbee/unpi/testing"
 	"github.com/shimmeringbee/zigbee"
@@ -19,10 +20,10 @@ func Test_PermitJoin(t *testing.T) {
 		zstack := New(unpiMock, NewNodeTable())
 		defer unpiMock.Stop()
 
-		c := unpiMock.On(SREQ, SAPI, SAPIZBPermitJoiningRequestID).Return(Frame{
+		c := unpiMock.On(SREQ, ZDO, ZDOMgmtPermitJoinRequestID).Return(Frame{
 			MessageType: SRSP,
-			Subsystem:   SAPI,
-			CommandID:   SAPIZBPermitJoiningRequestReplyID,
+			Subsystem:   ZDO,
+			CommandID:   ZDOMgmtPermitJoinRequestReplyID,
 			Payload:     []byte{0x00},
 		})
 
@@ -31,7 +32,7 @@ func Test_PermitJoin(t *testing.T) {
 
 		unpiMock.AssertCalls(t)
 
-		assert.Equal(t, []byte{0xfc, 0xff, 0xff}, c.CapturedCalls[0].Frame.Payload)
+		assert.Equal(t, []byte{0xfc, 0xff, 0xff, 0x00}, c.CapturedCalls[0].Frame.Payload)
 		assert.Equal(t, OnAllRouters, zstack.NetworkProperties.JoinState)
 	})
 
@@ -44,10 +45,10 @@ func Test_PermitJoin(t *testing.T) {
 		defer unpiMock.Stop()
 		zstack.NetworkProperties.NetworkAddress = zigbee.NetworkAddress(0x0102)
 
-		c := unpiMock.On(SREQ, SAPI, SAPIZBPermitJoiningRequestID).Return(Frame{
+		c := unpiMock.On(SREQ, ZDO, ZDOMgmtPermitJoinRequestID).Return(Frame{
 			MessageType: SRSP,
-			Subsystem:   SAPI,
-			CommandID:   SAPIZBPermitJoiningRequestReplyID,
+			Subsystem:   ZDO,
+			CommandID:   ZDOMgmtPermitJoinRequestReplyID,
 			Payload:     []byte{0x00},
 		})
 
@@ -56,7 +57,7 @@ func Test_PermitJoin(t *testing.T) {
 
 		unpiMock.AssertCalls(t)
 
-		assert.Equal(t, []byte{0x02, 0x01, 0xff}, c.CapturedCalls[0].Frame.Payload)
+		assert.Equal(t, []byte{0x02, 0x01, 0xff, 0x00}, c.CapturedCalls[0].Frame.Payload)
 		assert.Equal(t, OnCoordinator, zstack.NetworkProperties.JoinState)
 	})
 
@@ -68,10 +69,10 @@ func Test_PermitJoin(t *testing.T) {
 		zstack := New(unpiMock, NewNodeTable())
 		defer unpiMock.Stop()
 
-		unpiMock.On(SREQ, SAPI, SAPIZBPermitJoiningRequestID).Return(Frame{
+		unpiMock.On(SREQ, ZDO, ZDOMgmtPermitJoinRequestID).Return(Frame{
 			MessageType: SRSP,
-			Subsystem:   SAPI,
-			CommandID:   SAPIZBPermitJoiningRequestReplyID,
+			Subsystem:   ZDO,
+			CommandID:   ZDOMgmtPermitJoinRequestReplyID,
 			Payload:     []byte{0x01},
 		})
 
@@ -91,10 +92,10 @@ func Test_DenyJoin(t *testing.T) {
 		zstack := New(unpiMock, NewNodeTable())
 		defer unpiMock.Stop()
 
-		c := unpiMock.On(SREQ, SAPI, SAPIZBPermitJoiningRequestID).Return(Frame{
+		c := unpiMock.On(SREQ, ZDO, ZDOMgmtPermitJoinRequestID).Return(Frame{
 			MessageType: SRSP,
-			Subsystem:   SAPI,
-			CommandID:   SAPIZBPermitJoiningRequestReplyID,
+			Subsystem:   ZDO,
+			CommandID:   ZDOMgmtPermitJoinRequestReplyID,
 			Payload:     []byte{0x00},
 		})
 
@@ -104,7 +105,7 @@ func Test_DenyJoin(t *testing.T) {
 
 		unpiMock.AssertCalls(t)
 
-		assert.Equal(t, []byte{0xfc, 0xff, 0x00}, c.CapturedCalls[0].Frame.Payload)
+		assert.Equal(t, []byte{0xfc, 0xff, 0x00, 0x00}, c.CapturedCalls[0].Frame.Payload)
 		assert.Equal(t, Off, zstack.NetworkProperties.JoinState)
 	})
 
@@ -116,10 +117,10 @@ func Test_DenyJoin(t *testing.T) {
 		zstack := New(unpiMock, NewNodeTable())
 		defer unpiMock.Stop()
 
-		unpiMock.On(SREQ, SAPI, SAPIZBPermitJoiningRequestID).Return(Frame{
+		unpiMock.On(SREQ, ZDO, ZDOMgmtPermitJoinRequestID).Return(Frame{
 			MessageType: SRSP,
-			Subsystem:   SAPI,
-			CommandID:   SAPIZBPermitJoiningRequestReplyID,
+			Subsystem:   ZDO,
+			CommandID:   ZDOMgmtPermitJoinRequestReplyID,
 			Payload:     []byte{0x01},
 		})
 
@@ -127,5 +128,35 @@ func Test_DenyJoin(t *testing.T) {
 		assert.Error(t, err)
 
 		unpiMock.AssertCalls(t)
+	})
+}
+
+func Test_ZDOMgmtPermitJoin(t *testing.T) {
+	t.Run("ZDOMgmtPermitJoinRequest", func(t *testing.T) {
+		s := ZDOMgmtPermitJoinRequest{
+			Destination:    0x0102,
+			Duration:       0x03,
+			TCSignificance: 0x04,
+		}
+
+		actualBytes, err := bytecodec.Marshal(s)
+
+		expectedBytes := []byte{0x02, 0x01, 0x03, 0x04}
+
+		assert.NoError(t, err)
+		assert.Equal(t, expectedBytes, actualBytes)
+	})
+
+	t.Run("ZDOMgmtPermitJoinRequestReply", func(t *testing.T) {
+		s := ZDOMgmtPermitJoinRequestReply{
+			Status: 0x01,
+		}
+
+		actualBytes, err := bytecodec.Marshal(s)
+
+		expectedBytes := []byte{0x01}
+
+		assert.NoError(t, err)
+		assert.Equal(t, expectedBytes, actualBytes)
 	})
 }

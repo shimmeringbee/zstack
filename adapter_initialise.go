@@ -7,46 +7,66 @@ import (
 	"github.com/shimmeringbee/retry"
 	"github.com/shimmeringbee/zigbee"
 	"reflect"
+	"time"
 )
 
-func (z *ZStack) Initialise(ctx context.Context, nc zigbee.NetworkConfiguration) error {
+func (z *ZStack) Initialise(pctx context.Context, nc zigbee.NetworkConfiguration) error {
 	z.NetworkProperties.PANID = nc.PANID
 	z.NetworkProperties.ExtendedPANID = nc.ExtendedPANID
 	z.NetworkProperties.NetworkKey = nc.NetworkKey
 	z.NetworkProperties.Channel = nc.Channel
 
+	ctx, segmentEnd := z.logger.Segment(pctx, "Adapter Initialise.")
+	defer segmentEnd()
+
+	z.logger.LogInfo(ctx, "Restarting adapter.")
 	version, err := z.waitForAdapterReset(ctx)
 	if err != nil {
 		return err
 	}
 
+	z.logger.LogInfo(ctx, "Verifying existing network configuration.")
 	if valid, err := z.verifyAdapterNetworkConfig(ctx, version); err != nil {
 		return err
 	} else if !valid {
+		z.logger.LogWarn(ctx, "Adapter network configuration is invalid, resetting adapter.")
 		if err := z.wipeAdapter(ctx); err != nil {
 			return err
 		}
 
+		z.logger.LogInfo(ctx, "Converting adapter to coordinator.")
 		if err := z.makeCoordinator(ctx); err != nil {
 			return err
 		}
 
+		z.logger.LogInfo(ctx, "Configuring adapter.")
 		if err := z.configureNetwork(ctx, version); err != nil {
 			return err
 		}
 	}
 
+	z.logger.LogInfo(ctx, "Starting Zigbee stack.")
 	if err := z.startZigbeeStack(ctx); err != nil {
 		return err
 	}
 
+	//z.logger.LogInfo(ctx, "Waiting for coordinator to start.")
+	//if err := z.waitForCoordinatorStart(ctx); err != nil {
+	//	return err
+	//}
+
+	z.logger.LogInfo(ctx, "Fetching adapter IEEE and Network addresses.")
 	if err := z.retrieveAdapterAddresses(ctx); err != nil {
 		return err
 	}
 
+	z.logger.LogInfo(ctx, "Enforcing denial of network joins.")
 	if err := z.DenyJoin(ctx); err != nil {
 		return err
 	}
+
+	channelBits := channelToBits(z.NetworkProperties.Channel)
+	z.writeNVRAM(ctx, ZCDNVChanList{Channels: channelBits})
 
 	z.startNetworkManager()
 	z.startMessageReceiver()
@@ -115,10 +135,9 @@ func (z *ZStack) makeCoordinator(ctx context.Context) error {
 }
 
 func (z *ZStack) configureNetwork(ctx context.Context, version Version) error {
+	channelBits := channelToBits(z.NetworkProperties.Channel)
+
 	if err := retryFunctions(ctx, []func(context.Context) error{
-		func(invokeCtx context.Context) error {
-			return z.writeNVRAM(invokeCtx, ZCDNVSecurityMode{Enabled: 1})
-		},
 		func(invokeCtx context.Context) error {
 			return z.writeNVRAM(invokeCtx, ZCDNVPreCfgKeysEnable{Enabled: 1})
 		},
@@ -129,7 +148,7 @@ func (z *ZStack) configureNetwork(ctx context.Context, version Version) error {
 			return z.writeNVRAM(invokeCtx, ZCDNVZDODirectCB{Enabled: 1})
 		},
 		func(invokeCtx context.Context) error {
-			return z.writeNVRAM(invokeCtx, ZCDNVChanList{Channels: channelToBits(z.NetworkProperties.Channel)})
+			return z.writeNVRAM(invokeCtx, ZCDNVChanList{Channels: channelBits})
 		},
 		func(invokeCtx context.Context) error {
 			return z.writeNVRAM(invokeCtx, ZCDNVPANID{PANID: z.NetworkProperties.PANID})
@@ -142,7 +161,6 @@ func (z *ZStack) configureNetwork(ctx context.Context, version Version) error {
 	}
 
 	if !version.IsV3() {
-		/* Z-Stack 3.X.X has a valid default Trust Centre key, so this is not required. */
 		return retryFunctions(ctx, []func(context.Context) error{
 			func(invokeCtx context.Context) error {
 				return z.writeNVRAM(invokeCtx, ZCDNVUseDefaultTCLK{Enabled: 1})
@@ -158,10 +176,29 @@ func (z *ZStack) configureNetwork(ctx context.Context, version Version) error {
 		})
 	} else {
 		/* Z-Stack 3.X.X requires configuration of Base Device Behaviour. */
+		if err := retryFunctions(ctx, []func(context.Context) error{
+			func(invokeCtx context.Context) error {
+				return z.requestResponder.RequestResponse(ctx, APPCNFBDBSetChannelRequest{IsPrimary: true, Channel: channelBits}, &APPCNFBDBSetChannelRequestReply{})
+			},
+			func(invokeCtx context.Context) error {
+				return z.requestResponder.RequestResponse(ctx, APPCNFBDBSetChannelRequest{IsPrimary: false, Channel: [4]byte{}}, &APPCNFBDBSetChannelRequestReply{})
+			},
+			func(invokeCtx context.Context) error {
+				return z.requestResponder.RequestResponse(ctx, APPCNFBDBStartCommissioningRequest{Mode: 0x04}, &APPCNFBDBStartCommissioningRequestReply{})
+			},
+		}); err != nil {
+			return err
+		}
 
-		// TODO
+		if err := z.waitForCoordinatorStart(ctx); err != nil {
+			return err
+		}
 
-		return nil
+		return retryFunctions(ctx, []func(context.Context) error{
+			func(invokeCtx context.Context) error {
+				return z.requestResponder.RequestResponse(ctx, APPCNFBDBStartCommissioningRequest{Mode: 0x02}, &APPCNFBDBStartCommissioningRequestReply{})
+			},
+		})
 	}
 }
 
@@ -193,18 +230,17 @@ func (z *ZStack) retrieveAdapterAddresses(ctx context.Context) error {
 }
 
 func (z *ZStack) startZigbeeStack(ctx context.Context) error {
-	if err := retry.Retry(ctx, DefaultZStackTimeout, DefaultZStackRetries, func(invokeCtx context.Context) error {
-		return z.requestResponder.RequestResponse(invokeCtx, SAPIZBStartRequest{}, &SAPIZBStartRequestReply{})
-	}); err != nil {
-		return err
-	}
+	return retry.Retry(ctx, 30*time.Second, DefaultZStackRetries, func(invokeCtx context.Context) error {
+		return z.requestResponder.RequestResponse(invokeCtx, ZDOStartUpFromAppRequest{StartDelay: 100}, &ZDOStartUpFromAppRequestReply{})
+	})
+}
 
+func (z *ZStack) waitForCoordinatorStart(ctx context.Context) error {
 	ch := make(chan bool, 1)
 	defer close(ch)
 
 	err, cancel := z.subscriber.Subscribe(&ZDOStateChangeInd{}, func(v interface{}) {
 		stateChange := v.(*ZDOStateChangeInd)
-
 		if stateChange.State == DeviceZBCoordinator {
 			ch <- true
 		}
@@ -245,14 +281,6 @@ func channelToBits(channel uint8) [4]byte {
 	return channelBytes
 }
 
-type SAPIZBStartRequest struct{}
-
-const SAPIZBStartRequestID uint8 = 0x00
-
-type SAPIZBStartRequestReply struct{}
-
-const SAPIZBStartRequestReplyID uint8 = 0x00
-
 type ZBStartStatus uint8
 
 const (
@@ -272,3 +300,36 @@ type ZDOStateChangeInd struct {
 }
 
 const ZDOStateChangeIndID uint8 = 0xc0
+
+type APPCNFBDBStartCommissioningRequest struct {
+	Mode uint8
+}
+
+const APPCNFBDBStartCommissioningRequestID uint8 = 0x05
+
+type APPCNFBDBStartCommissioningRequestReply GenericZStackStatus
+
+const APPCNFBDBStartCommissioningRequestReplyID uint8 = 0x05
+
+type APPCNFBDBSetChannelRequest struct {
+	IsPrimary bool `bcwidth:"8"`
+	Channel   [4]byte
+}
+
+const APPCNFBDBSetChannelRequestID uint8 = 0x08
+
+type APPCNFBDBSetChannelRequestReply GenericZStackStatus
+
+const APPCNFBDBSetChannelRequestReplyID uint8 = 0x08
+
+type ZDOStartUpFromAppRequest struct {
+	StartDelay uint16
+}
+
+const ZDOStartUpFromAppRequestId uint8 = 0x40
+
+type ZDOStartUpFromAppRequestReply struct {
+	Status uint8
+}
+
+const ZDOStartUpFromAppRequestReplyID uint8 = 0x40

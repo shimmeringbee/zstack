@@ -19,11 +19,12 @@ func (z *ZStack) DenyJoin(ctx context.Context) error {
 }
 
 func (z *ZStack) sendJoin(ctx context.Context, address zigbee.NetworkAddress, timeout uint8, newState JoinState) error {
-	response := SAPIZBPermitJoiningRequestReply{}
+	response := ZDOMgmtPermitJoinRequestReply{}
 
-	if err := z.requestResponder.RequestResponse(ctx, SAPIZBPermitJoiningRequest{
-		Destination: address,
-		Timeout:     timeout,
+	if err := z.requestResponder.RequestResponse(ctx, ZDOMgmtPermitJoinRequest{
+		Destination:    address,
+		Duration:       timeout,
+		TCSignificance: 0x00,
 	}, &response); err != nil {
 		return err
 	}
@@ -42,13 +43,14 @@ const (
 	JoiningOn  uint8 = 0xff
 )
 
-type SAPIZBPermitJoiningRequest struct {
-	Destination zigbee.NetworkAddress
-	Timeout     uint8
+type ZDOMgmtPermitJoinRequest struct {
+	Destination    zigbee.NetworkAddress
+	Duration       uint8
+	TCSignificance uint8
 }
 
-const SAPIZBPermitJoiningRequestID uint8 = 0x08
+const ZDOMgmtPermitJoinRequestID = 0x36
 
-type SAPIZBPermitJoiningRequestReply GenericZStackStatus
+type ZDOMgmtPermitJoinRequestReply GenericZStackStatus
 
-const SAPIZBPermitJoiningRequestReplyID uint8 = 0x08
+const ZDOMgmtPermitJoinRequestReplyID uint8 = 0x36

@@ -16,15 +16,6 @@ func registerMessages(l *Library) {
 	l.Add(SREQ, SYS, SysOSALNVWriteID, SysOSALNVWrite{})
 	l.Add(SRSP, SYS, SysOSALNVWriteReplyID, SysOSALNVWriteReply{})
 
-	l.Add(SREQ, SAPI, SAPIZBStartRequestID, SAPIZBStartRequest{})
-	l.Add(SRSP, SAPI, SAPIZBStartRequestReplyID, SAPIZBStartRequestReply{})
-
-	l.Add(SREQ, SAPI, SAPIZBPermitJoiningRequestID, SAPIZBPermitJoiningRequest{})
-	l.Add(SRSP, SAPI, SAPIZBPermitJoiningRequestReplyID, SAPIZBPermitJoiningRequestReply{})
-
-	l.Add(SREQ, SAPI, SAPIZBGetDeviceInfoID, SAPIZBGetDeviceInfo{})
-	l.Add(SRSP, SAPI, SAPIZBGetDeviceInfoReplyID, SAPIZBGetDeviceInfoReply{})
-
 	l.Add(AREQ, ZDO, ZDOStateChangeIndID, ZDOStateChangeInd{})
 
 	l.Add(AREQ, ZDO, ZdoEndDeviceAnnceIndID, ZdoEndDeviceAnnceInd{})
@@ -71,6 +62,21 @@ func registerMessages(l *Library) {
 	l.Add(SREQ, ZDO, ZdoNWKAddrReqID, ZdoNWKAddrReq{})
 	l.Add(SRSP, ZDO, ZdoNWKAddrReqReplyID, ZdoNWKAddrReqReply{})
 	l.Add(AREQ, ZDO, ZdoNWKAddrRspID, ZdoNWKAddrRsp{})
+
+	l.Add(SREQ, APP_CNF, APPCNFBDBStartCommissioningRequestID, APPCNFBDBStartCommissioningRequest{})
+	l.Add(SRSP, APP_CNF, APPCNFBDBStartCommissioningRequestReplyID, APPCNFBDBStartCommissioningRequestReply{})
+
+	l.Add(SREQ, APP_CNF, APPCNFBDBSetChannelRequestID, APPCNFBDBSetChannelRequest{})
+	l.Add(SRSP, APP_CNF, APPCNFBDBSetChannelRequestReplyID, APPCNFBDBSetChannelRequestReply{})
+
+	l.Add(SREQ, ZDO, ZDOStartUpFromAppRequestId, ZDOStartUpFromAppRequest{})
+	l.Add(SRSP, ZDO, ZDOStartUpFromAppRequestReplyID, ZDOStartUpFromAppRequestReply{})
+
+	l.Add(SREQ, UTIL, UtilGetDeviceInfoRequestID, UtilGetDeviceInfoRequest{})
+	l.Add(SRSP, UTIL, UtilGetDeviceInfoRequestReplyID, UtilGetDeviceInfoRequestReply{})
+
+	l.Add(SREQ, ZDO, ZDOMgmtPermitJoinRequestID, ZDOMgmtPermitJoinRequest{})
+	l.Add(SRSP, ZDO, ZDOMgmtPermitJoinRequestReplyID, ZDOMgmtPermitJoinRequestReply{})
 }
 
 type ZStackStatus uint8

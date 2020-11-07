@@ -14,53 +14,34 @@ func (z *ZStack) AdapterNode() zigbee.Node {
 }
 
 func (z *ZStack) GetAdapterIEEEAddress(ctx context.Context) (zigbee.IEEEAddress, error) {
-	data, err := z.getAddressInfo(ctx, IEEEAddress)
-
-	ieeeAddress := zigbee.IEEEAddress(data)
+	data, err := z.getAddressInfo(ctx)
+	ieeeAddress := data.IEEEAddress
 
 	return ieeeAddress, err
 }
 
 func (z *ZStack) GetAdapterNetworkAddress(ctx context.Context) (zigbee.NetworkAddress, error) {
-	data, err := z.getAddressInfo(ctx, NetworkAddress)
+	data, err := z.getAddressInfo(ctx)
 
-	networkAddress := zigbee.NetworkAddress(data & 0xffff)
-
+	networkAddress := data.NetworkAddress
 	return networkAddress, err
 }
 
-func (z *ZStack) getAddressInfo(ctx context.Context, parameter DeviceInfoParameter) (uint64, error) {
-	resp := SAPIZBGetDeviceInfoReply{}
+func (z *ZStack) getAddressInfo(ctx context.Context) (UtilGetDeviceInfoRequestReply, error) {
+	resp := UtilGetDeviceInfoRequestReply{}
 
-	if err := z.requestResponder.RequestResponse(ctx, SAPIZBGetDeviceInfo{Parameter: parameter}, &resp); err != nil {
-		return 0, err
-	}
-
-	return resp.Value, nil
+	err := z.requestResponder.RequestResponse(ctx, UtilGetDeviceInfoRequest{}, &resp)
+	return resp, err
 }
 
-type DeviceInfoParameter uint8
+type UtilGetDeviceInfoRequest struct{}
 
-const (
-	State                  DeviceInfoParameter = 0x00
-	IEEEAddress            DeviceInfoParameter = 0x01
-	NetworkAddress         DeviceInfoParameter = 0x02
-	ParentNetworkAddress   DeviceInfoParameter = 0x03
-	ParentIEEEAddress      DeviceInfoParameter = 0x04
-	OperatingChannel       DeviceInfoParameter = 0x05
-	OperatingPANID         DeviceInfoParameter = 0x06
-	OperatingExtendedPANID DeviceInfoParameter = 0x07
-)
+const UtilGetDeviceInfoRequestID uint8 = 0x00
 
-type SAPIZBGetDeviceInfo struct {
-	Parameter DeviceInfoParameter
+type UtilGetDeviceInfoRequestReply struct {
+	Status         uint8
+	IEEEAddress    zigbee.IEEEAddress
+	NetworkAddress zigbee.NetworkAddress
 }
 
-const SAPIZBGetDeviceInfoID uint8 = 0x06
-
-type SAPIZBGetDeviceInfoReply struct {
-	Parameter DeviceInfoParameter
-	Value     uint64
-}
-
-const SAPIZBGetDeviceInfoReplyID uint8 = 0x06
+const UtilGetDeviceInfoRequestReplyID uint8 = 0x00

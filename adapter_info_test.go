@@ -2,6 +2,7 @@ package zstack
 
 import (
 	"context"
+	"github.com/shimmeringbee/bytecodec"
 	. "github.com/shimmeringbee/unpi"
 	unpiTest "github.com/shimmeringbee/unpi/testing"
 	"github.com/shimmeringbee/zigbee"
@@ -19,18 +20,16 @@ func Test_GetAdapterIEEEAddress(t *testing.T) {
 		zstack := New(unpiMock, NewNodeTable())
 		defer unpiMock.Stop()
 
-		c := unpiMock.On(SREQ, SAPI, SAPIZBGetDeviceInfoID).Return(Frame{
+		unpiMock.On(SREQ, UTIL, UtilGetDeviceInfoRequestID).Return(Frame{
 			MessageType: SRSP,
-			Subsystem:   SAPI,
-			CommandID:   SAPIZBGetDeviceInfoReplyID,
-			Payload:     []byte{0x01, 0x0f, 0x0e, 0x0d, 0x0c, 0x0b, 0x0a, 0x09, 0x08},
+			Subsystem:   UTIL,
+			CommandID:   UtilGetDeviceInfoRequestReplyID,
+			Payload:     []byte{0x00, 0x09, 0x08, 0x07, 0x06, 0x05, 0x04, 0x03, 0x02, 0x12, 0x11},
 		})
 
 		address, err := zstack.GetAdapterIEEEAddress(ctx)
 		assert.NoError(t, err)
-		assert.Equal(t, zigbee.IEEEAddress(0x08090a0b0c0d0e0f), address)
-
-		assert.Equal(t, uint8(0x01), c.CapturedCalls[0].Frame.Payload[0])
+		assert.Equal(t, zigbee.IEEEAddress(0x0203040506070809), address)
 
 		unpiMock.AssertCalls(t)
 	})
@@ -45,19 +44,34 @@ func Test_GetAdapterNetworkAddress(t *testing.T) {
 		zstack := New(unpiMock, NewNodeTable())
 		defer unpiMock.Stop()
 
-		c := unpiMock.On(SREQ, SAPI, SAPIZBGetDeviceInfoID).Return(Frame{
+		unpiMock.On(SREQ, UTIL, UtilGetDeviceInfoRequestID).Return(Frame{
 			MessageType: SRSP,
-			Subsystem:   SAPI,
-			CommandID:   SAPIZBGetDeviceInfoReplyID,
-			Payload:     []byte{0x02, 0x09, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
+			Subsystem:   UTIL,
+			CommandID:   UtilGetDeviceInfoRequestReplyID,
+			Payload:     []byte{0x00, 0x09, 0x08, 0x07, 0x06, 0x05, 0x04, 0x03, 0x02, 0x12, 0x11},
 		})
 
 		address, err := zstack.GetAdapterNetworkAddress(ctx)
 		assert.NoError(t, err)
-		assert.Equal(t, zigbee.NetworkAddress(0x0809), address)
-
-		assert.Equal(t, uint8(0x02), c.CapturedCalls[0].Frame.Payload[0])
+		assert.Equal(t, zigbee.NetworkAddress(0x1112), address)
 
 		unpiMock.AssertCalls(t)
+	})
+}
+
+func Test_UtilGetDeviceInfoStructs(t *testing.T) {
+	t.Run("UtilGetDeviceInfoRequestReply", func(t *testing.T) {
+		s := UtilGetDeviceInfoRequestReply{
+			Status:         0x01,
+			IEEEAddress:    0x0203040506070809,
+			NetworkAddress: 0x1112,
+		}
+
+		actualBytes, err := bytecodec.Marshal(s)
+
+		expectedBytes := []byte{0x01, 0x09, 0x08, 0x07, 0x06, 0x05, 0x04, 0x03, 0x02, 0x12, 0x11}
+
+		assert.NoError(t, err)
+		assert.Equal(t, expectedBytes, actualBytes)
 	})
 }
