@@ -142,14 +142,14 @@ func Test_Initialise(t *testing.T) {
 			Subsystem:   SYS,
 			CommandID:   SysOSALNVWriteReplyID,
 			Payload:     nvramWriteResponse,
-		}).Times(9)
-		//
-		//unpiMock.On(SREQ, SAPI, SAPIZBStartRequestID).Return(Frame{
-		//	MessageType: SRSP,
-		//	Subsystem:   SAPI,
-		//	CommandID:   SAPIZBStartRequestReplyID,
-		//	Payload:     nil,
-		//})
+		}).Times(8)
+
+		unpiMock.On(SREQ, ZDO, ZDOStartUpFromAppRequestId).Return(Frame{
+			MessageType: SRSP,
+			Subsystem:   ZDO,
+			CommandID:   ZDOStartUpFromAppRequestReplyID,
+			Payload:     []byte{0x00},
+		})
 
 		go func() {
 			time.Sleep(10 * time.Millisecond)
@@ -167,29 +167,20 @@ func Test_Initialise(t *testing.T) {
 				Payload:     []byte{0x09},
 			})
 		}()
-		//
-		//unpiMock.On(SREQ, SAPI, SAPIZBGetDeviceInfoID).Return(
-		//	Frame{
-		//		MessageType: SRSP,
-		//		Subsystem:   SAPI,
-		//		CommandID:   SAPIZBGetDeviceInfoReplyID,
-		//		Payload:     []byte{0x01, 0x0f, 0x0e, 0x0d, 0x0c, 0x0b, 0x0a, 0x09, 0x08},
-		//	},
-		//	Frame{
-		//		MessageType: SRSP,
-		//		Subsystem:   SAPI,
-		//		CommandID:   SAPIZBGetDeviceInfoReplyID,
-		//		Payload:     []byte{0x02, 0x09, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
-		//	},
-		//).Times(2)
-		//
-		//unpiMock.On(SREQ, SAPI, SAPIZBPermitJoiningRequestID).Return(
-		//	Frame{
-		//		MessageType: SRSP,
-		//		Subsystem:   SAPI,
-		//		CommandID:   SAPIZBPermitJoiningRequestReplyID,
-		//		Payload:     []byte{0x00},
-		//	})
+
+		unpiMock.On(SREQ, UTIL, UtilGetDeviceInfoRequestID).Return(Frame{
+			MessageType: SRSP,
+			Subsystem:   UTIL,
+			CommandID:   UtilGetDeviceInfoRequestReplyID,
+			Payload:     []byte{0x00, 0x0f, 0x0e, 0x0d, 0x0c, 0x0b, 0x0a, 0x09, 0x08, 0x09, 0x08},
+		}).Times(2)
+
+		unpiMock.On(SREQ, ZDO, ZDOMgmtPermitJoinRequestID).Return(Frame{
+			MessageType: SRSP,
+			Subsystem:   ZDO,
+			CommandID:   ZDOMgmtPermitJoinRequestReplyID,
+			Payload:     []byte{0x00},
+		})
 
 		bdbSetChannel := unpiMock.On(SREQ, APP_CNF, APPCNFBDBSetChannelRequestID).Return(
 			Frame{
@@ -237,13 +228,12 @@ func Test_Initialise(t *testing.T) {
 		assert.Equal(t, []byte{0x01}, resetOn.CapturedCalls[1].Frame.Payload)
 		assert.Equal(t, []byte{0x87, 0x00, 0x00, 0x01, 0x00}, nvramOn.CapturedCalls[1].Frame.Payload)
 		assert.Equal(t, []byte{0x01}, resetOn.CapturedCalls[2].Frame.Payload)
-		assert.Equal(t, []byte{0x64, 0x00, 0x00, 0x01, 0x1}, nvramOn.CapturedCalls[2].Frame.Payload)
-		assert.Equal(t, []byte{0x63, 0x00, 0x00, 0x01, 0x1}, nvramOn.CapturedCalls[3].Frame.Payload)
-		assert.Equal(t, []byte{0x62, 0x00, 0x00, 0x10, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08}, nvramOn.CapturedCalls[4].Frame.Payload)
-		assert.Equal(t, []byte{0x8f, 0x00, 0x00, 0x01, 0x01}, nvramOn.CapturedCalls[5].Frame.Payload)
-		assert.Equal(t, []byte{0x84, 0x00, 0x00, 0x04, 0x00, 0x80, 0x00, 0x00}, nvramOn.CapturedCalls[6].Frame.Payload)
-		assert.Equal(t, []byte{0x83, 0x00, 0x00, 0x02, 0x02, 0x01}, nvramOn.CapturedCalls[7].Frame.Payload)
-		assert.Equal(t, []byte{0x2d, 0x00, 0x00, 0x08, 0x08, 0x07, 0x06, 0x05, 0x04, 0x03, 0x02, 0x01}, nvramOn.CapturedCalls[8].Frame.Payload)
+		assert.Equal(t, []byte{0x63, 0x00, 0x00, 0x01, 0x1}, nvramOn.CapturedCalls[2].Frame.Payload)
+		assert.Equal(t, []byte{0x62, 0x00, 0x00, 0x10, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08}, nvramOn.CapturedCalls[3].Frame.Payload)
+		assert.Equal(t, []byte{0x8f, 0x00, 0x00, 0x01, 0x01}, nvramOn.CapturedCalls[4].Frame.Payload)
+		assert.Equal(t, []byte{0x84, 0x00, 0x00, 0x04, 0x00, 0x80, 0x00, 0x00}, nvramOn.CapturedCalls[5].Frame.Payload)
+		assert.Equal(t, []byte{0x83, 0x00, 0x00, 0x02, 0x02, 0x01}, nvramOn.CapturedCalls[6].Frame.Payload)
+		assert.Equal(t, []byte{0x2d, 0x00, 0x00, 0x08, 0x08, 0x07, 0x06, 0x05, 0x04, 0x03, 0x02, 0x01}, nvramOn.CapturedCalls[7].Frame.Payload)
 		assert.Equal(t, []byte{0x01, 0x00, 0x80, 0x00, 0x00}, bdbSetChannel.CapturedCalls[0].Frame.Payload)
 		assert.Equal(t, []byte{0x00, 0x00, 0x00, 0x00, 0x00}, bdbSetChannel.CapturedCalls[1].Frame.Payload)
 		assert.Equal(t, []byte{0x04}, bdbStartCommissioning.CapturedCalls[0].Frame.Payload)

@@ -17,9 +17,9 @@
 
 ## Background
 
-Z-Stack is a Zigbee Stack made available by Texas Instruments for use on their CC253X 2.4Ghz SOC processors. This 
+Z-Stack is a Zigbee Stack made available by Texas Instruments for use on their CC 2.4Ghz SOC processors. This 
 library implements a Zigbee Network Processor that is capable of controlling a Z-Stack implementation, specifically it
-supports the CC253X series of Zigbee sniffers flashed with the 
+supports the CC series of Zigbee sniffers flashed with the 
 [zigbee2mqtt](https://www.zigbee2mqtt.io/getting_started/flashing_the_cc2531.html) Z-Stack coordinator firmware.
 
 More information about Z-Stack is available from [Texas Instruments](https://www.ti.com/tool/Z-STACK) directly or from
@@ -28,6 +28,17 @@ More information about Z-Stack is available from [Texas Instruments](https://www
 [Another implementation](https://github.com/dyrkin/znp-go/) of a Z-Stack compatible ZNP exists for Golang, it did [hold no license for a period](https://github.com/dyrkin/zigbee-steward/issues/1)
 and the author could not be contacted. This has been rectified, so it may be of interest you. This is a complete
 reimplementation of the library, however it is likely there will be strong coincidences due to Golang standards.
+
+## Supported Devices
+
+The following chips and sticks are known to work, though it's likely others in the series will too:
+
+* CC253X
+  * Cheap Zigbee Sniffers from AliExpress - CC2531
+* CC26X2R1
+  * [Electrolama zig-a-sig-ah!](https://electrolama.com/projects/zig-a-zig-ah/) - CC2652R
+   
+Huge thanks to @Koenkk for his work in providing Z-Stack firmware for these chips. You can [grab the firmware from GitHub](https://github.com/Koenkk/Z-Stack-firmware/).
 
 ## Install
 
