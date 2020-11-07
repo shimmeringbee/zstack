@@ -3,6 +3,7 @@ package zstack
 import (
 	"context"
 	"errors"
+	"github.com/shimmeringbee/logwrap"
 	"github.com/shimmeringbee/zigbee"
 )
 
@@ -12,6 +13,7 @@ func (z *ZStack) SendApplicationMessageToNode(ctx context.Context, destinationAd
 	network, err := z.ResolveNodeNWKAddress(ctx, destinationAddress)
 
 	if err != nil {
+		z.logger.LogError(ctx, "Failed to send AfDataRequest (application message), failed to resolve IEEE Address to Network Adddress.", logwrap.Err(err), logwrap.Datum("IEEEAddress", destinationAddress.String()))
 		return err
 	}
 

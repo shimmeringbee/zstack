@@ -2,9 +2,8 @@ package zstack
 
 import (
 	"context"
-	"fmt"
+	"github.com/shimmeringbee/logwrap"
 	"github.com/shimmeringbee/zigbee"
-	"log"
 	"reflect"
 	"time"
 )
@@ -91,7 +90,7 @@ func (z *ZStack) networkManager() {
 					z.nodeTable.addOrUpdate(e.IEEEAddress, e.NetworkAddress, updateDiscovered)
 				}
 			default:
-				fmt.Printf("received unknown %+v", reflect.TypeOf(ue))
+				z.logger.LogWarn(context.Background(), "Received unknown message type from unpi.", logwrap.Datum("Type", reflect.TypeOf(ue)))
 			}
 		}
 	}
@@ -106,7 +105,7 @@ func (z *ZStack) pollRoutersForNetworkStatus() {
 }
 
 func (z *ZStack) pollNodeForNetworkStatus(node zigbee.Node) {
-	log.Printf("polling %v (%d) for network status\n", node.IEEEAddress, node.NetworkAddress)
+	z.logger.LogDebug(context.Background(), "Polling device for network status.", logwrap.Datum("IEEEAddress", node.IEEEAddress.String()), logwrap.Datum("NetworkAddress", node.NetworkAddress))
 	z.requestLQITable(node)
 }
 
@@ -115,18 +114,17 @@ func (z *ZStack) requestLQITable(node zigbee.Node) {
 	defer cancel()
 
 	resp := ZdoMGMTLQIReqReply{}
+	z.logger.LogDebug(context.Background(), "Requesting LQI table from device.", logwrap.Datum("IEEEAddress", node.IEEEAddress.String()), logwrap.Datum("NetworkAddress", node.NetworkAddress))
 	if err := z.requestResponder.RequestResponse(ctx, ZdoMGMTLQIReq{DestinationAddress: node.NetworkAddress, StartIndex: 0}, &resp); err != nil {
-		log.Printf("failed to request lqi tables: %v\n", err)
-	}
-
-	if resp.Status != ZSuccess {
-		log.Printf("failed to request lqi tables: from the adapter\n")
+		z.logger.LogError(context.Background(), "Failed to request LQI table.", logwrap.Datum("IEEEAddress", node.IEEEAddress.String()), logwrap.Datum("NetworkAddress", node.NetworkAddress), logwrap.Err(err))
+	} else if resp.Status != ZSuccess {
+		z.logger.LogError(context.Background(), "Failed to request LQI table, adapter returned error code.", logwrap.Datum("IEEEAddress", node.IEEEAddress.String()), logwrap.Datum("NetworkAddress", node.NetworkAddress), logwrap.Datum("Status", resp.Status))
 	}
 }
 
 func (z *ZStack) processLQITable(lqiResp ZdoMGMTLQIRsp) {
 	if lqiResp.Status != ZSuccess {
-		log.Printf("failed lqi response from %+v\n", lqiResp.SourceAddress)
+		z.logger.LogError(context.Background(), "LQI table response received, but as not success.", logwrap.Datum("NetworkAddress", lqiResp.SourceAddress), logwrap.Datum("Status", lqiResp.Status))
 		return
 	}
 

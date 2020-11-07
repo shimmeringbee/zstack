@@ -2,8 +2,8 @@ package zstack
 
 import (
 	"context"
+	"github.com/shimmeringbee/logwrap"
 	"github.com/shimmeringbee/zigbee"
-	"log"
 )
 
 func (z *ZStack) startMessageReceiver() {
@@ -14,9 +14,8 @@ func (z *ZStack) startMessageReceiver() {
 		defer cancel()
 
 		ieee, err := z.ResolveNodeIEEEAddress(ctx, msg.SourceAddress)
-
 		if err != nil {
-			log.Printf("could not resolve IEEE address while receiving message: network address = %d, err = %+v", msg.SourceAddress, err)
+			z.logger.LogError(ctx, "Received AfIncomingMsg (application message), however unable to resolve IEEE address to issue event.", logwrap.Err(err), logwrap.Datum("NetworkAddress", msg.SourceAddress))
 			return
 		}
 

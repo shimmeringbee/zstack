@@ -2,27 +2,26 @@ package zstack
 
 import (
 	"context"
+	"github.com/shimmeringbee/logwrap"
 	"github.com/shimmeringbee/zigbee"
 )
 
 func (z *ZStack) ResolveNodeIEEEAddress(ctx context.Context, address zigbee.NetworkAddress) (zigbee.IEEEAddress, error) {
-	node, found := z.nodeTable.getByNetwork(address)
-
-	if found {
+	if node, found := z.nodeTable.getByNetwork(address); found {
 		return node.IEEEAddress, nil
+	} else {
+		z.logger.LogDebug(ctx, "Asked to resolve Network Address to IEEE Address, but not present in node table, querying adapter.", logwrap.Datum("NetworkAddress", address))
+		return z.QueryNodeIEEEAddress(ctx, address)
 	}
-
-	return z.QueryNodeIEEEAddress(ctx, address)
 }
 
 func (z *ZStack) ResolveNodeNWKAddress(ctx context.Context, address zigbee.IEEEAddress) (zigbee.NetworkAddress, error) {
-	node, found := z.nodeTable.getByIEEE(address)
-
-	if found {
+	if node, found := z.nodeTable.getByIEEE(address); found {
 		return node.NetworkAddress, nil
+	} else {
+		z.logger.LogDebug(ctx, "Asked to resolve IEEE Address to Network Address, but not present in node table, querying adapter.", logwrap.Datum("IEEEAddress", address.String()))
+		return z.QueryNodeNWKAddress(ctx, address)
 	}
-
-	return z.QueryNodeNWKAddress(ctx, address)
 }
 
 func (z *ZStack) QueryNodeIEEEAddress(ctx context.Context, address zigbee.NetworkAddress) (zigbee.IEEEAddress, error) {
@@ -42,6 +41,7 @@ func (z *ZStack) QueryNodeIEEEAddress(ctx context.Context, address zigbee.Networ
 	if ok {
 		return castResp.IEEEAddress, nil
 	} else {
+		z.logger.LogError(ctx, "Failed to query adapter for IEEE Address.", logwrap.Datum("NetworkAddress", address), logwrap.Err(err))
 		return zigbee.EmptyIEEEAddress, err
 	}
 }
@@ -63,6 +63,7 @@ func (z *ZStack) QueryNodeNWKAddress(ctx context.Context, address zigbee.IEEEAdd
 	if ok {
 		return castResp.NetworkAddress, nil
 	} else {
+		z.logger.LogError(ctx, "Failed to query adapter for Network Address.", logwrap.Datum("IEEEAddress", address.String()), logwrap.Err(err))
 		return zigbee.NetworkAddress(0x0), err
 	}
 }
