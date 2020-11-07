@@ -12,7 +12,7 @@ import (
 )
 
 func Test_Initialise(t *testing.T) {
-	t.Run("an adapter with incorrect config is fully initialised", func(t *testing.T) {
+	t.Run("an z-stack 1.2.X adapter with incorrect config is fully initialised", func(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 		defer cancel()
 
@@ -39,13 +39,13 @@ func Test_Initialise(t *testing.T) {
 			Subsystem:   SYS,
 			CommandID:   SysOSALNVWriteReplyID,
 			Payload:     nvramWriteResponse,
-		}).Times(11)
+		}).Times(10)
 
-		unpiMock.On(SREQ, SAPI, SAPIZBStartRequestID).Return(Frame{
+		unpiMock.On(SREQ, ZDO, ZDOStartUpFromAppRequestId).Return(Frame{
 			MessageType: SRSP,
-			Subsystem:   SAPI,
-			CommandID:   SAPIZBStartRequestReplyID,
-			Payload:     nil,
+			Subsystem:   ZDO,
+			CommandID:   ZDOStartUpFromAppRequestReplyID,
+			Payload:     []byte{0x00},
 		})
 
 		go func() {
@@ -58,28 +58,154 @@ func Test_Initialise(t *testing.T) {
 			})
 		}()
 
-		unpiMock.On(SREQ, SAPI, SAPIZBGetDeviceInfoID).Return(
-			Frame{
-				MessageType: SRSP,
-				Subsystem:   SAPI,
-				CommandID:   SAPIZBGetDeviceInfoReplyID,
-				Payload:     []byte{0x01, 0x0f, 0x0e, 0x0d, 0x0c, 0x0b, 0x0a, 0x09, 0x08},
-			},
-			Frame{
-				MessageType: SRSP,
-				Subsystem:   SAPI,
-				CommandID:   SAPIZBGetDeviceInfoReplyID,
-				Payload:     []byte{0x02, 0x09, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
-			},
-		).Times(2)
+		unpiMock.On(SREQ, UTIL, UtilGetDeviceInfoRequestID).Return(Frame{
+			MessageType: SRSP,
+			Subsystem:   UTIL,
+			CommandID:   UtilGetDeviceInfoRequestReplyID,
+			Payload:     []byte{0x00, 0x0f, 0x0e, 0x0d, 0x0c, 0x0b, 0x0a, 0x09, 0x08, 0x09, 0x08},
+		}).Times(2)
 
-		unpiMock.On(SREQ, SAPI, SAPIZBPermitJoiningRequestID).Return(
+		unpiMock.On(SREQ, ZDO, ZDOMgmtPermitJoinRequestID).Return(Frame{
+			MessageType: SRSP,
+			Subsystem:   ZDO,
+			CommandID:   ZDOMgmtPermitJoinRequestReplyID,
+			Payload:     []byte{0x00},
+		})
+
+		nc := zigbee.NetworkConfiguration{
+			PANID:         zigbee.PANID(0x0102),
+			ExtendedPANID: zigbee.ExtendedPANID(0x0102030405060708),
+			NetworkKey:    [16]byte{0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08},
+			Channel:       zigbee.DefaultChannel,
+		}
+
+		logicalTypeValue, _ := bytecodec.Marshal(ZCDNVLogicalType{LogicalType: zigbee.EndDevice})
+		logicalTypeResponse, _ := bytecodec.Marshal(SysOSALNVReadReply{Status: ZSuccess, Value: logicalTypeValue})
+		logicalTypeFrame := Frame{MessageType: SRSP, Subsystem: SYS, CommandID: SysOSALNVReadReplyID, Payload: logicalTypeResponse}
+
+		unpiMock.On(SREQ, SYS, SysOSALNVReadID).Return(
+			logicalTypeFrame,
+		).Times(1)
+
+		err := zstack.Initialise(ctx, nc)
+
+		assert.NoError(t, err)
+		unpiMock.AssertCalls(t)
+
+		assert.Equal(t, nc.PANID, zstack.NetworkProperties.PANID)
+		assert.Equal(t, nc.ExtendedPANID, zstack.NetworkProperties.ExtendedPANID)
+		assert.Equal(t, nc.NetworkKey, zstack.NetworkProperties.NetworkKey)
+		assert.Equal(t, nc.Channel, zstack.NetworkProperties.Channel)
+
+		assert.Equal(t, []byte{0x01}, resetOn.CapturedCalls[0].Frame.Payload)
+		assert.Equal(t, []byte{0x03, 0x00, 0x00, 0x01, 0x03}, nvramOn.CapturedCalls[0].Frame.Payload)
+		assert.Equal(t, []byte{0x01}, resetOn.CapturedCalls[1].Frame.Payload)
+		assert.Equal(t, []byte{0x87, 0x00, 0x00, 0x01, 0x00}, nvramOn.CapturedCalls[1].Frame.Payload)
+		assert.Equal(t, []byte{0x01}, resetOn.CapturedCalls[2].Frame.Payload)
+		assert.Equal(t, []byte{0x63, 0x00, 0x00, 0x01, 0x1}, nvramOn.CapturedCalls[2].Frame.Payload)
+		assert.Equal(t, []byte{0x62, 0x00, 0x00, 0x10, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08}, nvramOn.CapturedCalls[3].Frame.Payload)
+		assert.Equal(t, []byte{0x8f, 0x00, 0x00, 0x01, 0x01}, nvramOn.CapturedCalls[4].Frame.Payload)
+		assert.Equal(t, []byte{0x84, 0x00, 0x00, 0x04, 0x00, 0x80, 0x00, 0x00}, nvramOn.CapturedCalls[5].Frame.Payload)
+		assert.Equal(t, []byte{0x83, 0x00, 0x00, 0x02, 0x02, 0x01}, nvramOn.CapturedCalls[6].Frame.Payload)
+		assert.Equal(t, []byte{0x2d, 0x00, 0x00, 0x08, 0x08, 0x07, 0x06, 0x05, 0x04, 0x03, 0x02, 0x01}, nvramOn.CapturedCalls[7].Frame.Payload)
+		assert.Equal(t, []byte{0x6d, 0x00, 0x00, 0x01, 0x01}, nvramOn.CapturedCalls[8].Frame.Payload)
+		assert.Equal(t, []byte{0x01, 0x01, 0x00, 0x20, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x5a, 0x69, 0x67, 0x42, 0x65, 0x65, 0x41, 0x6c, 0x6c, 0x69, 0x61, 0x6e, 0x63, 0x65, 0x30, 0x39, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, nvramOn.CapturedCalls[9].Frame.Payload)
+
+		assert.Equal(t, zigbee.IEEEAddress(0x08090a0b0c0d0e0f), zstack.NetworkProperties.IEEEAddress)
+		assert.Equal(t, zigbee.NetworkAddress(0x0809), zstack.NetworkProperties.NetworkAddress)
+	})
+
+	t.Run("an z-stack 3.X.X adapter with incorrect config is fully initialised", func(t *testing.T) {
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		defer cancel()
+
+		unpiMock := unpiTest.NewMockAdapter()
+		zstack := New(unpiMock, NewNodeTable())
+		defer unpiMock.Stop()
+		defer zstack.Stop()
+
+		resetResponse, _ := bytecodec.Marshal(SysResetInd{
+			Reason:  External,
+			Version: Version{ProductID: 1},
+		})
+
+		resetOn := unpiMock.On(AREQ, SYS, SysResetReqID).Return(Frame{
+			MessageType: AREQ,
+			Subsystem:   SYS,
+			CommandID:   SysResetIndID,
+			Payload:     resetResponse,
+		}).Times(3)
+
+		nvramWriteResponse, _ := bytecodec.Marshal(SysOSALNVWriteReply{Status: ZSuccess})
+		nvramOn := unpiMock.On(SREQ, SYS, SysOSALNVWriteID).Return(Frame{
+			MessageType: SRSP,
+			Subsystem:   SYS,
+			CommandID:   SysOSALNVWriteReplyID,
+			Payload:     nvramWriteResponse,
+		}).Times(9)
+		//
+		//unpiMock.On(SREQ, SAPI, SAPIZBStartRequestID).Return(Frame{
+		//	MessageType: SRSP,
+		//	Subsystem:   SAPI,
+		//	CommandID:   SAPIZBStartRequestReplyID,
+		//	Payload:     nil,
+		//})
+
+		go func() {
+			time.Sleep(10 * time.Millisecond)
+			unpiMock.InjectOutgoing(Frame{
+				MessageType: AREQ,
+				Subsystem:   ZDO,
+				CommandID:   ZDOStateChangeIndID,
+				Payload:     []byte{0x09},
+			})
+			time.Sleep(10 * time.Millisecond)
+			unpiMock.InjectOutgoing(Frame{
+				MessageType: AREQ,
+				Subsystem:   ZDO,
+				CommandID:   ZDOStateChangeIndID,
+				Payload:     []byte{0x09},
+			})
+		}()
+		//
+		//unpiMock.On(SREQ, SAPI, SAPIZBGetDeviceInfoID).Return(
+		//	Frame{
+		//		MessageType: SRSP,
+		//		Subsystem:   SAPI,
+		//		CommandID:   SAPIZBGetDeviceInfoReplyID,
+		//		Payload:     []byte{0x01, 0x0f, 0x0e, 0x0d, 0x0c, 0x0b, 0x0a, 0x09, 0x08},
+		//	},
+		//	Frame{
+		//		MessageType: SRSP,
+		//		Subsystem:   SAPI,
+		//		CommandID:   SAPIZBGetDeviceInfoReplyID,
+		//		Payload:     []byte{0x02, 0x09, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
+		//	},
+		//).Times(2)
+		//
+		//unpiMock.On(SREQ, SAPI, SAPIZBPermitJoiningRequestID).Return(
+		//	Frame{
+		//		MessageType: SRSP,
+		//		Subsystem:   SAPI,
+		//		CommandID:   SAPIZBPermitJoiningRequestReplyID,
+		//		Payload:     []byte{0x00},
+		//	})
+
+		bdbSetChannel := unpiMock.On(SREQ, APP_CNF, APPCNFBDBSetChannelRequestID).Return(
 			Frame{
 				MessageType: SRSP,
-				Subsystem:   SAPI,
-				CommandID:   SAPIZBPermitJoiningRequestReplyID,
+				Subsystem:   APP_CNF,
+				CommandID:   APPCNFBDBSetChannelRequestReplyID,
 				Payload:     []byte{0x00},
-			})
+			}).Times(2)
+
+		bdbStartCommissioning := unpiMock.On(SREQ, APP_CNF, APPCNFBDBStartCommissioningRequestID).Return(
+			Frame{
+				MessageType: SRSP,
+				Subsystem:   APP_CNF,
+				CommandID:   APPCNFBDBStartCommissioningRequestReplyID,
+				Payload:     []byte{0x00},
+			}).Times(2)
 
 		nc := zigbee.NetworkConfiguration{
 			PANID:         zigbee.PANID(0x0102),
@@ -118,8 +244,10 @@ func Test_Initialise(t *testing.T) {
 		assert.Equal(t, []byte{0x84, 0x00, 0x00, 0x04, 0x00, 0x80, 0x00, 0x00}, nvramOn.CapturedCalls[6].Frame.Payload)
 		assert.Equal(t, []byte{0x83, 0x00, 0x00, 0x02, 0x02, 0x01}, nvramOn.CapturedCalls[7].Frame.Payload)
 		assert.Equal(t, []byte{0x2d, 0x00, 0x00, 0x08, 0x08, 0x07, 0x06, 0x05, 0x04, 0x03, 0x02, 0x01}, nvramOn.CapturedCalls[8].Frame.Payload)
-		assert.Equal(t, []byte{0x6d, 0x00, 0x00, 0x01, 0x01}, nvramOn.CapturedCalls[9].Frame.Payload)
-		assert.Equal(t, []byte{0x01, 0x01, 0x00, 0x20, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x5a, 0x69, 0x67, 0x42, 0x65, 0x65, 0x41, 0x6c, 0x6c, 0x69, 0x61, 0x6e, 0x63, 0x65, 0x30, 0x39, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, nvramOn.CapturedCalls[10].Frame.Payload)
+		assert.Equal(t, []byte{0x01, 0x00, 0x80, 0x00, 0x00}, bdbSetChannel.CapturedCalls[0].Frame.Payload)
+		assert.Equal(t, []byte{0x00, 0x00, 0x00, 0x00, 0x00}, bdbSetChannel.CapturedCalls[1].Frame.Payload)
+		assert.Equal(t, []byte{0x04}, bdbStartCommissioning.CapturedCalls[0].Frame.Payload)
+		assert.Equal(t, []byte{0x02}, bdbStartCommissioning.CapturedCalls[1].Frame.Payload)
 
 		assert.Equal(t, zigbee.IEEEAddress(0x08090a0b0c0d0e0f), zstack.NetworkProperties.IEEEAddress)
 		assert.Equal(t, zigbee.NetworkAddress(0x0809), zstack.NetworkProperties.NetworkAddress)
@@ -146,11 +274,11 @@ func Test_Initialise(t *testing.T) {
 			Payload:     resetResponse,
 		}).Times(1)
 
-		unpiMock.On(SREQ, SAPI, SAPIZBStartRequestID).Return(Frame{
+		unpiMock.On(SREQ, ZDO, ZDOStartUpFromAppRequestId).Return(Frame{
 			MessageType: SRSP,
-			Subsystem:   SAPI,
-			CommandID:   SAPIZBStartRequestReplyID,
-			Payload:     nil,
+			Subsystem:   ZDO,
+			CommandID:   ZDOStartUpFromAppRequestReplyID,
+			Payload:     []byte{0x00},
 		})
 
 		go func() {
@@ -163,28 +291,19 @@ func Test_Initialise(t *testing.T) {
 			})
 		}()
 
-		unpiMock.On(SREQ, SAPI, SAPIZBGetDeviceInfoID).Return(
-			Frame{
-				MessageType: SRSP,
-				Subsystem:   SAPI,
-				CommandID:   SAPIZBGetDeviceInfoReplyID,
-				Payload:     []byte{0x01, 0x0f, 0x0e, 0x0d, 0x0c, 0x0b, 0x0a, 0x09, 0x08},
-			},
-			Frame{
-				MessageType: SRSP,
-				Subsystem:   SAPI,
-				CommandID:   SAPIZBGetDeviceInfoReplyID,
-				Payload:     []byte{0x02, 0x09, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
-			},
-		).Times(2)
+		unpiMock.On(SREQ, UTIL, UtilGetDeviceInfoRequestID).Return(Frame{
+			MessageType: SRSP,
+			Subsystem:   UTIL,
+			CommandID:   UtilGetDeviceInfoRequestReplyID,
+			Payload:     []byte{0x00, 0x0f, 0x0e, 0x0d, 0x0c, 0x0b, 0x0a, 0x09, 0x08, 0x09, 0x08},
+		}).Times(2)
 
-		unpiMock.On(SREQ, SAPI, SAPIZBPermitJoiningRequestID).Return(
-			Frame{
-				MessageType: SRSP,
-				Subsystem:   SAPI,
-				CommandID:   SAPIZBPermitJoiningRequestReplyID,
-				Payload:     []byte{0x00},
-			})
+		unpiMock.On(SREQ, ZDO, ZDOMgmtPermitJoinRequestID).Return(Frame{
+			MessageType: SRSP,
+			Subsystem:   ZDO,
+			CommandID:   ZDOMgmtPermitJoinRequestReplyID,
+			Payload:     []byte{0x00},
+		})
 
 		nc := zigbee.NetworkConfiguration{
 			PANID:         zigbee.PANID(0x0102),
@@ -351,12 +470,28 @@ func Test_startZigbeeStack(t *testing.T) {
 		zstack := New(unpiMock, NewNodeTable())
 		defer unpiMock.Stop()
 
-		unpiMock.On(SREQ, SAPI, SAPIZBStartRequestID).Return(Frame{
+		unpiMock.On(SREQ, ZDO, ZDOStartUpFromAppRequestId).Return(Frame{
 			MessageType: SRSP,
-			Subsystem:   SAPI,
-			CommandID:   SAPIZBStartRequestReplyID,
-			Payload:     nil,
+			Subsystem:   ZDO,
+			CommandID:   ZDOStartUpFromAppRequestReplyID,
+			Payload:     []byte{0x00},
 		})
+
+		err := zstack.startZigbeeStack(ctx)
+		assert.NoError(t, err)
+
+		unpiMock.AssertCalls(t)
+	})
+}
+
+func Test_waitForCoordinatorStart(t *testing.T) {
+	t.Run("waits for state change indication", func(t *testing.T) {
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		defer cancel()
+
+		unpiMock := unpiTest.NewMockAdapter()
+		zstack := New(unpiMock, NewNodeTable())
+		defer unpiMock.Stop()
 
 		go func() {
 			time.Sleep(50 * time.Millisecond)
@@ -368,7 +503,7 @@ func Test_startZigbeeStack(t *testing.T) {
 			})
 		}()
 
-		err := zstack.startZigbeeStack(ctx)
+		err := zstack.waitForCoordinatorStart(ctx)
 		assert.NoError(t, err)
 
 		unpiMock.AssertCalls(t)
@@ -382,16 +517,90 @@ func Test_startZigbeeStack(t *testing.T) {
 		zstack := New(unpiMock, NewNodeTable())
 		defer unpiMock.Stop()
 
-		unpiMock.On(SREQ, SAPI, SAPIZBStartRequestID).Return(Frame{
-			MessageType: SRSP,
-			Subsystem:   SAPI,
-			CommandID:   SAPIZBStartRequestReplyID,
-			Payload:     nil,
-		})
-
-		err := zstack.startZigbeeStack(ctx)
+		err := zstack.waitForCoordinatorStart(ctx)
 		assert.Error(t, err)
 
 		unpiMock.AssertCalls(t)
+	})
+}
+
+func Test_APPCNFBDBStructs(t *testing.T) {
+	t.Run("APPCNFBDBStartCommissioningRequest", func(t *testing.T) {
+		s := APPCNFBDBStartCommissioningRequest{
+			Mode: 3,
+		}
+
+		actualBytes, err := bytecodec.Marshal(s)
+
+		expectedBytes := []byte{0x03}
+
+		assert.NoError(t, err)
+		assert.Equal(t, expectedBytes, actualBytes)
+	})
+
+	t.Run("APPCNFBDBStartCommissioningRequestReply", func(t *testing.T) {
+		s := APPCNFBDBStartCommissioningRequestReply{
+			Status: 0x01,
+		}
+
+		actualBytes, err := bytecodec.Marshal(s)
+
+		expectedBytes := []byte{0x01}
+
+		assert.NoError(t, err)
+		assert.Equal(t, expectedBytes, actualBytes)
+	})
+
+	t.Run("APPCNFBDBSetChannelRequest", func(t *testing.T) {
+		s := APPCNFBDBSetChannelRequest{
+			IsPrimary: true,
+			Channel:   [4]byte{0xaa, 0xbb, 0xcc, 0xdd},
+		}
+
+		actualBytes, err := bytecodec.Marshal(s)
+
+		expectedBytes := []byte{0x01, 0xaa, 0xbb, 0xcc, 0xdd}
+
+		assert.NoError(t, err)
+		assert.Equal(t, expectedBytes, actualBytes)
+	})
+
+	t.Run("APPCNFBDBSetChannelRequestReply", func(t *testing.T) {
+		s := APPCNFBDBSetChannelRequestReply{
+			Status: 0x01,
+		}
+
+		actualBytes, err := bytecodec.Marshal(s)
+
+		expectedBytes := []byte{0x01}
+
+		assert.NoError(t, err)
+		assert.Equal(t, expectedBytes, actualBytes)
+	})
+
+	t.Run("ZDOStartUpFromAppRequest", func(t *testing.T) {
+		s := ZDOStartUpFromAppRequest{
+			StartDelay: 512,
+		}
+
+		actualBytes, err := bytecodec.Marshal(s)
+
+		expectedBytes := []byte{0x00, 0x02}
+
+		assert.NoError(t, err)
+		assert.Equal(t, expectedBytes, actualBytes)
+	})
+
+	t.Run("ZDOStartUpFromAppRequestReply", func(t *testing.T) {
+		s := ZDOStartUpFromAppRequestReply{
+			Status: 0x01,
+		}
+
+		actualBytes, err := bytecodec.Marshal(s)
+
+		expectedBytes := []byte{0x01}
+
+		assert.NoError(t, err)
+		assert.Equal(t, expectedBytes, actualBytes)
 	})
 }

@@ -108,90 +108,6 @@ func Test_registerMessages(t *testing.T) {
 		assert.Equal(t, reflect.TypeOf(SysOSALNVWriteReply{}), ty)
 	})
 
-	t.Run("SAPIZBStartRequest", func(t *testing.T) {
-		identity, found := ml.GetByObject(&SAPIZBStartRequest{})
-
-		assert.True(t, found)
-		assert.Equal(t, SREQ, identity.MessageType)
-		assert.Equal(t, SAPI, identity.Subsystem)
-		assert.Equal(t, uint8(0x00), identity.CommandID)
-
-		ty, found := ml.GetByIdentifier(SREQ, SAPI, 0x00)
-
-		assert.True(t, found)
-		assert.Equal(t, reflect.TypeOf(SAPIZBStartRequest{}), ty)
-	})
-
-	t.Run("SAPIZBStartRequestReply", func(t *testing.T) {
-		identity, found := ml.GetByObject(&SAPIZBStartRequestReply{})
-
-		assert.True(t, found)
-		assert.Equal(t, SRSP, identity.MessageType)
-		assert.Equal(t, SAPI, identity.Subsystem)
-		assert.Equal(t, uint8(0x00), identity.CommandID)
-
-		ty, found := ml.GetByIdentifier(SRSP, SAPI, 0x00)
-
-		assert.True(t, found)
-		assert.Equal(t, reflect.TypeOf(SAPIZBStartRequestReply{}), ty)
-	})
-
-	t.Run("SAPIZBPermitJoiningRequest", func(t *testing.T) {
-		identity, found := ml.GetByObject(&SAPIZBPermitJoiningRequest{})
-
-		assert.True(t, found)
-		assert.Equal(t, SREQ, identity.MessageType)
-		assert.Equal(t, SAPI, identity.Subsystem)
-		assert.Equal(t, uint8(0x08), identity.CommandID)
-
-		ty, found := ml.GetByIdentifier(SREQ, SAPI, 0x08)
-
-		assert.True(t, found)
-		assert.Equal(t, reflect.TypeOf(SAPIZBPermitJoiningRequest{}), ty)
-	})
-
-	t.Run("SAPIZBPermitJoiningRequestReply", func(t *testing.T) {
-		identity, found := ml.GetByObject(&SAPIZBPermitJoiningRequestReply{})
-
-		assert.True(t, found)
-		assert.Equal(t, SRSP, identity.MessageType)
-		assert.Equal(t, SAPI, identity.Subsystem)
-		assert.Equal(t, uint8(0x08), identity.CommandID)
-
-		ty, found := ml.GetByIdentifier(SRSP, SAPI, 0x08)
-
-		assert.True(t, found)
-		assert.Equal(t, reflect.TypeOf(SAPIZBPermitJoiningRequestReply{}), ty)
-	})
-
-	t.Run("SAPIZBGetDeviceInfo", func(t *testing.T) {
-		identity, found := ml.GetByObject(&SAPIZBGetDeviceInfo{})
-
-		assert.True(t, found)
-		assert.Equal(t, SREQ, identity.MessageType)
-		assert.Equal(t, SAPI, identity.Subsystem)
-		assert.Equal(t, uint8(0x06), identity.CommandID)
-
-		ty, found := ml.GetByIdentifier(SREQ, SAPI, 0x06)
-
-		assert.True(t, found)
-		assert.Equal(t, reflect.TypeOf(SAPIZBGetDeviceInfo{}), ty)
-	})
-
-	t.Run("SAPIZBGetDeviceInfoReply", func(t *testing.T) {
-		identity, found := ml.GetByObject(&SAPIZBGetDeviceInfoReply{})
-
-		assert.True(t, found)
-		assert.Equal(t, SRSP, identity.MessageType)
-		assert.Equal(t, SAPI, identity.Subsystem)
-		assert.Equal(t, uint8(0x06), identity.CommandID)
-
-		ty, found := ml.GetByIdentifier(SRSP, SAPI, 0x06)
-
-		assert.True(t, found)
-		assert.Equal(t, reflect.TypeOf(SAPIZBGetDeviceInfoReply{}), ty)
-	})
-
 	t.Run("ZDOStateChangeInd", func(t *testing.T) {
 		identity, found := ml.GetByObject(&ZDOStateChangeInd{})
 
@@ -666,5 +582,145 @@ func Test_registerMessages(t *testing.T) {
 
 		assert.True(t, found)
 		assert.Equal(t, reflect.TypeOf(ZdoNWKAddrRsp{}), ty)
+	})
+
+	t.Run("APPCNFBDBStartCommissioningRequest", func(t *testing.T) {
+		identity, found := ml.GetByObject(&APPCNFBDBStartCommissioningRequest{})
+
+		assert.True(t, found)
+		assert.Equal(t, SREQ, identity.MessageType)
+		assert.Equal(t, APP_CNF, identity.Subsystem)
+		assert.Equal(t, uint8(0x05), identity.CommandID)
+
+		ty, found := ml.GetByIdentifier(SREQ, APP_CNF, 0x05)
+
+		assert.True(t, found)
+		assert.Equal(t, reflect.TypeOf(APPCNFBDBStartCommissioningRequest{}), ty)
+	})
+
+	t.Run("APPCNFBDBStartCommissioningRequestReply", func(t *testing.T) {
+		identity, found := ml.GetByObject(&APPCNFBDBStartCommissioningRequestReply{})
+
+		assert.True(t, found)
+		assert.Equal(t, SRSP, identity.MessageType)
+		assert.Equal(t, APP_CNF, identity.Subsystem)
+		assert.Equal(t, uint8(0x05), identity.CommandID)
+
+		ty, found := ml.GetByIdentifier(SRSP, APP_CNF, 0x05)
+
+		assert.True(t, found)
+		assert.Equal(t, reflect.TypeOf(APPCNFBDBStartCommissioningRequestReply{}), ty)
+	})
+
+	t.Run("APPCNFBDBSetChannelRequest", func(t *testing.T) {
+		identity, found := ml.GetByObject(&APPCNFBDBSetChannelRequest{})
+
+		assert.True(t, found)
+		assert.Equal(t, SREQ, identity.MessageType)
+		assert.Equal(t, APP_CNF, identity.Subsystem)
+		assert.Equal(t, uint8(0x08), identity.CommandID)
+
+		ty, found := ml.GetByIdentifier(SREQ, APP_CNF, 0x08)
+
+		assert.True(t, found)
+		assert.Equal(t, reflect.TypeOf(APPCNFBDBSetChannelRequest{}), ty)
+	})
+
+	t.Run("APPCNFBDBSetChannelRequestReply", func(t *testing.T) {
+		identity, found := ml.GetByObject(&APPCNFBDBSetChannelRequestReply{})
+
+		assert.True(t, found)
+		assert.Equal(t, SRSP, identity.MessageType)
+		assert.Equal(t, APP_CNF, identity.Subsystem)
+		assert.Equal(t, uint8(0x08), identity.CommandID)
+
+		ty, found := ml.GetByIdentifier(SRSP, APP_CNF, 0x08)
+
+		assert.True(t, found)
+		assert.Equal(t, reflect.TypeOf(APPCNFBDBSetChannelRequestReply{}), ty)
+	})
+
+	t.Run("ZDOStartUpFromAppRequest", func(t *testing.T) {
+		identity, found := ml.GetByObject(&ZDOStartUpFromAppRequest{})
+
+		assert.True(t, found)
+		assert.Equal(t, SREQ, identity.MessageType)
+		assert.Equal(t, ZDO, identity.Subsystem)
+		assert.Equal(t, uint8(0x40), identity.CommandID)
+
+		ty, found := ml.GetByIdentifier(SREQ, ZDO, 0x40)
+
+		assert.True(t, found)
+		assert.Equal(t, reflect.TypeOf(ZDOStartUpFromAppRequest{}), ty)
+	})
+
+	t.Run("ZDOStartUpFromAppRequestReply", func(t *testing.T) {
+		identity, found := ml.GetByObject(&ZDOStartUpFromAppRequestReply{})
+
+		assert.True(t, found)
+		assert.Equal(t, SRSP, identity.MessageType)
+		assert.Equal(t, ZDO, identity.Subsystem)
+		assert.Equal(t, uint8(0x40), identity.CommandID)
+
+		ty, found := ml.GetByIdentifier(SRSP, ZDO, 0x40)
+
+		assert.True(t, found)
+		assert.Equal(t, reflect.TypeOf(ZDOStartUpFromAppRequestReply{}), ty)
+	})
+
+	t.Run("UtilGetDeviceInfoRequest", func(t *testing.T) {
+		identity, found := ml.GetByObject(&UtilGetDeviceInfoRequest{})
+
+		assert.True(t, found)
+		assert.Equal(t, SREQ, identity.MessageType)
+		assert.Equal(t, UTIL, identity.Subsystem)
+		assert.Equal(t, uint8(0x00), identity.CommandID)
+
+		ty, found := ml.GetByIdentifier(SREQ, UTIL, 0x00)
+
+		assert.True(t, found)
+		assert.Equal(t, reflect.TypeOf(UtilGetDeviceInfoRequest{}), ty)
+	})
+
+	t.Run("UtilGetDeviceInfoRequestReply", func(t *testing.T) {
+		identity, found := ml.GetByObject(&UtilGetDeviceInfoRequestReply{})
+
+		assert.True(t, found)
+		assert.Equal(t, SRSP, identity.MessageType)
+		assert.Equal(t, UTIL, identity.Subsystem)
+		assert.Equal(t, uint8(0x00), identity.CommandID)
+
+		ty, found := ml.GetByIdentifier(SRSP, UTIL, 0x00)
+
+		assert.True(t, found)
+		assert.Equal(t, reflect.TypeOf(UtilGetDeviceInfoRequestReply{}), ty)
+	})
+
+	t.Run("ZDOMgmtPermitJoinRequest", func(t *testing.T) {
+		identity, found := ml.GetByObject(&ZDOMgmtPermitJoinRequest{})
+
+		assert.True(t, found)
+		assert.Equal(t, SREQ, identity.MessageType)
+		assert.Equal(t, ZDO, identity.Subsystem)
+		assert.Equal(t, uint8(0x36), identity.CommandID)
+
+		ty, found := ml.GetByIdentifier(SREQ, ZDO, 0x36)
+
+		assert.True(t, found)
+		assert.Equal(t, reflect.TypeOf(ZDOMgmtPermitJoinRequest{}), ty)
+	})
+
+	t.Run("ZDOMgmtPermitJoinRequestReply", func(t *testing.T) {
+		identity, found := ml.GetByObject(&ZDOMgmtPermitJoinRequestReply{})
+
+		assert.True(t, found)
+		assert.Equal(t, SRSP, identity.MessageType)
+		assert.Equal(t, ZDO, identity.Subsystem)
+		assert.Equal(t, uint8(0x36), identity.CommandID)
+
+		ty, found := ml.GetByIdentifier(SRSP, ZDO, 0x36)
+
+		assert.True(t, found)
+		assert.Equal(t, reflect.TypeOf(ZDOMgmtPermitJoinRequestReply{}), ty)
 	})
 }

@@ -2,10 +2,15 @@ package zstack // import "github.com/shimmeringbee/zstack"
 
 import (
 	"context"
+	"github.com/shimmeringbee/logwrap"
+	"github.com/shimmeringbee/logwrap/impl/golog"
+	"github.com/shimmeringbee/logwrap/impl/nest"
 	"github.com/shimmeringbee/unpi/broker"
 	"github.com/shimmeringbee/unpi/library"
 	"github.com/shimmeringbee/zigbee"
 	"io"
+	"log"
+	"os"
 	"time"
 )
 
@@ -37,6 +42,8 @@ type ZStack struct {
 
 	nodeTable          *NodeTable
 	transactionIdStore chan uint8
+
+	logger logwrap.Logger
 }
 
 type JoinState uint8
@@ -75,7 +82,7 @@ func New(uart io.ReadWriter, nodeTable *NodeTable) *ZStack {
 		transactionIDs <- uint8(i)
 	}
 
-	return &ZStack{
+	zstack := &ZStack{
 		requestResponder:       znp,
 		awaiter:                znp,
 		subscriber:             znp,
@@ -85,9 +92,26 @@ func New(uart io.ReadWriter, nodeTable *NodeTable) *ZStack {
 		nodeTable:              nodeTable,
 		transactionIdStore:     transactionIDs,
 	}
+
+	zstack.WithGoLogger(log.New(os.Stderr, "", log.LstdFlags))
+
+	return zstack
 }
 
 func (z *ZStack) Stop() {
 	z.stopNetworkManager()
 	z.stopMessageReceiver()
+}
+
+func (z *ZStack) WithGoLogger(parentLogger *log.Logger) {
+	z.withLogWrapImpl(golog.Wrap(parentLogger))
+}
+
+func (z *ZStack) WithLogWrapLogger(parentLogger logwrap.Logger) {
+	z.withLogWrapImpl(nest.Wrap(parentLogger))
+}
+
+func (z *ZStack) withLogWrapImpl(impl logwrap.Impl) {
+	z.logger = logwrap.New(impl)
+	z.logger.AddOptionsToLogger(logwrap.Source("zstack"))
 }
