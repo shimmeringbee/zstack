@@ -6,7 +6,7 @@ require (
 	github.com/shimmeringbee/bytecodec v0.0.0-20201107142444-94bb5c0baaee
 	github.com/shimmeringbee/logwrap v0.0.0-20201104114416-23aeb26f66f1
 	github.com/shimmeringbee/retry v0.0.0-20201009192801-17b4f327c3e1
-	github.com/shimmeringbee/unpi v0.0.0-20201207223437-cc737c93fa62
+	github.com/shimmeringbee/unpi v0.0.0-20201210170135-9f9a974fcf75
 	github.com/shimmeringbee/zigbee v0.0.0-20201027194100-4e53cafc0f7a
 	github.com/stretchr/testify v1.6.1
 )

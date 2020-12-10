@@ -20,6 +20,8 @@ github.com/shimmeringbee/unpi v0.0.0-20201123101851-9a855298a738 h1:zMf1JZyNxpUz
 github.com/shimmeringbee/unpi v0.0.0-20201123101851-9a855298a738/go.mod h1:iAt5R5HT+VC7B9U77uBmN5Z6+DJo4U0z6ag68NH2mMw=
 github.com/shimmeringbee/unpi v0.0.0-20201207223437-cc737c93fa62 h1:HzNnlhLU1lWc6XPPpdFCT222UVxl8TEWrhq7v/VwtRo=
 github.com/shimmeringbee/unpi v0.0.0-20201207223437-cc737c93fa62/go.mod h1:iAt5R5HT+VC7B9U77uBmN5Z6+DJo4U0z6ag68NH2mMw=
+github.com/shimmeringbee/unpi v0.0.0-20201210170135-9f9a974fcf75 h1:jIZ6rakURyrfGM2afot1lVLinILBGjlLvtTdW4Q7zD8=
+github.com/shimmeringbee/unpi v0.0.0-20201210170135-9f9a974fcf75/go.mod h1:iAt5R5HT+VC7B9U77uBmN5Z6+DJo4U0z6ag68NH2mMw=
 github.com/shimmeringbee/zigbee v0.0.0-20201027194100-4e53cafc0f7a h1:PNZqpjc7ouHQ1MKqerPNNeLOcTsXWZ0ZF9avU8LG9Es=
 github.com/shimmeringbee/zigbee v0.0.0-20201027194100-4e53cafc0f7a/go.mod h1:GMA6rVpzvUK16cZwi8uW11JUTx8xUGOk5DbkXYWvm/8=
 github.com/sirupsen/logrus v1.6.0/go.mod h1:7uNnSEd1DgxDLC74fIahvMZmmYsHGZGEOFrfsX/uA88=
