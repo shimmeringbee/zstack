@@ -14,6 +14,8 @@ github.com/shimmeringbee/retry v0.0.0-20201009192801-17b4f327c3e1 h1:XHZWCYRj+2l
 github.com/shimmeringbee/retry v0.0.0-20201009192801-17b4f327c3e1/go.mod h1:FFeFkkqdD9vdDFr2la9PkSTQr6qgU9aBiGU3QKn8ZKY=
 github.com/shimmeringbee/unpi v0.0.0-20201216190504-55241dd5fdcf h1:i6HBAOrD/mx8KMyM+THks3+w/qOr6zmuTWo2/fG91vs=
 github.com/shimmeringbee/unpi v0.0.0-20201216190504-55241dd5fdcf/go.mod h1:iAt5R5HT+VC7B9U77uBmN5Z6+DJo4U0z6ag68NH2mMw=
+github.com/shimmeringbee/unpi v0.0.0-20210111165207-f0210c6942fc h1:NqnGsfB3x2yJHTGmCh05ns6P0fRt+0llHpXxiR5w9Us=
+github.com/shimmeringbee/unpi v0.0.0-20210111165207-f0210c6942fc/go.mod h1:iAt5R5HT+VC7B9U77uBmN5Z6+DJo4U0z6ag68NH2mMw=
 github.com/shimmeringbee/zigbee v0.0.0-20201027194100-4e53cafc0f7a h1:PNZqpjc7ouHQ1MKqerPNNeLOcTsXWZ0ZF9avU8LG9Es=
 github.com/shimmeringbee/zigbee v0.0.0-20201027194100-4e53cafc0f7a/go.mod h1:GMA6rVpzvUK16cZwi8uW11JUTx8xUGOk5DbkXYWvm/8=
 github.com/sirupsen/logrus v1.6.0/go.mod h1:7uNnSEd1DgxDLC74fIahvMZmmYsHGZGEOFrfsX/uA88=
@@ -38,3 +40,5 @@ gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c h1:dUUwHk2QECo/6vqA44rthZ8ie
 gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
 gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776 h1:tQIYjPdBoyREyB9XMu+nnTclpTYkz2zFM+lzLJFO4gQ=
 gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
+gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b h1:h8qDotaEPuJATrMmW04NCwg7v22aHH28wwpauUhK9Oo=
+gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
