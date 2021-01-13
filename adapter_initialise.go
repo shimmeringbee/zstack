@@ -45,7 +45,7 @@ func (z *ZStack) Initialise(pctx context.Context, nc zigbee.NetworkConfiguration
 	}
 
 	z.logger.LogInfo(ctx, "Starting Zigbee stack.")
-	if err := z.startZigbeeStack(ctx); err != nil {
+	if err := z.startZigbeeStack(ctx, version); err != nil {
 		return err
 	}
 
@@ -215,10 +215,39 @@ func (z *ZStack) retrieveAdapterAddresses(ctx context.Context) error {
 	})
 }
 
-func (z *ZStack) startZigbeeStack(ctx context.Context) error {
-	return retry.Retry(ctx, DefaultZStackTimeout, DefaultZStackRetries, func(invokeCtx context.Context) error {
+func (z *ZStack) startZigbeeStack(ctx context.Context, version Version) error {
+	if err := retry.Retry(ctx, DefaultZStackTimeout, DefaultZStackRetries, func(invokeCtx context.Context) error {
 		return z.requestResponder.RequestResponse(invokeCtx, ZDOStartUpFromAppRequest{StartDelay: 100}, &ZDOStartUpFromAppRequestReply{})
+	}); err != nil {
+		return err
+	}
+
+	if version.IsV3() {
+		return nil
+	}
+
+	ch := make(chan bool, 1)
+	defer close(ch)
+
+	err, cancel := z.subscriber.Subscribe(&ZDOStateChangeInd{}, func(v interface{}) {
+		stateChange := v.(*ZDOStateChangeInd)
+
+		if stateChange.State == DeviceZBCoordinator {
+			ch <- true
+		}
 	})
+	defer cancel()
+
+	if err != nil {
+		return err
+	}
+
+	select {
+	case <-ch:
+		return nil
+	case <-ctx.Done():
+		return errors.New("context expired while waiting for adapter start up")
+	}
 }
 
 func (z *ZStack) waitForCoordinatorStart(ctx context.Context) error {

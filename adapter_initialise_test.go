@@ -452,7 +452,7 @@ func Test_verifyAdapterNetworkConfig(t *testing.T) {
 }
 
 func Test_startZigbeeStack(t *testing.T) {
-	t.Run("starts zigbee stack and waits for confirmation", func(t *testing.T) {
+	t.Run("starts zigbee stack for Z-Stack 3.X.X and waits for start response", func(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 		defer cancel()
 
@@ -467,8 +467,60 @@ func Test_startZigbeeStack(t *testing.T) {
 			Payload:     []byte{0x00},
 		})
 
-		err := zstack.startZigbeeStack(ctx)
+		err := zstack.startZigbeeStack(ctx, Version{ProductID: 1})
 		assert.NoError(t, err)
+
+		unpiMock.AssertCalls(t)
+	})
+
+	t.Run("starts zigbee stack for Z-Stack 1.2.X and waits for confirmation", func(t *testing.T) {
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		defer cancel()
+
+		unpiMock := unpiTest.NewMockAdapter()
+		zstack := New(unpiMock, NewNodeTable())
+		defer unpiMock.Stop()
+
+		unpiMock.On(SREQ, ZDO, ZDOStartUpFromAppRequestId).Return(Frame{
+			MessageType: SRSP,
+			Subsystem:   ZDO,
+			CommandID:   ZDOStartUpFromAppRequestReplyID,
+			Payload:     []byte{0x00},
+		})
+
+		go func() {
+			time.Sleep(50 * time.Millisecond)
+			unpiMock.InjectOutgoing(Frame{
+				MessageType: AREQ,
+				Subsystem:   ZDO,
+				CommandID:   ZDOStateChangeIndID,
+				Payload:     []byte{0x09},
+			})
+		}()
+
+		err := zstack.startZigbeeStack(ctx, Version{ProductID: 0})
+		assert.NoError(t, err)
+
+		unpiMock.AssertCalls(t)
+	})
+
+	t.Run("context timeout for Z-Stack 1.2.X while waiting for state change", func(t *testing.T) {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
+		defer cancel()
+
+		unpiMock := unpiTest.NewMockAdapter()
+		zstack := New(unpiMock, NewNodeTable())
+		defer unpiMock.Stop()
+
+		unpiMock.On(SREQ, ZDO, ZDOStartUpFromAppRequestId).Return(Frame{
+			MessageType: SRSP,
+			Subsystem:   ZDO,
+			CommandID:   ZDOStartUpFromAppRequestReplyID,
+			Payload:     []byte{0x00},
+		})
+
+		err := zstack.startZigbeeStack(ctx, Version{ProductID: 0})
+		assert.Error(t, err)
 
 		unpiMock.AssertCalls(t)
 	})
