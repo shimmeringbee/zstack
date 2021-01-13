@@ -723,4 +723,46 @@ func Test_registerMessages(t *testing.T) {
 		assert.True(t, found)
 		assert.Equal(t, reflect.TypeOf(ZDOMgmtPermitJoinRequestReply{}), ty)
 	})
+
+	t.Run("ZdoMgmtLeaveReq", func(t *testing.T) {
+		identity, found := ml.GetByObject(&ZdoMgmtLeaveReq{})
+
+		assert.True(t, found)
+		assert.Equal(t, SREQ, identity.MessageType)
+		assert.Equal(t, ZDO, identity.Subsystem)
+		assert.Equal(t, uint8(0x34), identity.CommandID)
+
+		ty, found := ml.GetByIdentifier(SREQ, ZDO, 0x34)
+
+		assert.True(t, found)
+		assert.Equal(t, reflect.TypeOf(ZdoMgmtLeaveReq{}), ty)
+	})
+
+	t.Run("ZdoMgmtLeaveReqReply", func(t *testing.T) {
+		identity, found := ml.GetByObject(&ZdoMgmtLeaveReqReply{})
+
+		assert.True(t, found)
+		assert.Equal(t, SRSP, identity.MessageType)
+		assert.Equal(t, ZDO, identity.Subsystem)
+		assert.Equal(t, uint8(0x34), identity.CommandID)
+
+		ty, found := ml.GetByIdentifier(SRSP, ZDO, 0x34)
+
+		assert.True(t, found)
+		assert.Equal(t, reflect.TypeOf(ZdoMgmtLeaveReqReply{}), ty)
+	})
+
+	t.Run("ZdoMgmtLeaveRsp", func(t *testing.T) {
+		identity, found := ml.GetByObject(&ZdoMgmtLeaveRsp{})
+
+		assert.True(t, found)
+		assert.Equal(t, AREQ, identity.MessageType)
+		assert.Equal(t, ZDO, identity.Subsystem)
+		assert.Equal(t, uint8(0xb4), identity.CommandID)
+
+		ty, found := ml.GetByIdentifier(AREQ, ZDO, 0xb4)
+
+		assert.True(t, found)
+		assert.Equal(t, reflect.TypeOf(ZdoMgmtLeaveRsp{}), ty)
+	})
 }

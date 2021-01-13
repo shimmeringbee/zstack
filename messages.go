@@ -77,6 +77,10 @@ func registerMessages(l *Library) {
 
 	l.Add(SREQ, ZDO, ZDOMgmtPermitJoinRequestID, ZDOMgmtPermitJoinRequest{})
 	l.Add(SRSP, ZDO, ZDOMgmtPermitJoinRequestReplyID, ZDOMgmtPermitJoinRequestReply{})
+
+	l.Add(SREQ, ZDO, ZdoMgmtLeaveReqID, ZdoMgmtLeaveReq{})
+	l.Add(SRSP, ZDO, ZdoMgmtLeaveReqReplyID, ZdoMgmtLeaveReqReply{})
+	l.Add(AREQ, ZDO, ZdoMgmtLeaveRspID, ZdoMgmtLeaveRsp{})
 }
 
 type ZStackStatus uint8

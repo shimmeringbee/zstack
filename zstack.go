@@ -46,6 +46,8 @@ type ZStack struct {
 	logger logwrap.Logger
 }
 
+var _ zigbee.Provider = (*ZStack)(nil)
+
 type JoinState uint8
 
 const (
