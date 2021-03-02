@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/shimmeringbee/logwrap"
 	"github.com/shimmeringbee/logwrap/impl/golog"
-	"github.com/shimmeringbee/logwrap/impl/nest"
 	"github.com/shimmeringbee/unpi/broker"
 	"github.com/shimmeringbee/unpi/library"
 	"github.com/shimmeringbee/zigbee"
@@ -106,14 +105,9 @@ func (z *ZStack) Stop() {
 }
 
 func (z *ZStack) WithGoLogger(parentLogger *log.Logger) {
-	z.withLogWrapImpl(golog.Wrap(parentLogger))
+	z.logger = logwrap.New(golog.Wrap(parentLogger))
 }
 
 func (z *ZStack) WithLogWrapLogger(parentLogger logwrap.Logger) {
-	z.withLogWrapImpl(nest.Wrap(parentLogger))
-}
-
-func (z *ZStack) withLogWrapImpl(impl logwrap.Impl) {
-	z.logger = logwrap.New(impl)
-	z.logger.AddOptionsToLogger(logwrap.Source("zstack"))
+	z.logger = parentLogger
 }
