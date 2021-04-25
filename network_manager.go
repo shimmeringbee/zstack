@@ -128,6 +128,8 @@ func (z *ZStack) processLQITable(lqiResp ZdoMGMTLQIRsp) {
 		return
 	}
 
+	z.logger.LogDebug(context.Background(), "LQI table response received.", logwrap.Datum("NetworkAddress", lqiResp.SourceAddress), logwrap.Datum("Status", lqiResp.Status), logwrap.Datum("neighborCount", len(lqiResp.Neighbors)))
+
 	for _, neighbour := range lqiResp.Neighbors {
 		if neighbour.ExtendedPANID != z.NetworkProperties.ExtendedPANID ||
 			neighbour.IEEEAddress == zigbee.EmptyIEEEAddress {
