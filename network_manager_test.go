@@ -369,6 +369,50 @@ func Test_NetworkManager(t *testing.T) {
 		assert.Equal(t, uint8(0x01), node.Depth)
 	})
 
+	t.Run("nodes in lqi query are added to network manager", func(t *testing.T) {
+		unpiMock := unpiTest.NewMockAdapter()
+		nt := NewNodeTable()
+		zstack := New(unpiMock, nt)
+		defer unpiMock.Stop()
+		defer unpiMock.AssertCalls(t)
+
+		nt.addOrUpdate(zigbee.GenerateLocalAdministeredIEEEAddress(), 0x1122)
+
+		lqiReqOn := unpiMock.On(SREQ, ZDO, ZdoMGMTLQIReqID).Return(Frame{
+			MessageType: SRSP,
+			Subsystem:   ZDO,
+			CommandID:   ZdoMGMTLQIReqReplyID,
+			Payload:     []byte{0x00},
+		}).Times(1)
+
+		lqiRespWithMore := ZdoMGMTLQIRsp{
+			SourceAddress:         0x1122,
+			Status:                0,
+			NeighbourTableEntries: 2,
+			StartIndex:            0,
+			Neighbors: []ZdoMGMTLQINeighbour{
+				{
+					ExtendedPANID:  zstack.NetworkProperties.ExtendedPANID,
+					IEEEAddress:    zigbee.IEEEAddress(0x1000),
+					NetworkAddress: zigbee.NetworkAddress(0x2000),
+					Status: ZdoMGMTLQINeighbourStatus{
+						Reserved:     0,
+						Relationship: zigbee.RelationshipChild,
+						RxOnWhenIdle: 0,
+						DeviceType:   zigbee.Router,
+					},
+					PermitJoining: false,
+					Depth:         1,
+					LQI:           67,
+				},
+			},
+		}
+
+		zstack.processLQITable(lqiRespWithMore)
+
+		assert.Equal(t, []byte{0x22, 0x11, 0x01}, lqiReqOn.CapturedCalls[0].Frame.Payload)
+	})
+
 	t.Run("nodes in lqi query are not added if Ext PANID does not match", func(t *testing.T) {
 		unpiMock := unpiTest.NewMockAdapter()
 		zstack := New(unpiMock, NewNodeTable())

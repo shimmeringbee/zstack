@@ -106,19 +106,19 @@ func (z *ZStack) pollRoutersForNetworkStatus() {
 
 func (z *ZStack) pollNodeForNetworkStatus(node zigbee.Node) {
 	z.logger.LogDebug(context.Background(), "Polling device for network status.", logwrap.Datum("IEEEAddress", node.IEEEAddress.String()), logwrap.Datum("NetworkAddress", node.NetworkAddress))
-	z.requestLQITable(node)
+	z.requestLQITable(node, 0)
 }
 
-func (z *ZStack) requestLQITable(node zigbee.Node) {
+func (z *ZStack) requestLQITable(node zigbee.Node, startIndex uint8) {
 	ctx, cancel := context.WithTimeout(context.Background(), DefaultZStackTimeout)
 	defer cancel()
 
 	resp := ZdoMGMTLQIReqReply{}
-	z.logger.LogDebug(context.Background(), "Requesting LQI table from device.", logwrap.Datum("IEEEAddress", node.IEEEAddress.String()), logwrap.Datum("NetworkAddress", node.NetworkAddress))
-	if err := z.requestResponder.RequestResponse(ctx, ZdoMGMTLQIReq{DestinationAddress: node.NetworkAddress, StartIndex: 0}, &resp); err != nil {
-		z.logger.LogError(context.Background(), "Failed to request LQI table.", logwrap.Datum("IEEEAddress", node.IEEEAddress.String()), logwrap.Datum("NetworkAddress", node.NetworkAddress), logwrap.Err(err))
+	z.logger.LogDebug(ctx, "Requesting LQI table from device.", logwrap.Datum("IEEEAddress", node.IEEEAddress.String()), logwrap.Datum("NetworkAddress", node.NetworkAddress), logwrap.Datum("StartIndex", startIndex))
+	if err := z.requestResponder.RequestResponse(ctx, ZdoMGMTLQIReq{DestinationAddress: node.NetworkAddress, StartIndex: startIndex}, &resp); err != nil {
+		z.logger.LogError(ctx, "Failed to request LQI table.", logwrap.Datum("IEEEAddress", node.IEEEAddress.String()), logwrap.Datum("NetworkAddress", node.NetworkAddress), logwrap.Err(err))
 	} else if resp.Status != ZSuccess {
-		z.logger.LogError(context.Background(), "Failed to request LQI table, adapter returned error code.", logwrap.Datum("IEEEAddress", node.IEEEAddress.String()), logwrap.Datum("NetworkAddress", node.NetworkAddress), logwrap.Datum("Status", resp.Status))
+		z.logger.LogError(ctx, "Failed to request LQI table, adapter returned error code.", logwrap.Datum("IEEEAddress", node.IEEEAddress.String()), logwrap.Datum("NetworkAddress", node.NetworkAddress), logwrap.Datum("Status", resp.Status))
 	}
 }
 
@@ -128,7 +128,7 @@ func (z *ZStack) processLQITable(lqiResp ZdoMGMTLQIRsp) {
 		return
 	}
 
-	z.logger.LogDebug(context.Background(), "LQI table response received.", logwrap.Datum("NetworkAddress", lqiResp.SourceAddress), logwrap.Datum("Status", lqiResp.Status), logwrap.Datum("neighborCount", len(lqiResp.Neighbors)))
+	z.logger.LogDebug(context.Background(), "LQI table response received.", logwrap.Datum("NetworkAddress", lqiResp.SourceAddress), logwrap.Datum("Status", lqiResp.Status), logwrap.Datum("StartIndex", lqiResp.StartIndex), logwrap.Datum("IncludedCount", len(lqiResp.Neighbors)), logwrap.Datum("NeighbourCount", lqiResp.NeighbourTableEntries))
 
 	for _, neighbour := range lqiResp.Neighbors {
 		if neighbour.ExtendedPANID != z.NetworkProperties.ExtendedPANID ||
@@ -140,6 +140,17 @@ func (z *ZStack) processLQITable(lqiResp ZdoMGMTLQIRsp) {
 
 		if neighbour.Status.Relationship == zigbee.RelationshipChild {
 			z.nodeTable.update(neighbour.IEEEAddress, lqi(neighbour.LQI), depth(neighbour.Depth))
+		}
+	}
+
+	nextIndex := uint8(int(lqiResp.StartIndex) + len(lqiResp.Neighbors))
+
+	if nextIndex < lqiResp.NeighbourTableEntries {
+		node, found := z.nodeTable.getByNetwork(lqiResp.SourceAddress)
+
+		if found {
+			z.logger.LogDebug(context.Background(), "LQI table response requires pagination.", logwrap.Datum("NetworkAddress", lqiResp.SourceAddress), logwrap.Datum("Status", lqiResp.Status), logwrap.Datum("StartIndex", lqiResp.StartIndex), logwrap.Datum("IncludedCount", len(lqiResp.Neighbors)), logwrap.Datum("NeighbourCount", lqiResp.NeighbourTableEntries))
+			z.requestLQITable(node, nextIndex)
 		}
 	}
 }

@@ -88,6 +88,9 @@ func Test_ReceiveMessage(t *testing.T) {
 		}
 
 		assert.Equal(t, expectedMsg, incommingMsg)
+
+		n, _ := zstack.nodeTable.getByNetwork(zigbee.NetworkAddress(0x1000))
+		assert.Equal(t, uint8(55), n.LQI)
 	})
 }
 

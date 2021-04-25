@@ -42,7 +42,7 @@ func (z *ZStack) startMessageReceiver() {
 			},
 		})
 
-		z.nodeTable.update(ieee, updateReceived)
+		z.nodeTable.update(ieee, updateReceived, lqi(msg.LinkQuality))
 	})
 }
 
