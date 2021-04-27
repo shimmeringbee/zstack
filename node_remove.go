@@ -2,10 +2,11 @@ package zstack
 
 import (
 	"context"
+	"fmt"
 	"github.com/shimmeringbee/zigbee"
 )
 
-func (z *ZStack) RemoveNode(ctx context.Context, nodeAddress zigbee.IEEEAddress) error {
+func (z *ZStack) RequestNodeLeave(ctx context.Context, nodeAddress zigbee.IEEEAddress) error {
 	networkAddress, err := z.ResolveNodeNWKAddress(ctx, nodeAddress)
 
 	if err != nil {
@@ -24,6 +25,14 @@ func (z *ZStack) RemoveNode(ctx context.Context, nodeAddress zigbee.IEEEAddress)
 	})
 
 	return err
+}
+
+func (z *ZStack) ForceNodeLeave(ctx context.Context, nodeAddress zigbee.IEEEAddress) error {
+	if z.removeNode(nodeAddress) {
+		return nil
+	}
+
+	return fmt.Errorf("no node with address provided could be found: %v", nodeAddress)
 }
 
 type ZdoMgmtLeaveReq struct {

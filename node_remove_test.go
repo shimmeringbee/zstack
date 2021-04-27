@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-func TestZStack_RemoveNode(t *testing.T) {
+func TestZStack_RequestNodeLeave(t *testing.T) {
 	t.Run("returns an success on query, response for requested network address is received", func(t *testing.T) {
 		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
 		defer cancel()
@@ -39,7 +39,7 @@ func TestZStack_RemoveNode(t *testing.T) {
 
 		zstack.nodeTable.addOrUpdate(zigbee.IEEEAddress(1), zigbee.NetworkAddress(0x4000))
 
-		err := zstack.RemoveNode(ctx, zigbee.IEEEAddress(1))
+		err := zstack.RequestNodeLeave(ctx, zigbee.IEEEAddress(1))
 		assert.NoError(t, err)
 
 		leaveReq := ZdoMgmtLeaveReq{}
@@ -50,6 +50,33 @@ func TestZStack_RemoveNode(t *testing.T) {
 		assert.False(t, leaveReq.RemoveChildren)
 
 		unpiMock.AssertCalls(t)
+	})
+}
+
+func TestZStack_ForceNodeLeave(t *testing.T) {
+	t.Run("returns success if node was in data", func(t *testing.T) {
+		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+		defer cancel()
+
+		unpiMock := unpiTest.NewMockAdapter()
+		zstack := New(unpiMock, NewNodeTable())
+		defer unpiMock.Stop()
+
+		zstack.nodeTable.addOrUpdate(zigbee.IEEEAddress(1), zigbee.NetworkAddress(0x4000))
+
+		err := zstack.ForceNodeLeave(ctx, zigbee.IEEEAddress(1))
+		assert.NoError(t, err)
+
+		unpiMock.AssertCalls(t)
+
+		event, err := zstack.ReadEvent(ctx)
+		assert.NoError(t, err)
+		assert.NotNil(t, event)
+
+		nle, ok := event.(zigbee.NodeLeaveEvent)
+		assert.True(t, ok)
+
+		assert.Equal(t, zigbee.IEEEAddress(1), nle.IEEEAddress)
 	})
 }
 
