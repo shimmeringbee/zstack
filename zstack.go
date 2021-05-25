@@ -76,6 +76,7 @@ func New(uart io.ReadWriter, nodeTable *NodeTable) *ZStack {
 	registerMessages(ml)
 
 	znp := broker.NewBroker(uart, uart, ml)
+	znp.Start()
 
 	transactionIDs := make(chan uint8, DefaultInflightTransactions)
 
