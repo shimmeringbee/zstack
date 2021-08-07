@@ -7,6 +7,7 @@ import (
 	unpiTest "github.com/shimmeringbee/unpi/testing"
 	"github.com/shimmeringbee/zigbee"
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/sync/semaphore"
 	"testing"
 	"time"
 )
@@ -18,6 +19,7 @@ func TestZStack_RequestNodeLeave(t *testing.T) {
 
 		unpiMock := unpiTest.NewMockAdapter()
 		zstack := New(unpiMock, NewNodeTable())
+		zstack.sem = semaphore.NewWeighted(8)
 		defer unpiMock.Stop()
 
 		call := unpiMock.On(SREQ, ZDO, ZdoMgmtLeaveReqReplyID).Return(Frame{

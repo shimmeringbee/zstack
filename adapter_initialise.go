@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/shimmeringbee/retry"
 	"github.com/shimmeringbee/zigbee"
+	"golang.org/x/sync/semaphore"
 	"reflect"
 )
 
@@ -22,6 +23,12 @@ func (z *ZStack) Initialise(pctx context.Context, nc zigbee.NetworkConfiguration
 	version, err := z.waitForAdapterReset(ctx)
 	if err != nil {
 		return err
+	}
+
+	if version.IsV3() {
+		z.sem = semaphore.NewWeighted(16)
+	} else {
+		z.sem = semaphore.NewWeighted(2)
 	}
 
 	z.logger.LogInfo(ctx, "Verifying existing network configuration.")

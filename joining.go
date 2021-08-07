@@ -19,6 +19,11 @@ func (z *ZStack) DenyJoin(ctx context.Context) error {
 }
 
 func (z *ZStack) sendJoin(ctx context.Context, address zigbee.NetworkAddress, timeout uint8, newState JoinState) error {
+	if err := z.sem.Acquire(ctx, 1); err != nil {
+		return fmt.Errorf("failed to acquire semaphore: %w", err)
+	}
+	defer z.sem.Release(1)
+
 	response := ZDOMgmtPermitJoinRequestReply{}
 
 	if err := z.requestResponder.RequestResponse(ctx, ZDOMgmtPermitJoinRequest{

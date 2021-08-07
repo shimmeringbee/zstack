@@ -8,10 +8,14 @@ import (
 
 func (z *ZStack) RequestNodeLeave(ctx context.Context, nodeAddress zigbee.IEEEAddress) error {
 	networkAddress, err := z.ResolveNodeNWKAddress(ctx, nodeAddress)
-
 	if err != nil {
 		return nil
 	}
+
+	if err := z.sem.Acquire(ctx, 1); err != nil {
+		return fmt.Errorf("failed to acquire semaphore: %w", err)
+	}
+	defer z.sem.Release(1)
 
 	request := ZdoMgmtLeaveReq{
 		NetworkAddress: networkAddress,

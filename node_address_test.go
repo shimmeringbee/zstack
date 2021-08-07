@@ -7,6 +7,7 @@ import (
 	unpiTest "github.com/shimmeringbee/unpi/testing"
 	"github.com/shimmeringbee/zigbee"
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/sync/semaphore"
 	"testing"
 	"time"
 )
@@ -19,6 +20,7 @@ func Test_ResolveNodeIEEEAddress(t *testing.T) {
 		unpiMock := unpiTest.NewMockAdapter()
 		defer unpiMock.AssertCalls(t)
 		zstack := New(unpiMock, NewNodeTable())
+		zstack.sem = semaphore.NewWeighted(8)
 		defer unpiMock.Stop()
 
 		zstack.nodeTable.addOrUpdate(0x1122334455667788, 0xaabb)
@@ -35,6 +37,7 @@ func Test_ResolveNodeIEEEAddress(t *testing.T) {
 		unpiMock := unpiTest.NewMockAdapter()
 		defer unpiMock.AssertCalls(t)
 		zstack := New(unpiMock, NewNodeTable())
+		zstack.sem = semaphore.NewWeighted(8)
 		defer unpiMock.Stop()
 
 		call := unpiMock.On(SREQ, ZDO, ZdoIEEEAddrReqID).Return(Frame{
@@ -75,6 +78,7 @@ func Test_QueryNodeIEEEAddress(t *testing.T) {
 		unpiMock := unpiTest.NewMockAdapter()
 		defer unpiMock.AssertCalls(t)
 		zstack := New(unpiMock, NewNodeTable())
+		zstack.sem = semaphore.NewWeighted(8)
 		defer unpiMock.Stop()
 
 		call := unpiMock.On(SREQ, ZDO, ZdoIEEEAddrReqID).Return(Frame{
@@ -115,6 +119,7 @@ func Test_ResolveNodeNWKAddress(t *testing.T) {
 		unpiMock := unpiTest.NewMockAdapter()
 		defer unpiMock.AssertCalls(t)
 		zstack := New(unpiMock, NewNodeTable())
+		zstack.sem = semaphore.NewWeighted(8)
 		defer unpiMock.Stop()
 
 		zstack.nodeTable.addOrUpdate(0x1122334455667788, 0xaabb)
@@ -131,6 +136,7 @@ func Test_ResolveNodeNWKAddress(t *testing.T) {
 		unpiMock := unpiTest.NewMockAdapter()
 		defer unpiMock.AssertCalls(t)
 		zstack := New(unpiMock, NewNodeTable())
+		zstack.sem = semaphore.NewWeighted(8)
 		defer unpiMock.Stop()
 
 		call := unpiMock.On(SREQ, ZDO, ZdoNWKAddrReqID).Return(Frame{
@@ -171,6 +177,7 @@ func Test_QueryNodeNWKAddress(t *testing.T) {
 		unpiMock := unpiTest.NewMockAdapter()
 		defer unpiMock.AssertCalls(t)
 		zstack := New(unpiMock, NewNodeTable())
+		zstack.sem = semaphore.NewWeighted(8)
 		defer unpiMock.Stop()
 
 		call := unpiMock.On(SREQ, ZDO, ZdoNWKAddrReqID).Return(Frame{

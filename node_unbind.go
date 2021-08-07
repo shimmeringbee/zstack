@@ -2,15 +2,20 @@ package zstack
 
 import (
 	"context"
+	"fmt"
 	"github.com/shimmeringbee/zigbee"
 )
 
 func (z *ZStack) UnbindNodeFromController(ctx context.Context, nodeAddress zigbee.IEEEAddress, sourceEndpoint zigbee.Endpoint, destinationEndpoint zigbee.Endpoint, cluster zigbee.ClusterID) error {
 	networkAddress, err := z.ResolveNodeNWKAddress(ctx, nodeAddress)
-
 	if err != nil {
 		return nil
 	}
+
+	if err := z.sem.Acquire(ctx, 1); err != nil {
+		return fmt.Errorf("failed to acquire semaphore: %w", err)
+	}
+	defer z.sem.Release(1)
 
 	request := ZdoUnbindReq{
 		TargetAddress:          networkAddress,
