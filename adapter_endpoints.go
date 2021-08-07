@@ -2,10 +2,16 @@ package zstack
 
 import (
 	"context"
+	"fmt"
 	"github.com/shimmeringbee/zigbee"
 )
 
 func (z *ZStack) RegisterAdapterEndpoint(ctx context.Context, endpoint zigbee.Endpoint, appProfileId zigbee.ProfileID, appDeviceId uint16, appDeviceVersion uint8, inClusters []zigbee.ClusterID, outClusters []zigbee.ClusterID) error {
+	if err := z.sem.Acquire(ctx, 1); err != nil {
+		return fmt.Errorf("failed to acquire semaphore: %w", err)
+	}
+	defer z.sem.Release(1)
+
 	request := AFRegister{
 		Endpoint:         endpoint,
 		AppProfileId:     appProfileId,

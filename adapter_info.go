@@ -2,6 +2,7 @@ package zstack
 
 import (
 	"context"
+	"fmt"
 	"github.com/shimmeringbee/zigbee"
 )
 
@@ -29,6 +30,11 @@ func (z *ZStack) GetAdapterNetworkAddress(ctx context.Context) (zigbee.NetworkAd
 
 func (z *ZStack) getAddressInfo(ctx context.Context) (UtilGetDeviceInfoRequestReply, error) {
 	resp := UtilGetDeviceInfoRequestReply{}
+
+	if err := z.sem.Acquire(ctx, 1); err != nil {
+		return resp, fmt.Errorf("failed to acquire semaphore: %w", err)
+	}
+	defer z.sem.Release(1)
 
 	err := z.requestResponder.RequestResponse(ctx, UtilGetDeviceInfoRequest{}, &resp)
 	return resp, err

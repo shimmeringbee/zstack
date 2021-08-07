@@ -2,15 +2,20 @@ package zstack
 
 import (
 	"context"
+	"fmt"
 	"github.com/shimmeringbee/zigbee"
 )
 
 func (z *ZStack) QueryNodeDescription(ctx context.Context, ieeeAddress zigbee.IEEEAddress) (zigbee.NodeDescription, error) {
 	nwkAddress, err := z.ResolveNodeNWKAddress(ctx, ieeeAddress)
-
 	if err != nil {
 		return zigbee.NodeDescription{}, err
 	}
+
+	if err := z.sem.Acquire(ctx, 1); err != nil {
+		return zigbee.NodeDescription{}, fmt.Errorf("failed to acquire semaphore: %w", err)
+	}
+	defer z.sem.Release(1)
 
 	request := ZdoNodeDescReq{
 		DestinationAddress: nwkAddress,

@@ -3,6 +3,7 @@ package zstack
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/shimmeringbee/logwrap"
 	"github.com/shimmeringbee/zigbee"
 )
@@ -11,11 +12,15 @@ const DefaultRadius uint8 = 0x20
 
 func (z *ZStack) SendApplicationMessageToNode(ctx context.Context, destinationAddress zigbee.IEEEAddress, message zigbee.ApplicationMessage, requireAck bool) error {
 	network, err := z.ResolveNodeNWKAddress(ctx, destinationAddress)
-
 	if err != nil {
 		z.logger.LogError(ctx, "Failed to send AfDataRequest (application message), failed to resolve IEEE Address to Network Adddress.", logwrap.Err(err), logwrap.Datum("IEEEAddress", destinationAddress.String()))
 		return err
 	}
+
+	if err := z.sem.Acquire(ctx, 1); err != nil {
+		return fmt.Errorf("failed to acquire semaphore: %w", err)
+	}
+	defer z.sem.Release(1)
 
 	var transactionId uint8
 

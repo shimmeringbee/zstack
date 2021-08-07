@@ -7,6 +7,7 @@ import (
 	unpiTest "github.com/shimmeringbee/unpi/testing"
 	"github.com/shimmeringbee/zigbee"
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/sync/semaphore"
 	"testing"
 	"time"
 )
@@ -18,6 +19,7 @@ func Test_PermitJoin(t *testing.T) {
 
 		unpiMock := unpiTest.NewMockAdapter()
 		zstack := New(unpiMock, NewNodeTable())
+		zstack.sem = semaphore.NewWeighted(8)
 		defer unpiMock.Stop()
 
 		c := unpiMock.On(SREQ, ZDO, ZDOMgmtPermitJoinRequestID).Return(Frame{
@@ -42,6 +44,7 @@ func Test_PermitJoin(t *testing.T) {
 
 		unpiMock := unpiTest.NewMockAdapter()
 		zstack := New(unpiMock, NewNodeTable())
+		zstack.sem = semaphore.NewWeighted(8)
 		defer unpiMock.Stop()
 		zstack.NetworkProperties.NetworkAddress = zigbee.NetworkAddress(0x0102)
 
@@ -67,6 +70,7 @@ func Test_PermitJoin(t *testing.T) {
 
 		unpiMock := unpiTest.NewMockAdapter()
 		zstack := New(unpiMock, NewNodeTable())
+		zstack.sem = semaphore.NewWeighted(8)
 		defer unpiMock.Stop()
 
 		unpiMock.On(SREQ, ZDO, ZDOMgmtPermitJoinRequestID).Return(Frame{
@@ -90,6 +94,7 @@ func Test_DenyJoin(t *testing.T) {
 
 		unpiMock := unpiTest.NewMockAdapter()
 		zstack := New(unpiMock, NewNodeTable())
+		zstack.sem = semaphore.NewWeighted(8)
 		defer unpiMock.Stop()
 
 		c := unpiMock.On(SREQ, ZDO, ZDOMgmtPermitJoinRequestID).Return(Frame{
@@ -115,6 +120,7 @@ func Test_DenyJoin(t *testing.T) {
 
 		unpiMock := unpiTest.NewMockAdapter()
 		zstack := New(unpiMock, NewNodeTable())
+		zstack.sem = semaphore.NewWeighted(8)
 		defer unpiMock.Stop()
 
 		unpiMock.On(SREQ, ZDO, ZDOMgmtPermitJoinRequestID).Return(Frame{

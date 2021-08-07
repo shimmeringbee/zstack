@@ -2,6 +2,7 @@ package zstack
 
 import (
 	"context"
+	"fmt"
 	"github.com/shimmeringbee/logwrap"
 	"github.com/shimmeringbee/zigbee"
 )
@@ -25,6 +26,11 @@ func (z *ZStack) ResolveNodeNWKAddress(ctx context.Context, address zigbee.IEEEA
 }
 
 func (z *ZStack) QueryNodeIEEEAddress(ctx context.Context, address zigbee.NetworkAddress) (zigbee.IEEEAddress, error) {
+	if err := z.sem.Acquire(ctx, 1); err != nil {
+		return zigbee.EmptyIEEEAddress, fmt.Errorf("failed to acquire semaphore: %w", err)
+	}
+	defer z.sem.Release(1)
+
 	request := ZdoIEEEAddrReq{
 		NetworkAddress: address,
 		ReqType:        0x00,
@@ -47,6 +53,11 @@ func (z *ZStack) QueryNodeIEEEAddress(ctx context.Context, address zigbee.Networ
 }
 
 func (z *ZStack) QueryNodeNWKAddress(ctx context.Context, address zigbee.IEEEAddress) (zigbee.NetworkAddress, error) {
+	if err := z.sem.Acquire(ctx, 1); err != nil {
+		return zigbee.NetworkAddress(0x0), fmt.Errorf("failed to acquire semaphore: %w", err)
+	}
+	defer z.sem.Release(1)
+
 	request := ZdoNWKAddrReq{
 		IEEEAddress: address,
 		ReqType:     0x00,

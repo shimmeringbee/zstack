@@ -7,6 +7,7 @@ import (
 	"github.com/shimmeringbee/unpi/broker"
 	"github.com/shimmeringbee/unpi/library"
 	"github.com/shimmeringbee/zigbee"
+	"golang.org/x/sync/semaphore"
 	"io"
 	"log"
 	"os"
@@ -41,6 +42,8 @@ type ZStack struct {
 
 	nodeTable          *NodeTable
 	transactionIdStore chan uint8
+
+	sem *semaphore.Weighted
 
 	logger logwrap.Logger
 }

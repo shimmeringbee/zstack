@@ -7,6 +7,7 @@ import (
 	unpiTest "github.com/shimmeringbee/unpi/testing"
 	"github.com/shimmeringbee/zigbee"
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/sync/semaphore"
 	"testing"
 	"time"
 )
@@ -19,6 +20,7 @@ func Test_SendNodeMessage(t *testing.T) {
 		unpiMock := unpiTest.NewMockAdapter()
 		defer unpiMock.AssertCalls(t)
 		zstack := New(unpiMock, NewNodeTable())
+		zstack.sem = semaphore.NewWeighted(8)
 		defer unpiMock.Stop()
 
 		zstack.nodeTable.addOrUpdate(zigbee.IEEEAddress(0x1122334455667788), zigbee.NetworkAddress(0x1000))
@@ -63,6 +65,7 @@ func Test_SendNodeMessage(t *testing.T) {
 		unpiMock := unpiTest.NewMockAdapter()
 		defer unpiMock.AssertCalls(t)
 		zstack := New(unpiMock, NewNodeTable())
+		zstack.sem = semaphore.NewWeighted(8)
 		defer unpiMock.Stop()
 
 		zstack.nodeTable.addOrUpdate(zigbee.IEEEAddress(0x1122334455667788), zigbee.NetworkAddress(0x1000))

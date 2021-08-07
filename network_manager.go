@@ -123,6 +123,12 @@ func (z *ZStack) requestLQITable(node zigbee.Node, startIndex uint8) {
 	ctx, cancel := context.WithTimeout(context.Background(), DefaultZStackTimeout)
 	defer cancel()
 
+	if err := z.sem.Acquire(ctx, 1); err != nil {
+		z.logger.LogError(ctx, "Failed to request LQI table, failed to acquire semaphore ", logwrap.Datum("IEEEAddress", node.IEEEAddress.String()), logwrap.Datum("NetworkAddress", node.NetworkAddress), logwrap.Err(err))
+		return
+	}
+	defer z.sem.Release(1)
+
 	resp := ZdoMGMTLQIReqReply{}
 	z.logger.LogDebug(ctx, "Requesting LQI table from device.", logwrap.Datum("IEEEAddress", node.IEEEAddress.String()), logwrap.Datum("NetworkAddress", node.NetworkAddress), logwrap.Datum("StartIndex", startIndex))
 	if err := z.requestResponder.RequestResponse(ctx, ZdoMGMTLQIReq{DestinationAddress: node.NetworkAddress, StartIndex: startIndex}, &resp); err != nil {
