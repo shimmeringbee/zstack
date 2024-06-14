@@ -3,6 +3,7 @@ package zstack
 import (
 	"context"
 	"github.com/shimmeringbee/bytecodec"
+	"github.com/shimmeringbee/persistence/impl/memory"
 	. "github.com/shimmeringbee/unpi"
 	unpiTest "github.com/shimmeringbee/unpi/testing"
 	"github.com/shimmeringbee/zigbee"
@@ -15,7 +16,7 @@ import (
 func Test_NetworkManager(t *testing.T) {
 	t.Run("issues a lqi poll request only for coordinators or routers", func(t *testing.T) {
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, memory.New())
 		zstack.sem = semaphore.NewWeighted(8)
 		defer unpiMock.Stop()
 		defer zstack.Stop()
@@ -40,7 +41,7 @@ func Test_NetworkManager(t *testing.T) {
 
 	t.Run("the coordinator is added to the node list as a coordinator", func(t *testing.T) {
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, memory.New())
 		zstack.sem = semaphore.NewWeighted(8)
 		defer unpiMock.Stop()
 		defer zstack.Stop()
@@ -74,7 +75,7 @@ func Test_NetworkManager(t *testing.T) {
 
 	t.Run("a node is added to the node table when an ZdoIEEEAddrRsp messages are received", func(t *testing.T) {
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, memory.New())
 		zstack.sem = semaphore.NewWeighted(8)
 		defer unpiMock.Stop()
 		defer unpiMock.AssertCalls(t)
@@ -109,7 +110,7 @@ func Test_NetworkManager(t *testing.T) {
 
 	t.Run("a node is added to the node table when an ZdoNWKAddrRsp messages are received", func(t *testing.T) {
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, memory.New())
 		zstack.sem = semaphore.NewWeighted(8)
 		defer unpiMock.Stop()
 		defer unpiMock.AssertCalls(t)
@@ -147,7 +148,7 @@ func Test_NetworkManager(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, memory.New())
 		zstack.sem = semaphore.NewWeighted(8)
 		defer unpiMock.Stop()
 		defer unpiMock.AssertCalls(t)
@@ -214,7 +215,7 @@ func Test_NetworkManager(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, memory.New())
 		zstack.sem = semaphore.NewWeighted(8)
 		defer unpiMock.Stop()
 		defer unpiMock.AssertCalls(t)
@@ -263,7 +264,7 @@ func Test_NetworkManager(t *testing.T) {
 
 	t.Run("a new router will be queried for network state", func(t *testing.T) {
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, memory.New())
 		zstack.sem = semaphore.NewWeighted(8)
 		defer unpiMock.Stop()
 		defer unpiMock.AssertCalls(t)
@@ -318,7 +319,7 @@ func Test_NetworkManager(t *testing.T) {
 
 	t.Run("nodes in lqi query are added to network manager", func(t *testing.T) {
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, memory.New())
 		zstack.sem = semaphore.NewWeighted(8)
 		defer unpiMock.Stop()
 		defer unpiMock.AssertCalls(t)
@@ -380,7 +381,7 @@ func Test_NetworkManager(t *testing.T) {
 
 	t.Run("nodes in lqi query are added to network manager", func(t *testing.T) {
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, memory.New())
 		zstack.sem = semaphore.NewWeighted(8)
 		defer unpiMock.Stop()
 		defer unpiMock.AssertCalls(t)
@@ -424,7 +425,7 @@ func Test_NetworkManager(t *testing.T) {
 
 	t.Run("nodes in lqi query are not added if Ext PANID does not match", func(t *testing.T) {
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, memory.New())
 		zstack.sem = semaphore.NewWeighted(8)
 		defer unpiMock.Stop()
 		defer unpiMock.AssertCalls(t)
@@ -481,7 +482,7 @@ func Test_NetworkManager(t *testing.T) {
 
 	t.Run("nodes in lqi query are not added if it has an invalid IEEE address", func(t *testing.T) {
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, memory.New())
 		zstack.sem = semaphore.NewWeighted(8)
 		zstack.NetworkProperties.IEEEAddress = zigbee.IEEEAddress(1)
 
@@ -543,7 +544,7 @@ func Test_NetworkManager(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, memory.New())
 		zstack.sem = semaphore.NewWeighted(8)
 		defer unpiMock.Stop()
 		defer unpiMock.AssertCalls(t)

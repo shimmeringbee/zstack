@@ -1,9 +1,10 @@
-package zstack // import "github.com/shimmeringbee/zstack"
+package zstack
 
 import (
 	"context"
 	"github.com/shimmeringbee/logwrap"
 	"github.com/shimmeringbee/logwrap/impl/golog"
+	"github.com/shimmeringbee/persistence"
 	"github.com/shimmeringbee/unpi/broker"
 	"github.com/shimmeringbee/unpi/library"
 	"github.com/shimmeringbee/zigbee"
@@ -43,6 +44,8 @@ type ZStack struct {
 	nodeTable          *nodeTable
 	transactionIdStore chan uint8
 
+	persistence persistence.Section
+
 	sem *semaphore.Weighted
 
 	logger logwrap.Logger
@@ -74,7 +77,7 @@ const DefaultZStackRetries = 3
 const DefaultInflightEvents = 50
 const DefaultInflightTransactions = 20
 
-func New(uart io.ReadWriter) *ZStack {
+func New(uart io.ReadWriter, p persistence.Section) *ZStack {
 	ml := library.NewLibrary()
 	registerMessages(ml)
 
@@ -83,7 +86,7 @@ func New(uart io.ReadWriter) *ZStack {
 
 	transactionIDs := make(chan uint8, DefaultInflightTransactions)
 
-	for i := 0; i < DefaultInflightTransactions; i++ {
+	for i := range DefaultInflightTransactions {
 		transactionIDs <- uint8(i)
 	}
 
@@ -96,6 +99,7 @@ func New(uart io.ReadWriter) *ZStack {
 		networkManagerIncoming: make(chan interface{}, DefaultInflightEvents),
 		nodeTable:              newNodeTable(),
 		transactionIdStore:     transactionIDs,
+		persistence:            p,
 	}
 
 	zstack.WithGoLogger(log.New(os.Stderr, "", log.LstdFlags))

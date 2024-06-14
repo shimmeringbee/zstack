@@ -3,6 +3,7 @@ package zstack
 import (
 	"context"
 	"github.com/shimmeringbee/bytecodec"
+	"github.com/shimmeringbee/persistence/impl/memory"
 	. "github.com/shimmeringbee/unpi"
 	unpiTest "github.com/shimmeringbee/unpi/testing"
 	"github.com/shimmeringbee/zigbee"
@@ -18,7 +19,7 @@ func Test_PermitJoin(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, memory.New())
 		zstack.sem = semaphore.NewWeighted(8)
 		defer unpiMock.Stop()
 
@@ -43,7 +44,7 @@ func Test_PermitJoin(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, memory.New())
 		zstack.sem = semaphore.NewWeighted(8)
 		defer unpiMock.Stop()
 		zstack.NetworkProperties.NetworkAddress = zigbee.NetworkAddress(0x0102)
@@ -69,7 +70,7 @@ func Test_PermitJoin(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, memory.New())
 		zstack.sem = semaphore.NewWeighted(8)
 		defer unpiMock.Stop()
 
@@ -93,7 +94,7 @@ func Test_DenyJoin(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, memory.New())
 		zstack.sem = semaphore.NewWeighted(8)
 		defer unpiMock.Stop()
 
@@ -119,7 +120,7 @@ func Test_DenyJoin(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, memory.New())
 		zstack.sem = semaphore.NewWeighted(8)
 		defer unpiMock.Stop()
 

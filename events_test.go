@@ -2,6 +2,7 @@ package zstack
 
 import (
 	"context"
+	"github.com/shimmeringbee/persistence/impl/memory"
 	unpiTest "github.com/shimmeringbee/unpi/testing"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -14,7 +15,7 @@ func Test_ReadEvent(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, memory.New())
 		defer unpiMock.Stop()
 		defer unpiMock.AssertCalls(t)
 

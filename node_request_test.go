@@ -2,6 +2,7 @@ package zstack
 
 import (
 	"context"
+	"github.com/shimmeringbee/persistence/impl/memory"
 	. "github.com/shimmeringbee/unpi"
 	unpiTest "github.com/shimmeringbee/unpi/testing"
 	"github.com/shimmeringbee/zigbee"
@@ -16,7 +17,7 @@ func Test_NodeRequest(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, memory.New())
 		defer unpiMock.Stop()
 
 		type NotSuccessful struct{}
@@ -33,7 +34,7 @@ func Test_NodeRequest(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, memory.New())
 		defer unpiMock.Stop()
 
 		unpiMock.On(SREQ, ZDO, ZdoActiveEpReqID).Return(Frame{
@@ -57,7 +58,7 @@ func Test_NodeRequest(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, memory.New())
 		defer unpiMock.Stop()
 
 		unpiMock.On(SREQ, ZDO, ZdoActiveEpReqID).Return(Frame{
@@ -92,7 +93,7 @@ func Test_NodeRequest(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, memory.New())
 		defer unpiMock.Stop()
 
 		unpiMock.On(SREQ, ZDO, ZdoActiveEpReqID).Return(Frame{
@@ -137,7 +138,7 @@ func Test_NodeRequest(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, memory.New())
 		defer unpiMock.Stop()
 
 		unpiMock.On(SREQ, ZDO, ZdoActiveEpReqID).Return(Frame{
@@ -180,7 +181,7 @@ func Test_NodeRequest(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, memory.New())
 		defer unpiMock.Stop()
 
 		unpiMock.On(SREQ, ZDO, ZdoActiveEpReqID).Return(Frame{

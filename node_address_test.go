@@ -3,6 +3,7 @@ package zstack
 import (
 	"context"
 	"github.com/shimmeringbee/bytecodec"
+	"github.com/shimmeringbee/persistence/impl/memory"
 	. "github.com/shimmeringbee/unpi"
 	unpiTest "github.com/shimmeringbee/unpi/testing"
 	"github.com/shimmeringbee/zigbee"
@@ -19,7 +20,7 @@ func Test_ResolveNodeIEEEAddress(t *testing.T) {
 
 		unpiMock := unpiTest.NewMockAdapter()
 		defer unpiMock.AssertCalls(t)
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, memory.New())
 		zstack.sem = semaphore.NewWeighted(8)
 		defer unpiMock.Stop()
 
@@ -36,7 +37,7 @@ func Test_ResolveNodeIEEEAddress(t *testing.T) {
 
 		unpiMock := unpiTest.NewMockAdapter()
 		defer unpiMock.AssertCalls(t)
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, memory.New())
 		zstack.sem = semaphore.NewWeighted(8)
 		defer unpiMock.Stop()
 
@@ -77,7 +78,7 @@ func Test_QueryNodeIEEEAddress(t *testing.T) {
 
 		unpiMock := unpiTest.NewMockAdapter()
 		defer unpiMock.AssertCalls(t)
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, memory.New())
 		zstack.sem = semaphore.NewWeighted(8)
 		defer unpiMock.Stop()
 
@@ -118,7 +119,7 @@ func Test_ResolveNodeNWKAddress(t *testing.T) {
 
 		unpiMock := unpiTest.NewMockAdapter()
 		defer unpiMock.AssertCalls(t)
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, memory.New())
 		zstack.sem = semaphore.NewWeighted(8)
 		defer unpiMock.Stop()
 
@@ -135,7 +136,7 @@ func Test_ResolveNodeNWKAddress(t *testing.T) {
 
 		unpiMock := unpiTest.NewMockAdapter()
 		defer unpiMock.AssertCalls(t)
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, memory.New())
 		zstack.sem = semaphore.NewWeighted(8)
 		defer unpiMock.Stop()
 
@@ -176,7 +177,7 @@ func Test_QueryNodeNWKAddress(t *testing.T) {
 
 		unpiMock := unpiTest.NewMockAdapter()
 		defer unpiMock.AssertCalls(t)
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, memory.New())
 		zstack.sem = semaphore.NewWeighted(8)
 		defer unpiMock.Stop()
 

@@ -3,6 +3,7 @@ package zstack
 import (
 	"context"
 	"github.com/shimmeringbee/bytecodec"
+	"github.com/shimmeringbee/persistence/impl/memory"
 	. "github.com/shimmeringbee/unpi"
 	unpiTest "github.com/shimmeringbee/unpi/testing"
 	"github.com/shimmeringbee/zigbee"
@@ -17,7 +18,7 @@ func Test_Initialise(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, memory.New())
 		defer unpiMock.Stop()
 		defer zstack.Stop()
 
@@ -120,7 +121,7 @@ func Test_Initialise(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, memory.New())
 		defer unpiMock.Stop()
 		defer zstack.Stop()
 
@@ -248,7 +249,7 @@ func Test_Initialise(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, memory.New())
 		defer unpiMock.Stop()
 		defer zstack.Stop()
 
@@ -353,7 +354,7 @@ func Test_verifyAdapterNetworkConfig(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, memory.New())
 		defer unpiMock.Stop()
 		defer zstack.Stop()
 
@@ -404,7 +405,7 @@ func Test_verifyAdapterNetworkConfig(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, memory.New())
 		defer unpiMock.Stop()
 		defer zstack.Stop()
 
@@ -457,7 +458,7 @@ func Test_startZigbeeStack(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, memory.New())
 		defer unpiMock.Stop()
 
 		unpiMock.On(SREQ, ZDO, ZDOStartUpFromAppRequestId).Return(Frame{
@@ -478,7 +479,7 @@ func Test_startZigbeeStack(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, memory.New())
 		defer unpiMock.Stop()
 
 		unpiMock.On(SREQ, ZDO, ZDOStartUpFromAppRequestId).Return(Frame{
@@ -509,7 +510,7 @@ func Test_startZigbeeStack(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, memory.New())
 		defer unpiMock.Stop()
 
 		unpiMock.On(SREQ, ZDO, ZDOStartUpFromAppRequestId).Return(Frame{
@@ -532,7 +533,7 @@ func Test_waitForCoordinatorStart(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, memory.New())
 		defer unpiMock.Stop()
 
 		go func() {
@@ -556,7 +557,7 @@ func Test_waitForCoordinatorStart(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock)
+		zstack := New(unpiMock, memory.New())
 		defer unpiMock.Stop()
 
 		err := zstack.waitForCoordinatorStart(ctx)
