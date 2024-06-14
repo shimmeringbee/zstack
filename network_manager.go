@@ -60,11 +60,11 @@ func (z *ZStack) networkManager() {
 				z.removeNode(e.IEEEAddress)
 			case ZdoIEEEAddrRsp:
 				if e.WasSuccessful() {
-					z.nodeTable.addOrUpdate(e.IEEEAddress, e.NetworkAddress, updateDiscovered)
+					z.nodeTable.addOrUpdate(e.IEEEAddress, e.NetworkAddress, updateDiscovered())
 				}
 			case ZdoNWKAddrRsp:
 				if e.WasSuccessful() {
-					z.nodeTable.addOrUpdate(e.IEEEAddress, e.NetworkAddress, updateDiscovered)
+					z.nodeTable.addOrUpdate(e.IEEEAddress, e.NetworkAddress, updateDiscovered())
 				}
 			default:
 				z.logger.LogWarn(context.Background(), "Received unknown message type from unpi.", logwrap.Datum("Type", reflect.TypeOf(ue)))
@@ -80,7 +80,7 @@ func (z *ZStack) newNode(e ZdoEndDeviceAnnceInd) {
 		deviceLogicalType = zigbee.Router
 	}
 
-	z.nodeTable.addOrUpdate(e.IEEEAddress, e.NetworkAddress, logicalType(deviceLogicalType), updateDiscovered, updateReceived)
+	z.nodeTable.addOrUpdate(e.IEEEAddress, e.NetworkAddress, logicalType(deviceLogicalType), updateDiscovered(), updateReceived())
 	node, _ := z.nodeTable.getByIEEE(e.IEEEAddress)
 
 	z.sendEvent(zigbee.NodeJoinEvent{
@@ -152,7 +152,7 @@ func (z *ZStack) processLQITable(lqiResp ZdoMGMTLQIRsp) {
 			continue
 		}
 
-		z.nodeTable.addOrUpdate(neighbour.IEEEAddress, neighbour.NetworkAddress, logicalType(neighbour.Status.DeviceType), updateDiscovered)
+		z.nodeTable.addOrUpdate(neighbour.IEEEAddress, neighbour.NetworkAddress, logicalType(neighbour.Status.DeviceType), updateDiscovered())
 
 		if neighbour.Status.Relationship == zigbee.RelationshipChild {
 			z.nodeTable.update(neighbour.IEEEAddress, lqi(neighbour.LQI), depth(neighbour.Depth))
