@@ -141,7 +141,7 @@ func (t *nodeTable) remove(ieeeAddress zigbee.IEEEAddress) {
 		delete(t.ieeeToNode, node.IEEEAddress)
 	}
 
-	t.p.Delete(ieeeAddress.String())
+	t.p.DeleteSection(ieeeAddress.String())
 }
 
 func (t *nodeTable) load() {
@@ -155,7 +155,7 @@ func (t *nodeTable) load() {
 		t.lock.Unlock()
 	}()
 
-	for _, key := range t.p.Keys() {
+	for _, key := range t.p.SectionKeys() {
 		if value, err := strconv.ParseUint(key, 16, 64); err == nil {
 			s := t.p.Section(key)
 			ieee := zigbee.IEEEAddress(value)

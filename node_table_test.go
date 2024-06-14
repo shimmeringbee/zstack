@@ -26,7 +26,7 @@ func TestNodeTable(t *testing.T) {
 		assert.Equal(t, network, node.NetworkAddress)
 		assert.Equal(t, zigbee.Unknown, node.LogicalType)
 
-		assert.Contains(t, s.Keys(), ieee.String())
+		assert.Contains(t, s.SectionKeys(), ieee.String())
 
 		ns := s.Section(ieee.String())
 		na, ok := converter.Retrieve(ns, "NetworkAddress", converter.NetworkAddressDecoder)
@@ -91,10 +91,10 @@ func TestNodeTable(t *testing.T) {
 		nt := newNodeTable(s)
 
 		nt.addOrUpdate(ieee, network)
-		assert.Contains(t, s.Keys(), ieee.String())
+		assert.Contains(t, s.SectionKeys(), ieee.String())
 
 		nt.remove(ieee)
-		assert.NotContains(t, s.Keys(), ieee.String())
+		assert.NotContains(t, s.SectionKeys(), ieee.String())
 
 		_, found := nt.getByNetwork(network)
 		assert.False(t, found)
