@@ -10,7 +10,7 @@ require (
 	github.com/shimmeringbee/persistence v0.0.0-20240521204303-bf4ab8a6b71b
 	github.com/shimmeringbee/retry v0.0.0-20221006193055-2ce01bf139c2
 	github.com/shimmeringbee/unpi v0.0.0-20210525151328-7ede275a1033
-	github.com/shimmeringbee/zigbee v0.0.0-20240614090423-d67fd427d102
+	github.com/shimmeringbee/zigbee v0.0.0-20240614103911-3a30074e1528
 	github.com/stretchr/testify v1.9.0
 	golang.org/x/sync v0.7.0
 )
