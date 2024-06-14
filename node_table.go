@@ -141,7 +141,7 @@ func (t *nodeTable) remove(ieeeAddress zigbee.IEEEAddress) {
 		delete(t.ieeeToNode, node.IEEEAddress)
 	}
 
-	t.p.DeleteSection(ieeeAddress.String())
+	t.p.SectionDelete(ieeeAddress.String())
 }
 
 func (t *nodeTable) load() {
