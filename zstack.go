@@ -40,7 +40,7 @@ type ZStack struct {
 
 	messageReceiverStop func()
 
-	nodeTable          *NodeTable
+	nodeTable          *nodeTable
 	transactionIdStore chan uint8
 
 	sem *semaphore.Weighted
@@ -74,7 +74,7 @@ const DefaultZStackRetries = 3
 const DefaultInflightEvents = 50
 const DefaultInflightTransactions = 20
 
-func New(uart io.ReadWriter, nodeTable *NodeTable) *ZStack {
+func New(uart io.ReadWriter) *ZStack {
 	ml := library.NewLibrary()
 	registerMessages(ml)
 
@@ -94,7 +94,7 @@ func New(uart io.ReadWriter, nodeTable *NodeTable) *ZStack {
 		events:                 make(chan interface{}, DefaultInflightEvents),
 		networkManagerStop:     make(chan bool, 1),
 		networkManagerIncoming: make(chan interface{}, DefaultInflightEvents),
-		nodeTable:              nodeTable,
+		nodeTable:              newNodeTable(),
 		transactionIdStore:     transactionIDs,
 	}
 

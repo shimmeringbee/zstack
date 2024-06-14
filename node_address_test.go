@@ -19,7 +19,7 @@ func Test_ResolveNodeIEEEAddress(t *testing.T) {
 
 		unpiMock := unpiTest.NewMockAdapter()
 		defer unpiMock.AssertCalls(t)
-		zstack := New(unpiMock, NewNodeTable())
+		zstack := New(unpiMock)
 		zstack.sem = semaphore.NewWeighted(8)
 		defer unpiMock.Stop()
 
@@ -36,7 +36,7 @@ func Test_ResolveNodeIEEEAddress(t *testing.T) {
 
 		unpiMock := unpiTest.NewMockAdapter()
 		defer unpiMock.AssertCalls(t)
-		zstack := New(unpiMock, NewNodeTable())
+		zstack := New(unpiMock)
 		zstack.sem = semaphore.NewWeighted(8)
 		defer unpiMock.Stop()
 
@@ -77,7 +77,7 @@ func Test_QueryNodeIEEEAddress(t *testing.T) {
 
 		unpiMock := unpiTest.NewMockAdapter()
 		defer unpiMock.AssertCalls(t)
-		zstack := New(unpiMock, NewNodeTable())
+		zstack := New(unpiMock)
 		zstack.sem = semaphore.NewWeighted(8)
 		defer unpiMock.Stop()
 
@@ -118,7 +118,7 @@ func Test_ResolveNodeNWKAddress(t *testing.T) {
 
 		unpiMock := unpiTest.NewMockAdapter()
 		defer unpiMock.AssertCalls(t)
-		zstack := New(unpiMock, NewNodeTable())
+		zstack := New(unpiMock)
 		zstack.sem = semaphore.NewWeighted(8)
 		defer unpiMock.Stop()
 
@@ -135,7 +135,7 @@ func Test_ResolveNodeNWKAddress(t *testing.T) {
 
 		unpiMock := unpiTest.NewMockAdapter()
 		defer unpiMock.AssertCalls(t)
-		zstack := New(unpiMock, NewNodeTable())
+		zstack := New(unpiMock)
 		zstack.sem = semaphore.NewWeighted(8)
 		defer unpiMock.Stop()
 
@@ -176,7 +176,7 @@ func Test_QueryNodeNWKAddress(t *testing.T) {
 
 		unpiMock := unpiTest.NewMockAdapter()
 		defer unpiMock.AssertCalls(t)
-		zstack := New(unpiMock, NewNodeTable())
+		zstack := New(unpiMock)
 		zstack.sem = semaphore.NewWeighted(8)
 		defer unpiMock.Stop()
 

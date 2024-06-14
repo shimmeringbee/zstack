@@ -18,7 +18,7 @@ func TestZStack_RequestNodeLeave(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock, NewNodeTable())
+		zstack := New(unpiMock)
 		zstack.sem = semaphore.NewWeighted(8)
 		defer unpiMock.Stop()
 
@@ -61,7 +61,7 @@ func TestZStack_ForceNodeLeave(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock, NewNodeTable())
+		zstack := New(unpiMock)
 		defer unpiMock.Stop()
 
 		zstack.nodeTable.addOrUpdate(zigbee.IEEEAddress(1), zigbee.NetworkAddress(0x4000))

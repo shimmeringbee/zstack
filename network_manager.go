@@ -107,7 +107,7 @@ func (z *ZStack) removeNode(ieee zigbee.IEEEAddress) bool {
 }
 
 func (z *ZStack) pollRoutersForNetworkStatus() {
-	for _, node := range z.nodeTable.Nodes() {
+	for _, node := range z.nodeTable.nodes() {
 		if node.LogicalType == zigbee.Coordinator || node.LogicalType == zigbee.Router {
 			go z.pollNodeForNetworkStatus(node)
 		}

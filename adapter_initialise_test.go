@@ -17,7 +17,7 @@ func Test_Initialise(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock, NewNodeTable())
+		zstack := New(unpiMock)
 		defer unpiMock.Stop()
 		defer zstack.Stop()
 
@@ -120,7 +120,7 @@ func Test_Initialise(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock, NewNodeTable())
+		zstack := New(unpiMock)
 		defer unpiMock.Stop()
 		defer zstack.Stop()
 
@@ -248,7 +248,7 @@ func Test_Initialise(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock, NewNodeTable())
+		zstack := New(unpiMock)
 		defer unpiMock.Stop()
 		defer zstack.Stop()
 
@@ -353,7 +353,7 @@ func Test_verifyAdapterNetworkConfig(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock, NewNodeTable())
+		zstack := New(unpiMock)
 		defer unpiMock.Stop()
 		defer zstack.Stop()
 
@@ -404,7 +404,7 @@ func Test_verifyAdapterNetworkConfig(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock, NewNodeTable())
+		zstack := New(unpiMock)
 		defer unpiMock.Stop()
 		defer zstack.Stop()
 
@@ -457,7 +457,7 @@ func Test_startZigbeeStack(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock, NewNodeTable())
+		zstack := New(unpiMock)
 		defer unpiMock.Stop()
 
 		unpiMock.On(SREQ, ZDO, ZDOStartUpFromAppRequestId).Return(Frame{
@@ -478,7 +478,7 @@ func Test_startZigbeeStack(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock, NewNodeTable())
+		zstack := New(unpiMock)
 		defer unpiMock.Stop()
 
 		unpiMock.On(SREQ, ZDO, ZDOStartUpFromAppRequestId).Return(Frame{
@@ -509,7 +509,7 @@ func Test_startZigbeeStack(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock, NewNodeTable())
+		zstack := New(unpiMock)
 		defer unpiMock.Stop()
 
 		unpiMock.On(SREQ, ZDO, ZDOStartUpFromAppRequestId).Return(Frame{
@@ -532,7 +532,7 @@ func Test_waitForCoordinatorStart(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock, NewNodeTable())
+		zstack := New(unpiMock)
 		defer unpiMock.Stop()
 
 		go func() {
@@ -556,7 +556,7 @@ func Test_waitForCoordinatorStart(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock, NewNodeTable())
+		zstack := New(unpiMock)
 		defer unpiMock.Stop()
 
 		err := zstack.waitForCoordinatorStart(ctx)

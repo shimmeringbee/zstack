@@ -18,7 +18,7 @@ func Test_GetAdapterIEEEAddress(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock, NewNodeTable())
+		zstack := New(unpiMock)
 		zstack.sem = semaphore.NewWeighted(8)
 		defer unpiMock.Stop()
 
@@ -43,7 +43,7 @@ func Test_GetAdapterNetworkAddress(t *testing.T) {
 		defer cancel()
 
 		unpiMock := unpiTest.NewMockAdapter()
-		zstack := New(unpiMock, NewNodeTable())
+		zstack := New(unpiMock)
 		zstack.sem = semaphore.NewWeighted(8)
 		defer unpiMock.Stop()
 

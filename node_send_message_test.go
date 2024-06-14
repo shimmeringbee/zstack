@@ -19,7 +19,7 @@ func Test_SendNodeMessage(t *testing.T) {
 
 		unpiMock := unpiTest.NewMockAdapter()
 		defer unpiMock.AssertCalls(t)
-		zstack := New(unpiMock, NewNodeTable())
+		zstack := New(unpiMock)
 		zstack.sem = semaphore.NewWeighted(8)
 		defer unpiMock.Stop()
 
@@ -64,7 +64,7 @@ func Test_SendNodeMessage(t *testing.T) {
 
 		unpiMock := unpiTest.NewMockAdapter()
 		defer unpiMock.AssertCalls(t)
-		zstack := New(unpiMock, NewNodeTable())
+		zstack := New(unpiMock)
 		zstack.sem = semaphore.NewWeighted(8)
 		defer unpiMock.Stop()
 

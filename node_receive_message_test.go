@@ -18,7 +18,7 @@ func Test_ReceiveMessage(t *testing.T) {
 
 		unpiMock := unpiTest.NewMockAdapter()
 		defer unpiMock.AssertCalls(t)
-		zstack := New(unpiMock, NewNodeTable())
+		zstack := New(unpiMock)
 		defer unpiMock.Stop()
 
 		zstack.nodeTable.addOrUpdate(zigbee.IEEEAddress(0x1122334455667788), zigbee.NetworkAddress(0x1000))

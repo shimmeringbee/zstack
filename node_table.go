@@ -6,15 +6,15 @@ import (
 	"time"
 )
 
-type NodeTable struct {
+type nodeTable struct {
 	callbacks     []func(zigbee.Node)
 	ieeeToNode    map[zigbee.IEEEAddress]*zigbee.Node
 	networkToIEEE map[zigbee.NetworkAddress]zigbee.IEEEAddress
 	lock          *sync.RWMutex
 }
 
-func NewNodeTable() *NodeTable {
-	return &NodeTable{
+func newNodeTable() *nodeTable {
+	return &nodeTable{
 		callbacks:     []func(zigbee.Node){},
 		ieeeToNode:    make(map[zigbee.IEEEAddress]*zigbee.Node),
 		networkToIEEE: make(map[zigbee.NetworkAddress]zigbee.IEEEAddress),
@@ -22,17 +22,17 @@ func NewNodeTable() *NodeTable {
 	}
 }
 
-func (t *NodeTable) registerCallback(cb func(zigbee.Node)) {
+func (t *nodeTable) registerCallback(cb func(zigbee.Node)) {
 	t.callbacks = append(t.callbacks, cb)
 }
 
-func (t *NodeTable) Load(nodes []zigbee.Node) {
+func (t *nodeTable) Load(nodes []zigbee.Node) {
 	for _, node := range nodes {
 		t.addOrUpdate(node.IEEEAddress, node.NetworkAddress, logicalType(node.LogicalType), lqi(node.LQI), depth(node.Depth), setReceived(node.LastReceived), setDiscovered(node.LastDiscovered))
 	}
 }
 
-func (t *NodeTable) Nodes() []zigbee.Node {
+func (t *nodeTable) nodes() []zigbee.Node {
 	t.lock.RLock()
 	defer t.lock.RUnlock()
 
@@ -45,7 +45,7 @@ func (t *NodeTable) Nodes() []zigbee.Node {
 	return nodes
 }
 
-func (t *NodeTable) getByIEEE(ieeeAddress zigbee.IEEEAddress) (zigbee.Node, bool) {
+func (t *nodeTable) getByIEEE(ieeeAddress zigbee.IEEEAddress) (zigbee.Node, bool) {
 	t.lock.RLock()
 	defer t.lock.RUnlock()
 
@@ -58,7 +58,7 @@ func (t *NodeTable) getByIEEE(ieeeAddress zigbee.IEEEAddress) (zigbee.Node, bool
 	}
 }
 
-func (t *NodeTable) getByNetwork(networkAddress zigbee.NetworkAddress) (zigbee.Node, bool) {
+func (t *nodeTable) getByNetwork(networkAddress zigbee.NetworkAddress) (zigbee.Node, bool) {
 	t.lock.RLock()
 	ieee, found := t.networkToIEEE[networkAddress]
 	t.lock.RUnlock()
@@ -70,7 +70,7 @@ func (t *NodeTable) getByNetwork(networkAddress zigbee.NetworkAddress) (zigbee.N
 	}
 }
 
-func (t *NodeTable) addOrUpdate(ieeeAddress zigbee.IEEEAddress, networkAddress zigbee.NetworkAddress, updates ...nodeUpdate) {
+func (t *nodeTable) addOrUpdate(ieeeAddress zigbee.IEEEAddress, networkAddress zigbee.NetworkAddress, updates ...nodeUpdate) {
 	t.lock.Lock()
 	node, found := t.ieeeToNode[ieeeAddress]
 
@@ -93,7 +93,7 @@ func (t *NodeTable) addOrUpdate(ieeeAddress zigbee.IEEEAddress, networkAddress z
 	t.update(ieeeAddress, updates...)
 }
 
-func (t *NodeTable) update(ieeeAddress zigbee.IEEEAddress, updates ...nodeUpdate) {
+func (t *nodeTable) update(ieeeAddress zigbee.IEEEAddress, updates ...nodeUpdate) {
 	t.lock.Lock()
 	defer t.lock.Unlock()
 
@@ -110,7 +110,7 @@ func (t *NodeTable) update(ieeeAddress zigbee.IEEEAddress, updates ...nodeUpdate
 	}
 }
 
-func (t *NodeTable) remove(ieeeAddress zigbee.IEEEAddress) {
+func (t *nodeTable) remove(ieeeAddress zigbee.IEEEAddress) {
 	node, found := t.getByIEEE(ieeeAddress)
 
 	t.lock.Lock()
