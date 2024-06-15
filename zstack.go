@@ -97,7 +97,7 @@ func New(uart io.ReadWriter, p persistence.Section) *ZStack {
 		events:                 make(chan interface{}, DefaultInflightEvents),
 		networkManagerStop:     make(chan bool, 1),
 		networkManagerIncoming: make(chan interface{}, DefaultInflightEvents),
-		nodeTable:              newNodeTable(p.Section("NodeTable")),
+		nodeTable:              newNodeTable(p.Section("Nodes")),
 		transactionIdStore:     transactionIDs,
 		persistence:            p,
 	}
