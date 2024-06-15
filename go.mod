@@ -7,7 +7,7 @@ toolchain go1.22.2
 require (
 	github.com/shimmeringbee/bytecodec v0.0.0-20240614104652-9d31c74dcd13
 	github.com/shimmeringbee/logwrap v0.1.3
-	github.com/shimmeringbee/persistence v0.0.0-20240614163143-a99424e4d61c
+	github.com/shimmeringbee/persistence v0.0.0-20240615141034-6414db99d48e
 	github.com/shimmeringbee/retry v0.0.0-20240614104711-064c2726a8b4
 	github.com/shimmeringbee/unpi v0.0.0-20240614104715-5284f961bafc
 	github.com/shimmeringbee/zigbee v0.0.0-20240614104723-f4c0c0231568
