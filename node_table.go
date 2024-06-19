@@ -86,7 +86,9 @@ func (t *nodeTable) addOrUpdate(ieeeAddress zigbee.IEEEAddress, networkAddress z
 			delete(t.networkToIEEE, node.NetworkAddress)
 			node.NetworkAddress = networkAddress
 
-			converter.Store(s, "NetworkAddress", node.NetworkAddress, converter.NetworkAddressEncoder)
+			if !t.loading {
+				converter.Store(s, "NetworkAddress", node.NetworkAddress, converter.NetworkAddressEncoder)
+			}
 		}
 	} else {
 		node = &zigbee.Node{
@@ -97,8 +99,10 @@ func (t *nodeTable) addOrUpdate(ieeeAddress zigbee.IEEEAddress, networkAddress z
 
 		t.ieeeToNode[ieeeAddress] = node
 
-		converter.Store(s, "NetworkAddress", node.NetworkAddress, converter.NetworkAddressEncoder)
-		converter.Store(s, "LogicalType", node.LogicalType, converter.LogicalTypeEncoder)
+		if !t.loading {
+			converter.Store(s, "NetworkAddress", node.NetworkAddress, converter.NetworkAddressEncoder)
+			converter.Store(s, "LogicalType", node.LogicalType, converter.LogicalTypeEncoder)
+		}
 	}
 
 	t.networkToIEEE[networkAddress] = ieeeAddress
