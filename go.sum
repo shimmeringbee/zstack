@@ -35,6 +35,8 @@ github.com/shimmeringbee/unpi v0.0.0-20210525151328-7ede275a1033 h1:PQGdXelNwwcQ
 github.com/shimmeringbee/unpi v0.0.0-20210525151328-7ede275a1033/go.mod h1:hOrncW6hd26Z18eayp99i7hNKj0aHtUx1SxXT49aEsk=
 github.com/shimmeringbee/unpi v0.0.0-20240614104715-5284f961bafc h1:rK5Dsb3RAoJZcNCsGbFvn8QkSKRWPTWHJFgjU0pCupg=
 github.com/shimmeringbee/unpi v0.0.0-20240614104715-5284f961bafc/go.mod h1:hOrncW6hd26Z18eayp99i7hNKj0aHtUx1SxXT49aEsk=
+github.com/shimmeringbee/unpi v0.0.0-20240714070717-115f7e5e7d4a h1:40e2ys9rJK58Zd+5QdySfbWi0NUpLsKdhqgEouluqaA=
+github.com/shimmeringbee/unpi v0.0.0-20240714070717-115f7e5e7d4a/go.mod h1:hOrncW6hd26Z18eayp99i7hNKj0aHtUx1SxXT49aEsk=
 github.com/shimmeringbee/zcl v0.0.0-20240614104719-4eee02c0ffd1 h1:19JMz+jKs8poUPlmF769Z2e+zZjmACS+aLB2BHFTKHE=
 github.com/shimmeringbee/zcl v0.0.0-20240614104719-4eee02c0ffd1/go.mod h1:DeGINQ0C9S61qBON9Zm2RArEBX4ap1LyHClfUgSUTEM=
 github.com/shimmeringbee/zigbee v0.0.0-20240614090423-d67fd427d102 h1:SNuznHuBvY1iEbkOEP0jbmIvn2p0GQGlCNQAUyDmcRQ=
