@@ -138,27 +138,27 @@ func (z *ZStack) configureNetwork(ctx context.Context, version Version) error {
 
 	if err := retryFunctions(ctx, []func(context.Context) error{
 		func(invokeCtx context.Context) error {
-			z.logger.LogDebug(ctx, "Adapater Initialisation: Enabling preconfigured keys.")
+			z.logger.LogDebug(ctx, "Adapter Initialisation: Enabling preconfigured keys.")
 			return z.writeNVRAM(invokeCtx, ZCDNVPreCfgKeysEnable{Enabled: 1})
 		},
 		func(invokeCtx context.Context) error {
-			z.logger.LogDebug(ctx, "Adapater Initialisation: Configuring network key.")
+			z.logger.LogDebug(ctx, "Adapter Initialisation: Configuring network key.")
 			return z.writeNVRAM(invokeCtx, ZCDNVPreCfgKey{NetworkKey: z.NetworkProperties.NetworkKey})
 		},
 		func(invokeCtx context.Context) error {
-			z.logger.LogDebug(ctx, "Adapater Initialisation: Enable ZDO callbacks.")
+			z.logger.LogDebug(ctx, "Adapter Initialisation: Enable ZDO callbacks.")
 			return z.writeNVRAM(invokeCtx, ZCDNVZDODirectCB{Enabled: 1})
 		},
 		func(invokeCtx context.Context) error {
-			z.logger.LogDebug(ctx, "Adapater Initialisation: Configuring network channel.")
+			z.logger.LogDebug(ctx, "Adapter Initialisation: Configuring network channel.")
 			return z.writeNVRAM(invokeCtx, ZCDNVChanList{Channels: channelBits})
 		},
 		func(invokeCtx context.Context) error {
-			z.logger.LogDebug(ctx, "Adapater Initialisation: Configuring network PANID.")
+			z.logger.LogDebug(ctx, "Adapter Initialisation: Configuring network PANID.")
 			return z.writeNVRAM(invokeCtx, ZCDNVPANID{PANID: z.NetworkProperties.PANID})
 		},
 		func(invokeCtx context.Context) error {
-			z.logger.LogDebug(ctx, "Adapater Initialisation: Configuring network extended PANID.")
+			z.logger.LogDebug(ctx, "Adapter Initialisation: Configuring network extended PANID.")
 			return z.writeNVRAM(invokeCtx, ZCDNVExtPANID{ExtendedPANID: z.NetworkProperties.ExtendedPANID})
 		},
 	}); err != nil {
@@ -166,15 +166,15 @@ func (z *ZStack) configureNetwork(ctx context.Context, version Version) error {
 	}
 
 	if !version.IsV3() {
-		z.logger.LogDebug(ctx, "Adapater Initialisation: Not Version 3.X.X.")
+		z.logger.LogDebug(ctx, "Adapter Initialisation: Not Version 3.X.X.")
 		/* Less than Z-Stack 3.X.X requires the Trust Centre key to be loaded. */
 		return retryFunctions(ctx, []func(context.Context) error{
 			func(invokeCtx context.Context) error {
-				z.logger.LogDebug(ctx, "Adapater Initialisation: Enable default trust center.")
+				z.logger.LogDebug(ctx, "Adapter Initialisation: Enable default trust center.")
 				return z.writeNVRAM(invokeCtx, ZCDNVUseDefaultTCLK{Enabled: 1})
 			},
 			func(invokeCtx context.Context) error {
-				z.logger.LogDebug(ctx, "Adapater Initialisation: Configuring ZLL trust center key.")
+				z.logger.LogDebug(ctx, "Adapter Initialisation: Configuring ZLL trust center key.")
 				return z.writeNVRAM(invokeCtx, ZCDNVTCLKTableStart{
 					Address:        zigbee.IEEEAddress(0xffffffffffffffff),
 					NetworkKey:     zigbee.TCLinkKey,
@@ -185,32 +185,32 @@ func (z *ZStack) configureNetwork(ctx context.Context, version Version) error {
 		})
 	} else {
 		/* Z-Stack 3.X.X requires configuration of Base Device Behaviour. */
-		z.logger.LogDebug(ctx, "Adapater Initialisation: Version 3.X.X.")
+		z.logger.LogDebug(ctx, "Adapter Initialisation: Version 3.X.X.")
 		if err := retryFunctions(ctx, []func(context.Context) error{
 			func(invokeCtx context.Context) error {
-				z.logger.LogDebug(ctx, "Adapater Initialisation: Configure primary channel.")
+				z.logger.LogDebug(ctx, "Adapter Initialisation: Configure primary channel.")
 				return z.requestResponder.RequestResponse(ctx, APPCNFBDBSetChannelRequest{IsPrimary: true, Channel: channelBits}, &APPCNFBDBSetChannelRequestReply{})
 			},
 			func(invokeCtx context.Context) error {
-				z.logger.LogDebug(ctx, "Adapater Initialisation: Configure secondary channels.")
+				z.logger.LogDebug(ctx, "Adapter Initialisation: Configure secondary channels.")
 				return z.requestResponder.RequestResponse(ctx, APPCNFBDBSetChannelRequest{IsPrimary: false, Channel: [4]byte{}}, &APPCNFBDBSetChannelRequestReply{})
 			},
 			func(invokeCtx context.Context) error {
-				z.logger.LogDebug(ctx, "Adapater Initialisation: Request commissioning.")
+				z.logger.LogDebug(ctx, "Adapter Initialisation: Request commissioning.")
 				return z.requestResponder.RequestResponse(ctx, APPCNFBDBStartCommissioningRequest{Mode: 0x04}, &APPCNFBDBStartCommissioningRequestReply{})
 			},
 		}); err != nil {
 			return err
 		}
 
-		z.logger.LogDebug(ctx, "Adapater Initialisation: Waiting for coordinator to start.")
+		z.logger.LogDebug(ctx, "Adapter Initialisation: Waiting for coordinator to start.")
 		if err := z.waitForCoordinatorStart(ctx); err != nil {
 			return err
 		}
 
 		return retryFunctions(ctx, []func(context.Context) error{
 			func(invokeCtx context.Context) error {
-				z.logger.LogDebug(ctx, "Adapater Initialisation: Waiting for commissioning to complete.")
+				z.logger.LogDebug(ctx, "Adapter Initialisation: Waiting for commissioning to complete.")
 				return z.requestResponder.RequestResponse(ctx, APPCNFBDBStartCommissioningRequest{Mode: 0x02}, &APPCNFBDBStartCommissioningRequestReply{})
 			},
 		})
